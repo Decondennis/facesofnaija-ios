@@ -1,0 +1,40 @@
+
+
+import Foundation
+import UIKit
+
+struct AppConstant {
+    //cert key for WoWonder
+    //Demo Key
+    /*
+     VjFaV2IxVXdNVWhVYTJ4VlZrWndUbHBXVW5OamJHUnpXVE5vYTJFemFERlhhMmhoWVRBeGNXSkVSbGhoTWxKWVdsWldOR1JHVW5WWGJXeFdWa1JCTlNOV01uUlRVV3N3ZDA1VlZsZFdSVXBQVldwR1YwMUdaSEphUlhCUFZsUlZNVlJWVWtOWlYwWnlWMjVHVlZKc1NubFVWM2h6VG0xRmVsVnJPV2hoZWtWNlZqSjBVMkZ0VmxkaVJsWm9Vak5TVUZsc1ZYZGxRVDA5UURFek1XTTBOekZqT0dJMFpXUm1Oall5WkdRd1pXSm1OMkZrWmpOak0yUTNNelkxT0RNNFlqa2tNVGszTURNeU1UWT0=
+     
+     */
+//        static let key = "VjFaV2IxVXdNVWhVYTJ4VlZrWndUbHBXVW5OT2JHdDNXWHBXYkZZeFNrcFpNR2hUVjJ4WmVGTnVUbFZTZWtaUVdrY3hTMVpGT1VWTlJEQTlJMVpITlhkak1rWkdUbFZXVmxaRk5WRldhMVpIVFVaU1ZsVnROVTVOUkZVeFZGVlNRMWxXU2tkalNFcFZVbXhLZFZSVlZUVlNWbHBaVldzNVUwMUdjSHBXUmxaVFUyMVJkMDVVV21sU01uaFFWV3RrYW1WblBUMUFOelkwWW1Jek9EZGpNREZqT1dWbE56azBZbUl3WTJSa01XRTJZalEzWVRVa01UazNNRE15TVRZPQ=="
+    
+    static let key = "Vm0xd1IxVXhUblJXYTJoVVltdHdUMVl3VlRGalJsWjBaVWhrVjJKR2NIbFdNakZIWVcxS1IxZHVjRmROYmxGM1ZrUkdTMk15VGtkaVJuQk9VbTVDYjFaclpEUlRiVlpIV2toS2FWSnNXbkJWYWtwdlUxWmFjMVZyU210TmJGcFpWbTEwYTJGR1NuTmpTRUpXWWxob1dGUlVSbUZXYkdSeVYyeENWMkV3Y0ZSV1ZWcFNaREpTYzFGc1VtdFNiSEJ3Vm1wR2QySXhVbkpoUlRWUVZsaFJNVlF4V210VWJGcDFVV3hzV0ZZelFraFdiVEZTWkRBeFYxZHRhRk5pUm5CMlZrWmpNV0l4V1hoWGJsSnJVakJhY2xSV1drdGxiR3QzVjIxMFYySlZjSGxVYkdoTFZtMUtWVkpzVWxkTlJuQnlXVEo0WVZaV1duUmhSbVJvVFc1a05sWnJXbUZWTVZsNFYyeGFUbFp0YUZaWlYzaExXVlphZEUxV1RsVlNiSEF3V2xWa01HRXhXblZSYTJoYVRVWndjbGxyWkVabFIwNUdZa1prVG1Kc1NtOVdNVnByVkRKU1IxZHVUbGhpUlVwWVdXeG9iMWRHV25Sa1JrNVNZWHBzVlZsNlRtRlZWbHBaWVVaT1ZWWkZjRmRVVlZwaFZrZE5lbGRzUmxkaVJYQmFWMVJDYWs1WFJraFRhMnhTWW0xb1YxUldXa3RVUmxwV1YyMUdVMDFWY0hoV01uaFhWR3hhY21ORVZsaGlSMUkyVkZaVk1XUkdUbkpoUjJ4VFlUQndWVlpHVm1Ga01ERkhWMWhvV0dKWVVsbFpXSEJYVjBacmQyRkZaRmRXYkhCSFdUQlZOVlp0UlhsVmJscGFUVVp3VkZsNlJuZFNiVkpJWWtaT1YxSldjRmhXYlhCSFZXMVJlRkZzVW1wTk1YQlNWbTE0V2sxV1dYaFpla0pQVm10YVZWbDZUbUZWVmxwelkwUkNXazFHV25KWlZXUkxWakZrY21GR1pGZGxiRnBWVm0xd1MxSnRWbGRXYmxaVFlrWndjRll3Wkc5aU1WcDBZMFZrYWsxck1UUlpNRlpYVm0xS1dHRkdVbHBoTW1oRVZHeGFZV05XVG5GVmJXaE9WbXR3TmxaVVNURlZNVnAwVTI1V1VtSkhhRmhaVjNNeFpHeGFSbGR0UmxSU01ERTJXVlZhYjFZeVJYaGpSRnBYWWxSRk1GWnFSbHBsUm1SMVUyMXdVMVpzY0ZsWFZtUXdaR3N4UjFkWWJFNVdiVkpVVkZaVk1XVnNXblJsUlhSb1ZtdHdlbGt3V2xkWFJsbDZWV3hvWVZKRlJqUldha1pyWTJ4d1IyRkhiRk5pYTBvMlZteGtkMUl4VFhoVWEyUlhWMGQ0YzFVd1ZURlhSbXh6Vm14d1RtSkhlSGxXTWpBMVZqSktWbU5HY0ZwV1ZrcFFWbXhhWVZZeVRraGhSbHBPVW14Wk1GWlVSbXRTTVVsNFdraFNhRkl6YUc5VVZtTTBaVVphZEdSSFJscFdiWGhaVlRGb2IxWXhaRWhoUm14YVZrVmFNMVpWV21GalZrWjBVbXhrYVZKdVFqUldhMk4zVGxkR1IxTnVVbXRTUmxwWlZqQm9RMlZzV2xkWGJHUlhWbFJHUmxsWWIzZFFVVDA5/LHBhc3M9/V1VwNU5YRlhOenc3ZGlZbUpDUXFWMjlYYjI1a1pYSXFKQ1FtSmlRa0tsUnBiV1ZzYVc1bEtpUWtiVVV6WkdGd2MwMVVLbFU2U0RKdU9WTXI="
+}
+
+struct ControlSettings {
+    
+    static let showSocicalLogin = false
+    static let googleClientKey = "497109148599-u0g40f3e5uh53286hdrpsj10v505tral.apps.googleusercontent.com"
+    static let googleApiKey = "AIzaSyDAlG53TEdqWnwQ2wXJkC2CBKPyqW7vALU"
+    static let oneSignalAppId = "cebbb7d2-0f27-4e41-ab21-457fd841df34"
+    static let addUnitId = "ca-app-pub-3940256099942544/2934735716"
+    static let  interestialAddUnitId = "ca-app-pub-3940256099942544/4411468910"
+    static let BrainTreeURLScheme = "WoWonder-iOS-Timeline.iOS.App.iOS.payments"
+    static let paypalAuthorizationToken = "sandbox_zjzj7brd_fzpwr2q9pk2m568s"
+    static var showFacebookLogin:Bool = false
+    static var showGoogleLogin:Bool = false
+    static var isShowSocicalLogin:Bool = false
+    static var ShowDownloadButton:Bool = true
+    static var shouldShowAddMobBanner:Bool = false
+    static var interestialCount:Int? = 3
+    static var showPaymentVC = false
+    static var buttonColor = "#82b53f"//82b53f
+    static var appMainColor = "#82b53f"
+    //    "#984243"
+    
+}
+

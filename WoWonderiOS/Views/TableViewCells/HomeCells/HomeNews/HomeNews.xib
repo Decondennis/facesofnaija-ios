@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="HomeNews" rowHeight="186" id="KGk-i7-Jjw" userLabel="HomeNews" customClass="HomeNews" customModule="Facesofnaija" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="478" height="186"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="478" height="186"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="rPM-LY-h1Z">
+                        <rect key="frame" x="15" y="26" width="368" height="134"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HaO-vK-e5D" userLabel="Label">
+                                <rect key="frame" x="0.0" y="0.0" width="368" height="21.5"/>
+                                <attributedString key="attributedText">
+                                    <fragment content="Breaking News/Newspaper Review">
+                                        <attributes>
+                                            <color key="NSColor" red="1" green="0.49351111930000002" blue="0.46653861000000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            <font key="NSFont" metaFont="system" size="18"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Pk-ts-OrJ" userLabel="Detail Label" customClass="MarqueeLabel" customModule="Facesofnaija" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="26.5" width="368" height="107.5"/>
+                                <string key="text">Nnamdi Azikiwe University Community Hub, Yakurr Community Hub, Abuja Community Hub, Cross River State Community Hub, Aurthur Jarvis University Community Hub, Malabites and Malabress Community Hub</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="scrollRate">
+                                        <real key="value" value="30"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </label>
+                        </subviews>
+                    </stackView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oGf-ta-pta">
+                        <rect key="frame" x="438" y="110" width="25" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="25" id="Dab-Yt-T3c"/>
+                            <constraint firstAttribute="height" constant="20" id="T57-2y-TVA"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadiusV">
+                                <real key="value" value="5"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="oGf-ta-pta" secondAttribute="trailing" constant="15" id="2Ug-qG-g7R"/>
+                    <constraint firstItem="oGf-ta-pta" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" constant="27" id="TGE-Jv-atq"/>
+                    <constraint firstItem="rPM-LY-h1Z" firstAttribute="trailing" secondItem="oGf-ta-pta" secondAttribute="trailing" constant="-80" id="WUw-ii-vCb"/>
+                    <constraint firstItem="rPM-LY-h1Z" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="rRz-Nd-qZy"/>
+                    <constraint firstItem="rPM-LY-h1Z" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="xuS-iQ-K7A"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="detailLabel" destination="0Pk-ts-OrJ" id="1vo-cv-iyQ"/>
+                <outlet property="label" destination="HaO-vK-e5D" id="Vdj-H8-KOg"/>
+                <outlet property="userprofileImageView" destination="oGf-ta-pta" id="y2D-1A-ZTM"/>
+            </connections>
+            <point key="canvasLocation" x="149.27536231884059" y="104.46428571428571"/>
+        </tableViewCell>
+    </objects>
+    <designables>
+        <designable name="0Pk-ts-OrJ">
+            <size key="intrinsicContentSize" width="1698" height="21.5"/>
+        </designable>
+    </designables>
+</document>
