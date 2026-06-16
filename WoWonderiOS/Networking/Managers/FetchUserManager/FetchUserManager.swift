@@ -21,8 +21,11 @@ static let instance = FetchUserManager()
         APIClient.Params.fetch:"user_data",
         
         ] as [String : Any]
-    let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-        AF.request(APIClient.User_Data.getUserDataApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+    let access_token = "access_token=\(UserData.getAccess_Token() ?? "")"
+    let urlString = APIClient.User_Data.getUserDataApi + "&" + access_token
+        print("FetchUser API URL: \(urlString)")
+        AF.request(urlString, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+        print("FetchUser API Status: \(response.response?.statusCode ?? 0)")
         if response.value != nil{
             guard let res = response.value as? [String:Any] else {return}
             guard let apiStatusCode = res["api_status"] as? Any else {return}

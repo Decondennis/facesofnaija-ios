@@ -66,19 +66,26 @@ class HomeVC: UIViewController {
         checkFetchDataType()
         setupNotifications()
         
-        self.getNewsFeed2(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:15, offset: "0")
+        self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit:15, offset: "0")
     }
 
     func greet(greeting: String){
+        // Configure audio session for TTS
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.mixWithOthers, .duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Audio session error: \(error.localizedDescription)")
+        }
+        
         let utterance = AVSpeechUtterance(string: greeting)
-        //utterance.voice = AVSpeechSynthesisVoice(language: "en")
         utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.speech.synthesis.voice.samantha.premium")
-                
         utterance.rate = 0.4
         utterance.volume = 1.0
         utterance.pitchMultiplier = 1.0
         let synthesizer = AVSpeechSynthesizer()
         synthesizer.speak(utterance)
+        print("TTS: Speaking greeting - \(greeting)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -89,7 +96,7 @@ class HomeVC: UIViewController {
             newsFeedArray.removeLast()
             self.storiesArray.removeAll()
             
-            self.getNewsFeed2(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit: 20, offset: "0")
+            self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit: 20, offset: "0")
             AppInstance.instance.commingBackFromAddPost = false
         }
         else{
@@ -100,14 +107,9 @@ class HomeVC: UIViewController {
     func checkFetchDataType(){
         
         if (AppInstance.instance.newsFeed_data.count == 0){
-            self.getNewsFeed2(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:15, offset: "0")
-        }
-        if (AppInstance.instance.newsFeed_data.count == 0){
-            self.getNewsFeed2(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:15, offset: "0")
+        self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit:15, offset: "0")
         }
         else{
-            
-            
             self.newsFeedArray = AppInstance.instance.newsFeed_data
             self.off_set = self.newsFeedArray.last?["post_id"] as? String ?? "0"
             self.tableView.reloadData()
@@ -161,7 +163,7 @@ class HomeVC: UIViewController {
                 self.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
             case .online(.wwan), .online(.wiFi):
                 performUIUpdatesOnMain {
-                    GetNewsFeedManagers.sharedInstance.get_News_Feed(filter: self.filter, access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit: 10, off_set: "") {[weak self] (success, authError, error) in
+                    GetNewsFeedManagers.sharedInstance.get_News_Feed(filter: self.filter, access_token: "access_token=\(UserData.getAccess_Token()!)", limit: 10, off_set: "") {[weak self] (success, authError, error) in
                         if success != nil {
                             for i in success!.data{
                                 if i["post_id"] as? String == post_id{
@@ -447,12 +449,12 @@ class HomeVC: UIViewController {
                             self?.newsFeedArray.append(i)
                         }
                         self?.off_set = self?.newsFeedArray.last?["post_id"] as? String ?? "0"
-                        for it in self!.newsFeedArray{
-                            let boosted = it["is_post_boosted"] as? Int ?? 0
-                            self?.newsFeedArray.sorted(by: { _,_ in boosted == 1 })
+                        // Sort boosted posts to top
+                        self?.newsFeedArray.sort { (post1, post2) -> Bool in
+                            let boosted1 = post1["is_post_boosted"] as? Int ?? 0
+                            let boosted2 = post2["is_post_boosted"] as? Int ?? 0
+                            return boosted1 > boosted2
                         }
-                        //                        let boosted = self?.newsFeedArray["is_post_boosted"] as? Int ?? 0
-                        //                        self?.newsFeedArray.sorted(by: { _,_ in boosted == 1 })
                         self?.spinner.stopAnimating()
                         self?.pulltoRefresh.endRefreshing()
                         self?.tableView.reloadData()
@@ -492,31 +494,32 @@ class HomeVC: UIViewController {
                             self?.newsFeedArray.append(i)
                         }
                         self?.off_set = self?.newsFeedArray.last?["post_id"] as? String ?? "0"
-                        for it in self!.newsFeedArray{
-                            let boosted = it["is_post_boosted"] as? Int ?? 0
-                            self?.newsFeedArray.sorted(by: { _,_ in boosted == 1 })
+                        // Sort boosted posts to top
+                        self?.newsFeedArray.sort { (post1, post2) -> Bool in
+                            let boosted1 = post1["is_post_boosted"] as? Int ?? 0
+                            let boosted2 = post2["is_post_boosted"] as? Int ?? 0
+                            return boosted1 > boosted2
                         }
-//                        for (i,object) in self!.newsFeedArray.enumerated(){
-//
-//                            let group = object["group_recipient"] as? [String : Any]
-//                            let privacy = group?["join_privacy"] as? String ?? "3"
-//                            if privacy == "1" {
-//                                self!.newsFeedArray.remove(at: i)
-//                            }
-//                        }
                         self?.pulltoRefresh.endRefreshing()
-                        print("asn as dnaskndasnd asnd\(self?.newsFeedArray.first)")
-                    //    self?.loadStories()
+                        print("Feed loaded: \(self?.newsFeedArray.count ?? 0) posts")
                         ZKProgressHUD.dismiss()
+                        self?.tableView.reloadData()
                         self?.loadStories()
+                        // Save user avatar from feed if not already set
+                        self?.saveUserAvatarFromFeed()
                     }
                     else if authError != nil {
                         ZKProgressHUD.dismiss()
+                        self?.pulltoRefresh.endRefreshing()
                         self?.view.makeToast(authError?.errors.errorText)
+                        self?.tableView.reloadData()
                     }
                     else if error  != nil {
                         ZKProgressHUD.dismiss()
-                        print(error?.localizedDescription)
+                        self?.pulltoRefresh.endRefreshing()
+                        print("Feed error: \(error?.localizedDescription ?? "Unknown error")")
+                        self?.view.makeToast("Failed to load feed. Please try again.")
+                        self?.tableView.reloadData()
                     }
                 }
             }
@@ -590,18 +593,18 @@ class HomeVC: UIViewController {
                      //  let cell = self?.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! HomeStroyCells
                        // let cell = tableView.deq as! HomeStroyCells
                       //  cell.stories = success?.stories ?? []
-                        self!.storiesArray = success?.stories ?? []
+                        self?.storiesArray = success?.stories ?? []
                         self?.getSuggestedGroup(type: "groups", limit: 8)
                         self?.tableView.reloadData()
                     }
                     else if authError != nil {
                         ZKProgressHUD.dismiss()
-                        self!.view.makeToast(authError?.errors?.errorText)
-                        self!.showAlert(title: "", message: (authError?.errors?.errorText)!)
+                        self?.view.makeToast(authError?.errors?.errorText ?? "Authentication error")
+                        self?.showAlert(title: "", message: (authError?.errors?.errorText) ?? "Authentication error")
                     }
                     else if error  != nil {
                         ZKProgressHUD.dismiss()
-                        print(error?.localizedDescription)
+                        print(error?.localizedDescription ?? "Unknown error")
                         
                     }
                 }
@@ -614,15 +617,51 @@ class HomeVC: UIViewController {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.tableView.tableFooterView = UIView()
+        
+        // Add pull-to-refresh control
+        if #available(iOS 10.0, *) {
+            self.tableView.refreshControl = self.pulltoRefresh
+        } else {
+            self.tableView.addSubview(self.pulltoRefresh)
+        }
+        self.pulltoRefresh.addTarget(self, action: #selector(refreshFeed), for: .valueChanged)
+        self.pulltoRefresh.tintColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
+        
         self.tableView.register(UINib(nibName: "HomeAddPostCell", bundle: nil), forCellReuseIdentifier: "HomeAddPostCell")
         self.tableView.register(UINib(nibName: "HomeStroyCells", bundle: nil), forCellReuseIdentifier: "HomeStroyCells")
-        //        self.tableView.register(UINib(nibName: "HomeStroyCells", bundle: nil), forCellReuseIdentifier: "HomeStroyCells")
         self.tableView.register(UINib(nibName: "SuggestedGroupsCell", bundle: nil), forCellReuseIdentifier: "SuggestedGroupsCell")
         SetUpcells.setupCells(tableView: self.tableView)
         self.tableView.register(UINib(nibName: "HomeCommunities", bundle: nil), forCellReuseIdentifier: "HomeCommunities")
         self.tableView.register(UINib(nibName: "HomeNews", bundle: nil), forCellReuseIdentifier: "HomeNews")
         self.tableView.register(UINib(nibName: "HomeGreetings", bundle: nil), forCellReuseIdentifier: "HomeGreetings")
         
+    }
+    
+    @objc func refreshFeed() {
+        self.newsFeedArray.removeAll()
+        self.off_set = "0"
+        self.tableView.reloadData()
+        self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token() ?? "")", limit: 15, offset: "0")
+        self.loadStories()
+        self.getSuggestedGroup(type: "groups", limit: 8)
+        self.getSuggestedUser(type: "users", limit: 8)
+    }
+    
+    private func saveUserAvatarFromFeed() {
+        // Only save if avatar is not already set
+        guard UserData.getImage() == nil || UserData.getImage()?.isEmpty == true else { return }
+        
+        for post in newsFeedArray {
+            if let publisher = post["publisher"] as? [String:Any],
+               let userId = publisher["user_id"] as? String,
+               userId == UserData.getUSER_ID(),
+               let avatar = publisher["avatar"] as? String,
+               !avatar.isEmpty {
+                UserData.SetImage(avatar)
+                tableView.reloadData()
+                break
+            }
+        }
     }
     
     @IBAction func searchClicked(_ sender: Any) {
@@ -724,7 +763,7 @@ class HomeVC: UIViewController {
             self.spinner.startAnimating()
             self.newsFeedArray.removeAll()
             self.tableView.reloadData()
-            self.getNewsFeed(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:15, offset: "0")
+            self.getNewsFeed(access_token: "access_token=\(UserData.getAccess_Token()!)", limit:15, offset: "0")
         }))
         alert.addAction(UIAlertAction(title: NSLocalizedString("People i Follow", comment: "People i Follow"), style: .default, handler: { (_) in
 //            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! SortFilterCell
@@ -734,7 +773,7 @@ class HomeVC: UIViewController {
             self.spinner.startAnimating()
             self.newsFeedArray.removeAll()
             self.tableView.reloadData()
-            self.getNewsFeed(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:10, offset: "0")
+            self.getNewsFeed(access_token: "access_token=\(UserData.getAccess_Token()!)", limit:10, offset: "0")
         }))
         alert.addAction(UIAlertAction(title: NSLocalizedString("Close", comment: "Close"), style: .cancel, handler: { (_) in
             print("User click Dismiss button")
@@ -771,7 +810,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                 spinner.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
                 self.tableView.tableFooterView = spinner
                 self.tableView.tableFooterView?.isHidden = false
-                self.getNewsFeed2(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit: 20, offset: off_set)
+                self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit: 20, offset: off_set)
             }
         }
     }
@@ -780,57 +819,100 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HomeAddPostCell", for: indexPath) as! HomeAddPostCell
             cell.vc = self
-            let url = URL(string: UserData.getImage() ?? "")
-            cell.userprofileImage.sd_setImage(with: url, placeholderImage: #imageLiteral(resourceName: "no-avatar"), options: [], completed: nil)
+            if let imageUrl = UserData.getImage(), !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                cell.userprofileImage.sd_setImage(with: url, placeholderImage: UIImage(named: "no-avatar"), options: [.refreshCached], completed: nil)
+            } else {
+                cell.userprofileImage.image = UIImage(named: "no-avatar")
+            }
             
             return cell
         }else if indexPath.section == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HomeStroyCells", for: indexPath) as! HomeStroyCells
-            //            cell.selectionStyle = .none
             cell.vc = self
             cell.stories = self.storiesArray
-            //            cell.collectionView.reloadData()
+            cell.collectionView.reloadData()
             return cell
         }else if indexPath.section == 2 {
             self.getCommunityNames()
             let cell = tableView.dequeueReusableCell(withIdentifier: "HomeCommunities", for: indexPath) as! HomeCommunities
             cell.vc = self
-
+            cell.backgroundColor = .clear
+            
+            // Style the cell content
+            cell.contentView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
+            cell.contentView.layer.cornerRadius = 12
+            cell.contentView.clipsToBounds = true
+            cell.selectionStyle = .none
+            
             cell.communityLabel.text = "Communities"
             cell.communityDetailLabel.text = self.communityNames
+            cell.communityDetailLabel.type = .continuous
+            cell.communityDetailLabel.speed = .rate(30)
+            cell.communityDetailLabel.fadeLength = 10
             
-            let gesture = UITapGestureRecognizer(target: self, action: #selector(click))
-            cell.communityLabel.isUserInteractionEnabled = true
-            cell.communityLabel.addGestureRecognizer(gesture)
-            
-            //let images : [UIImage]! = [UIImage(named: "globe")!]
-
-            // animatedImage = UIImage.animatedImage(with: [UIImage(named: "globe")!], duration: 0.5)
-            
-            //cell.userprofileImageView.frame = CGRect(x: 20, y: 100, width: 360, height: 180)
-            //cell.userprofileImageView.clipsToBounds = true
-            //cell.userprofileImageView.layer.cornerRadius = 20
-            //cell.userprofileImageView.autoresizesSubviews = true
-            //cell.userprofileImageView.contentMode = UIView.ContentMode.scaleAspectFill
+            // Community globe icon with rounded corners
             cell.userprofileImageView.image = UIImage(named: "globe")
-            //cell.userprofileImageView.image = animatedImage
+            cell.userprofileImageView.layer.cornerRadius = 10
+            cell.userprofileImageView.clipsToBounds = true
+            cell.userprofileImageView.contentMode = .scaleAspectFill
             
+            // Make entire cell tappable
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openCommunities))
+            cell.contentView.addGestureRecognizer(tapGesture)
+            cell.contentView.isUserInteractionEnabled = true
             
-
             return cell
         }else if indexPath.section == 3 {
             self.getGeneralAnnouncementData()
             let cell = tableView.dequeueReusableCell(withIdentifier: "HomeNews", for: indexPath) as! HomeNews
             cell.vc = self
-
-            cell.label.text = "Breaking News/Newspaper Review"
+            cell.backgroundColor = .clear
+            
+            // Style the cell content
+            cell.contentView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
+            cell.contentView.layer.cornerRadius = 12
+            cell.contentView.clipsToBounds = true
+            cell.selectionStyle = .none
+            
+            // Title with bold styling
+            let title = NSMutableAttributedString(string: "Breaking News")
+            title.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 18), range: NSRange(location: 0, length: title.length))
+            title.addAttribute(.foregroundColor, value: UIColor(red: 1.0, green: 0.3, blue: 0.2, alpha: 1.0), range: NSRange(location: 0, length: title.length))
+            cell.label.attributedText = title
+            
+            // Animated GIF icon for news
+            if let gifImage = UIImage.gif(name: "ic_news") {
+                cell.userprofileImageView.image = gifImage
+            } else {
+                cell.userprofileImageView.image = UIImage(named: "ic_post_park")
+            }
+            cell.userprofileImageView.layer.cornerRadius = 8
+            cell.userprofileImageView.clipsToBounds = true
+            cell.userprofileImageView.contentMode = .scaleAspectFit
+            
             cell.detailLabel.text = self.announcement
-
+            cell.detailLabel.type = .continuous
+            cell.detailLabel.speed = .rate(40)
+            cell.detailLabel.fadeLength = 10
+            
+            // Make entire cell tappable for navigation
+            cell.contentView.tag = 1
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openAnnouncements))
+            cell.contentView.addGestureRecognizer(tapGesture)
+            cell.contentView.isUserInteractionEnabled = true
+            
             return cell
         }else if indexPath.section == 4 {
             var greeting = ""
             let cell = tableView.dequeueReusableCell(withIdentifier: "HomeGreetings", for: indexPath) as! HomeGreetings
             cell.vc = self
+            cell.backgroundColor = .clear
+            
+            // Style the cell content
+            cell.contentView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
+            cell.contentView.layer.cornerRadius = 12
+            cell.contentView.clipsToBounds = true
+            cell.selectionStyle = .none
 //            if flag {
                 let date = Date()
                 let calendar = Calendar.current
@@ -843,22 +925,29 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                         timeText = "Good Morning, "
                         cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
                         cell.greetingDetailLabel.text = greeting
-                        cell.userprofileImageView.image = UIImage(named: "ic_post_park")
                     }
                     else if hour < 17 {
                         greeting = RandomAfternoonGreeting()
                         timeText = "Good Afternoon, "
                         cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
                         cell.greetingDetailLabel.text = greeting
-                        cell.userprofileImageView.image = UIImage(named: "ic_post_sea")
                     }
                     else {
                         greeting = RandomEveningGreeting()
                         timeText = "Good Evening, "
                         cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
                         cell.greetingDetailLabel.text = greeting
-                        cell.userprofileImageView.image = UIImage(named: "ic_post_desert")
                     }
+                    
+                    // Load user avatar for greeting card
+                    if let avatarUrl = UserData.getImage(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
+                        cell.userprofileImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "no-avatar"), options: [.refreshCached], completed: nil)
+                    } else {
+                        cell.userprofileImageView.image = UIImage(named: "no-avatar")
+                    }
+                    cell.userprofileImageView.layer.cornerRadius = 35
+                    cell.userprofileImageView.clipsToBounds = true
+                    cell.userprofileImageView.contentMode = .scaleAspectFill
             
                     var name = (AppInstance.instance.profile?.userData?.name ?? "")
                     if !name.isEmpty {
@@ -1021,6 +1110,21 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
+    @objc func openCommunities() {
+        let storyboard = UIStoryboard(name: "Communities", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "MyCommunitiesVC") as? CommunityListController {
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
+    @objc func openAnnouncements() {
+        let storyboard = UIStoryboard(name: "Communities", bundle: nil)
+        // Try to find announcements controller, fallback to communities
+        if let vc = storyboard.instantiateViewController(withIdentifier: "MyCommunitiesVC") as? CommunityListController {
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
     func createLive(){
         let Storyboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = Storyboard.instantiateViewController(identifier: "CreateLiveVC") as! CreateLiveController
@@ -1043,8 +1147,11 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 0{
+        if section == 0 {
             return 2
+        }else if section >= 2 && section <= 4 {
+            // Space between feature cards
+            return 8
         }else {
             let indexValue = section - upperSetctions
             if indexValue == 5 {
@@ -1086,7 +1193,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         }else if indexPath.section == 3 {
             return 120
         }else if indexPath.section == 4 {
-            return 120
+            return 130
         }else{
             //post cells
             let indexValue = indexPath.section - upperSetctions
@@ -1117,21 +1224,22 @@ extension HomeVC : UIImagePickerControllerDelegate , UINavigationControllerDeleg
         picker.dismiss(animated: true) {
             if self.isVideo! {
                 
-                let vidURL = info[UIImagePickerController.InfoKey.mediaURL] as! URL
-                var CreateVideoStoryVC = UIStoryboard(name: "Stories", bundle: nil).instantiateViewController(withIdentifier: "CreateVideoStoryVC") as! CreateVideoStoryVC
-                let videoData = try? Data(contentsOf: vidURL)
-                CreateVideoStoryVC.videoData1 = videoData
-                CreateVideoStoryVC.videoLinkString  = vidURL.absoluteString
-                self.navigationController?.pushViewController(CreateVideoStoryVC, animated: true)
+                if let vidURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL {
+                    var CreateVideoStoryVC = UIStoryboard(name: "Stories", bundle: nil).instantiateViewController(withIdentifier: "CreateVideoStoryVC") as! CreateVideoStoryVC
+                    let videoData = try? Data(contentsOf: vidURL)
+                    CreateVideoStoryVC.videoData1 = videoData
+                    CreateVideoStoryVC.videoLinkString  = vidURL.absoluteString
+                    self.navigationController?.pushViewController(CreateVideoStoryVC, animated: true)
+                }
                 
             }else{
-                let img = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
-                
-                var CreateImageStoryVC = UIStoryboard(name: "Stories", bundle: nil).instantiateViewController(withIdentifier: "CreateImageStoryVC") as! CreateImageStoryVC
-                CreateImageStoryVC.imageLInkString  = FileManager().savePostImage(image: img!)
-                CreateImageStoryVC.iamge = img
-                CreateImageStoryVC.isVideo = self.isVideo
-                self.navigationController?.pushViewController(CreateImageStoryVC, animated: true)
+                if let img = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                    var CreateImageStoryVC = UIStoryboard(name: "Stories", bundle: nil).instantiateViewController(withIdentifier: "CreateImageStoryVC") as! CreateImageStoryVC
+                    CreateImageStoryVC.imageLInkString  = FileManager().savePostImage(image: img)
+                    CreateImageStoryVC.iamge = img
+                    CreateImageStoryVC.isVideo = self.isVideo
+                    self.navigationController?.pushViewController(CreateImageStoryVC, animated: true)
+                }
             }
         }
     }

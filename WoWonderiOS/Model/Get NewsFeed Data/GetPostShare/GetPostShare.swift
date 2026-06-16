@@ -303,7 +303,7 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
     }
     
     @IBAction func LongTapped(gesture: UILongPressGestureRecognizer){
-        self.selectedIndex = gesture.view!.tag
+        self.selectedIndex = gesture.view?.tag ?? 0
         let vc = Storyboard.instantiateViewController(withIdentifier: "LikeReactionsVC") as! LikeReactionsController
         vc.delegate = self
         vc.modalPresentationStyle = .overFullScreen
@@ -311,32 +311,32 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
         self.targetController.present(vc, animated: true, completion: nil)
     }
     @IBAction func NormalTapped(gesture: UIGestureRecognizer){
+        guard let view = gesture.view else { return }
         let status = Reach().connectionStatus()
         switch status {
         case .unknown, .offline:
-            self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
-        case .online(.wwan), .online(.wiFi):
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! PostShareCell
+            self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))        case .online(.wwan), .online(.wiFi):
+            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: view.tag + sumAmount)) as! PostShareCell
             self.audioPlayer.play()
-            if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
+            if let reactions = self.postArray[gesture.view?.tag ?? 0]["reaction"] as? [String:Any]{
                 var totalCount = 0
                 if let count = reactions["count"] as? Int{
                     totalCount = count
                 }
                 if let is_react = reactions["is_reacted"] as? Bool{
                     if is_react == true{
-                        self.reactions(index: gesture.view!.tag, reaction: "")
-                        var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                        self.reactions(index: gesture.view?.tag ?? 0, reaction: "")
+                        var localPostArray = self.postArray[gesture.view?.tag ?? 0]["reaction"] as! [String:Any]
                         localPostArray["is_reacted"] = false
                         localPostArray["type"]  = ""
                         localPostArray["count"] = totalCount - 1
                         totalCount =  localPostArray["count"] as? Int ?? 0
-                        self.postArray[gesture.view!.tag]["reaction"] = localPostArray
+                        self.postArray[gesture.view?.tag ?? 0]["reaction"] = localPostArray
             cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
                         cell.LikeBtn.setImage(UIImage(named: "like"), for: .normal)
                 cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                         cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
-                        let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0] as [String : Any]
+                        let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0 ?? 0] as [String : Any]
                         var count = 0
                         if self.selectedIndexs.count == 0{
                             self.selectedIndexs.append(action)
@@ -344,7 +344,7 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
                         else{
                             for i in self.selectedIndexs{
                                 count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
+                                if i["index"] as? Int == gesture.view?.tag ?? 0{
                                     print((count) - 1)
                                     self.selectedIndexs[(count) - 1] = action
                                 }
@@ -355,19 +355,19 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
                         }
                     }
                     else{
-                        var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                        var localPostArray = self.postArray[gesture.view?.tag ?? 0]["reaction"] as! [String:Any]
                         localPostArray["is_reacted"] = true
                         localPostArray["type"]  = "Like"
                         localPostArray["count"] = totalCount + 1
                         localPostArray["Like"] = 1
                         totalCount =  localPostArray["count"] as? Int ?? 0
-                        self.postArray[gesture.view!.tag]["reaction"] = localPostArray
-                        self.reactions(index: gesture.view!.tag, reaction: "1")
+                        self.postArray[gesture.view?.tag ?? 0]["reaction"] = localPostArray
+                        self.reactions(index: gesture.view?.tag ?? 0, reaction: "1")
             cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
                         cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
             cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                         cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
-                        let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0] as [String : Any]
+                        let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0 ?? 0] as [String : Any]
                         var count = 0
                         print(self.selectedIndexs.count)
                         if self.selectedIndexs.count == 0 {
@@ -376,7 +376,7 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
                         else{
                             for i in self.selectedIndexs{
                                 count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
+                                if i["index"] as? Int == gesture.view?.tag ?? 0{
                                     print((count ?? 0) - 1)
                                     self.selectedIndexs[(count ?? 0) - 1] = action
                                 }
@@ -582,79 +582,79 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
     
     @IBAction func gotoUserProfile(gesture: UIGestureRecognizer){
         if AppInstance.instance.vc == "myProfile"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }
         else if (AppInstance.instance.vc == "newsFeedVC"){
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "performSegue"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "performSegue"), object: nil, userInfo: userInfo)
             }
         }
         else if AppInstance.instance.vc == "popularPostVC"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }
         else if AppInstance.instance.vc == "hasTagPostVC"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }
         else if AppInstance.instance.vc == "savedPostVC"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }
         else if AppInstance.instance.vc == "showPostVC"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }
         else if AppInstance.instance.vc == "eventDetailVC"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }
@@ -662,13 +662,13 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
  
         }
         else if AppInstance.instance.vc == "groupVC"{
-            if (AppInstance.instance.index != nil) && (gesture.view?.tag == 0){
+            if (AppInstance.instance.index != nil) && (gesture.view?.tag ?? 0 == 0){
                 print(AppInstance.instance.index)
-                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0,"type":"share"] as [String : Any]
+                let userInfo = ["userData":AppInstance.instance.index,"tag":gesture.view?.tag ?? 0 ?? 0,"type":"share"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
             else{
-                let userInfo = ["userData":gesture.view!.tag,"type":"profile"] as [String : Any]
+                let userInfo = ["userData":gesture.view?.tag ?? 0,"type":"profile"] as [String : Any]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Notifire"), object: nil, userInfo: userInfo)
             }
         }

@@ -9,32 +9,67 @@ class StoriesManager{
     
     func getUserStories(offset: Int, limit: Int,completionBlock :@escaping (_ Success: GetStoriesModel.StoriesScuccessModel?, _ AuthError: GetStoriesModel.StoriesErrorModel?, Error?)->()){
         let params = [
-            
             APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,
             APIClient.Params.offset:offset,
             APIClient.Params.limit:limit,
-            ] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token() ?? "")"
-        AF.request(APIClient.Stories.getUserStories + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+        ] as [String : Any]
+        let access_token = "access_token=\(UserData.getAccess_Token() ?? "")"
+        let urlString = APIClient.Stories.getUserStories + "&" + access_token
+        print("📖 Stories API URL: \(urlString)")
+        AF.request(urlString, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+            print("📖 Stories Status: \(response.response?.statusCode ?? 0)")
+            print("📖 Stories Error: \(response.error?.localizedDescription ?? "none")")
             
-            if response.value != nil{
-                
-                guard let res = response.value as? [String:Any] else {return}
-                guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if apiStatusCode as? Int == 200{
-                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    guard let result = try? JSONDecoder().decode(GetStoriesModel.StoriesScuccessModel.self, from: data) else {return}
-                    completionBlock(result,nil,nil)
-                }
-                else {
-                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    guard let result = try? JSONDecoder().decode(GetStoriesModel.StoriesErrorModel.self, from: data) else {return}
-                    completionBlock(nil,result,nil)
-                }
+            if let data = response.data, let rawStr = String(data: data, encoding: .utf8) {
+                print("📖 Stories Raw: \(rawStr.prefix(300))")
             }
-            else {
-                print(response.error?.localizedDescription)
-                completionBlock(nil,nil,response.error)
+            
+            if let res = response.value as? [String:Any] {
+                if let apiStatusCode = res["api_status"] as? Int, apiStatusCode == 200 {
+                    // Manual JSON parsing - bypass Codable
+                    var model = GetStoriesModel.StoriesScuccessModel()
+                    model.apiStatus = apiStatusCode
+                    if let storiesData = res["stories"] as? [[String:Any]] {
+                        var users: [GetStoriesModel.UserDataElement] = []
+                        for storyItem in storiesData {
+                            var user = GetStoriesModel.UserDataElement()
+                            user.userID = "\(storyItem["user_id"] ?? "")"
+                            user.username = storyItem["username"] as? String
+                            user.name = storyItem["name"] as? String
+                            user.firstName = storyItem["first_name"] as? String
+                            user.lastName = storyItem["last_name"] as? String
+                            user.avatar = storyItem["avatar"] as? String
+                            user.cover = storyItem["cover"] as? String
+                            user.gender = storyItem["gender"] as? String
+                            // Parse nested stories
+                            var nestedStories: [GetStoriesModel.UserDataStory] = []
+                            if let nested = storyItem["stories"] as? [[String:Any]] {
+                                for subStory in nested {
+                                    var s = GetStoriesModel.UserDataStory()
+                                    s.id = "\(subStory["id"] ?? "")"
+                                    s.userID = "\(subStory["user_id"] ?? "")"
+                                    s.title = subStory["title"] as? String
+                                    s.storyDescription = subStory["description"] as? String
+                                    s.thumbnail = subStory["thumbnail"] as? String
+                                    s.posted = subStory["posted"] as? String
+                                    s.expire = subStory["expire"] as? String
+                                    s.isOwner = (subStory["is_owner"] as? Bool)
+                                    s.timeText = subStory["time_text"] as? String
+                                    nestedStories.append(s)
+                                }
+                            }
+                            user.stories = nestedStories
+                            users.append(user)
+                        }
+                        model.stories = users
+                        print("📖 Stories parsed: \(users.count) users")
+                    }
+                    completionBlock(model, nil, nil)
+                } else {
+                    completionBlock(nil, nil, nil)
+                }
+            } else {
+                completionBlock(nil, nil, response.error)
             }
         }
     }
@@ -67,7 +102,7 @@ class StoriesManager{
                      multipartFormData.append(data, withName: "file", fileName: "image.jpg", mimeType: mimeType)
                 }
             }
-        }, to: APIClient.Stories.createStories +  "\("?")\("access_token")\("=")\(UserData.getAccess_Token() ?? "")", usingThreshold: UInt64.init(), method: .post, headers: headers)
+        }, to: APIClient.Stories.createStories +  "&access_token=\(UserData.getAccess_Token() ?? "")", usingThreshold: UInt64.init(), method: .post, headers: headers)
         .uploadProgress(queue: .main, closure: { progress in
             //Current upload progress of file
             print("Upload Progress: \(progress.fractionCompleted)")
@@ -139,9 +174,10 @@ class StoriesManager{
                   APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,
                   APIClient.Params.story_id:storyId,
                   ] as [String : Any]
-              let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+              let access_token = "access_token=\(UserData.getAccess_Token() ?? "")"
+        let urlString = APIClient.Stories.deleteStory + "&" + access_token
         
-        AF.request(APIClient.Stories.deleteStory + access_token, method: .post, parameters: params, encoding:URLEncoding.default, headers: nil).responseJSON { (response) in
+        AF.request(urlString, method: .post, parameters: params, encoding:URLEncoding.default, headers: nil).responseJSON { (response) in
             
             if (response.value != nil){
                 guard let res = response.value as? [String:Any] else {return}

@@ -71,8 +71,8 @@ class AddPostManager{
         
         print("PARAMS= \(param)")
         print("URL",APIClient.AddPost.AddPostApi)
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-        AF.request(APIClient.AddPost.AddPostApi, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+        let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
+        AF.request(url, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)
             if response.value != nil{
                 guard let res = response.value as? [String:Any] else {return}
@@ -187,8 +187,7 @@ class AddPostManager{
             }
             print("============")
             print("3")
-            print("API =\(APIClient.AddPost.AddPostApi)")
-        }, to: APIClient.AddPost.AddPostApi, method: .post, headers: headers).response { (result) in
+        }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).response { (result) in
             switch result.result{
             case .success(let response):
                 ZKProgressHUD.dismiss()
@@ -304,8 +303,8 @@ class AddPostManager{
               if let data = videoData{
                             multipartFormData.append(data, withName: "postVideo", fileName: "video.mp4", mimeType: "video/mp4")
                          }
-                        
-           }, to: APIClient.AddPost.AddPostApi, method: .post, headers: headers).response { (result) in
+                          
+           }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).response { (result) in
             switch result.result{
             case .success(let response):
 //                upload.responseJSON { response in
@@ -417,9 +416,9 @@ class AddPostManager{
                          }
         
           
-          print("PARAMS= \(param)")
-          let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-          AF.request(APIClient.AddPost.AddPostApi, method: .post, parameters: param, encoding: JSONEncoding.default, headers: nil).responseJSON { (response) in
+           print("PARAMS= \(param)")
+           let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
+           AF.request(url, method: .post, parameters: param, encoding: JSONEncoding.default, headers: nil).responseJSON { (response) in
               if response.value != nil{
                   guard let res = response.value as? [String:Any] else {return}
                   guard let apiStatusCode = res["api_status"] as? Any else {return}
@@ -775,15 +774,15 @@ class AddPostManager{
                                           }
           
           
-          print("PARAMS= \(param)")
-          let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-          AF.request(APIClient.AddPost.AddPostApi, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
-              if response.value != nil{
-                  guard let res = response.value as? [String:Any] else {return}
-                  guard let apiStatusCode = res["api_status"] as? Any else {return}
-                  if apiStatusCode as? String == "200"{
-                      guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
+           print("PARAMS= \(param)")
+           let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
+           AF.request(url, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+               if response.value != nil{
+                   guard let res = response.value as? [String:Any] else {return}
+                   guard let apiStatusCode = res["api_status"] as? Any else {return}
+                   if apiStatusCode as? String == "200"{
+                       guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
+                     let result = AddPostModel.AddPostSuccessModel.init(json: res)
 
 //                      guard let result = try? JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data) else {return}
                       completionBlock(result,nil,nil)

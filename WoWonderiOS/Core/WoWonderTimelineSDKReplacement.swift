@@ -4,7 +4,7 @@ import UIKit
 public class ServerCredentials {
     public static let instance = ServerCredentials()
     
-    private var baseUrl: String = "https://facesofnaija.com"
+    private var baseUrl: String = "http://172.236.19.52"
     private var serverKey: String = "facesofnaija_ios_key"
     private var purchaseCode: String = ""
     
@@ -241,7 +241,7 @@ public struct APIClient {
     }
     
     public struct User_Data {
-        public static let getUserDataApi = "\(baseURl)/api/get-user-data"
+        public static let getUserDataApi = "\(baseURl)/api-v2.php?type=get-user-data"
     }
     
     public struct User_Images {
@@ -270,19 +270,19 @@ public struct APIClient {
     }
     
     public struct Get_News_Feed {
-        public static let get_News_Feed_Posts = "\(baseURl)/api/posts"
+        public static let get_News_Feed_Posts = "\(baseURl)/api-v2.php?type=get_news_feed"
     }
     
     public struct AddPost {
-        public static let AddPostApi = "\(baseURl)/api/post-actions"
+        public static let AddPostApi = "\(baseURl)/api-v2.php?type=new_post"
     }
     
     public struct DeletePost {
-        public static let deletePostApi = "\(baseURl)/api/post-actions"
+        public static let deletePostApi = "\(baseURl)/api-v2.php?type=post-actions"
     }
     
     public struct EditPost {
-        public static let editPostApi = "\(baseURl)/api/post-actions"
+        public static let editPostApi = "\(baseURl)/api-v2.php?type=post-actions"
     }
     
     public struct GetPostById {
@@ -290,19 +290,19 @@ public struct APIClient {
     }
     
     public struct FetchComment {
-        public static let fetchComment = "\(baseURl)/api/comments"
+        public static let fetchComment = "\(baseURl)/api-v2.php?type=comments"
     }
     
     public struct CreateComment {
-        public static let createCommentApi = "\(baseURl)/api/comments"
+        public static let createCommentApi = "\(baseURl)/api-v2.php?type=comments"
     }
     
     public struct CreateCommentReply {
-        public static let createCommentReply = "\(baseURl)/api/comments"
+        public static let createCommentReply = "\(baseURl)/api-v2.php?type=comments"
     }
     
     public struct LikeComment {
-        public static let likeComment = "\(baseURl)/api/comments"
+        public static let likeComment = "\(baseURl)/api-v2.php?type=comments"
     }
     
     public struct ReportComment {
@@ -318,19 +318,19 @@ public struct APIClient {
     }
     
     public struct AddReactions {
-        public static let addReactionApi = "\(baseURl)/api/get-reactions"
+        public static let addReactionApi = "\(baseURl)/api-v2.php?type=get-reactions"
     }
     
     public struct GetReactions {
-        public static let getPostReactionApi = "\(baseURl)/api/get-reactions"
+        public static let getPostReactionApi = "\(baseURl)/api-v2.php?type=get-reactions"
     }
     
     public struct Share {
-        public static let sharePosts = "\(baseURl)/api/post-actions"
+        public static let sharePosts = "\(baseURl)/api-v2.php?type=post-actions"
     }
     
     public struct SavePost {
-        public static let savePostApi = "\(baseURl)/api/post-actions"
+        public static let savePostApi = "\(baseURl)/api-v2.php?type=post-actions"
     }
     
     public struct GetSavedPost {
@@ -502,9 +502,9 @@ public struct APIClient {
     }
     
     public struct Stories {
-        public static let getUserStories = "\(baseURl)/api/get-user-stories"
-        public static let createStories = "\(baseURl)/api/create-story"
-        public static let deleteStory = "\(baseURl)/api/delete-story"
+        public static let getUserStories = "\(baseURl)/api-v2.php?type=get-user-stories"
+        public static let createStories = "\(baseURl)/api-v2.php?type=create-story"
+        public static let deleteStory = "\(baseURl)/api-v2.php?type=delete-story"
     }
     
     public struct Articles {

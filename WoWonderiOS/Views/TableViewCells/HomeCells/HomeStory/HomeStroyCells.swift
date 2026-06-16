@@ -17,10 +17,12 @@ class HomeStroyCells: UITableViewCell {
     @IBOutlet weak var collectionView: UICollectionView!
     override func awakeFromNib() {
         super.awakeFromNib()
-        loadStories()
         self.collectionView.delegate = self
         self.collectionView.dataSource = self
         self.collectionView.register(UINib(nibName: "StoryCells", bundle: nil), forCellWithReuseIdentifier: "StoryCells")
+        if let layout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.scrollDirection = .horizontal
+        }
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -73,16 +75,24 @@ extension HomeStroyCells: UICollectionViewDelegate, UICollectionViewDataSource, 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "StoryCells", for: indexPath) as! StoryCells
         if indexPath.row == 0
         {
-            let url = URL(string: UserData.getImage() ?? "")
-            cell.userProfileImageView.kf.setImage(with: url)
+            if let imageUrl = UserData.getImage(), !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                cell.userProfileImageView.kf.setImage(with: url, placeholder: UIImage(named: "no-avatar"))
+            } else {
+                cell.userProfileImageView.image = UIImage(named: "no-avatar")
+            }
             cell.usernameLabel.text = "Add Story"
             cell.plusImageView.isHidden = false
         }else {
             let index = stories[indexPath.row-1]
-            let url = URL(string: index.cover!)
-            
-            cell.userProfileImageView.kf.setImage(with: url)
-            cell.usernameLabel.text = index.name
+            // Use first story's thumbnail as cover, fallback to avatar
+            let storyThumb = index.stories?.first?.thumbnail
+            let displayUrl = storyThumb ?? index.avatar ?? index.cover ?? ""
+            if !displayUrl.isEmpty, let url = URL(string: displayUrl) {
+                cell.userProfileImageView.kf.setImage(with: url, placeholder: UIImage(named: "no-avatar"))
+            } else {
+                cell.userProfileImageView.image = UIImage(named: "no-avatar")
+            }
+            cell.usernameLabel.text = index.name ?? index.username ?? "User"
             cell.plusImageView.isHidden = true
             
         }
@@ -96,8 +106,15 @@ extension HomeStroyCells: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row == 0 {
             self.vc?.showStoriesLog()
-        }else {
-            
+        } else {
+            let index = indexPath.row - 1
+            guard index < stories.count else { return }
+            let storyBoard = UIStoryboard(name: "Stories", bundle: nil)
+            let vc = storyBoard.instantiateViewController(withIdentifier: "PreStoriesItemVC") as! PreStoriesItemVC
+            vc.items = stories
+            vc.pageIndex = index
+            vc.modalPresentationStyle = .fullScreen
+            self.vc?.present(vc, animated: true, completion: nil)
         }
     }
     

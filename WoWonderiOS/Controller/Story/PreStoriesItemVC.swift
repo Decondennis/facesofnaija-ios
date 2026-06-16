@@ -23,25 +23,31 @@ class PreStoriesItemVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Do any additional setup after loading the view.
+        guard !items.isEmpty, pageIndex < items.count else {
+            dismiss(animated: true)
+            return
+        }
         
-//        if items[pageIndex].userID != UserData.getUSER_ID() ?? "" {
-//            self.trashBtn.isHidden = true
-//        }
         self.trashBtn.isHidden = false
-        
-//        self.trashBtn.setImage(Ionicons.trashA.image(50.0, color: UIColor.hexStringToUIColor(hex: "#FFFFFF")), for: UIControl.State.normal)
         
         userProfileImage.layer.cornerRadius = self.userProfileImage.frame.size.height / 2;
         
-        self.userProfileImage!.sd_setImage(with: URL(string: items[pageIndex].avatar!)) { (image, error, cacheType, url) in
+        let userData = items[pageIndex]
+        let displayUrl = userData.stories?.first?.thumbnail ?? userData.avatar ?? ""
+        let fullUrl = displayUrl.hasPrefix("http") ? displayUrl : "\(APIClient.baseURl)/\(displayUrl)"
+        self.userProfileImage!.sd_setImage(with: URL(string: fullUrl)) { (image, error, cacheType, url) in
             if error == nil {
                 self.userProfileImage.image = image
             }
         }
         
-        lblUserName.text = "\(items[pageIndex].username ?? "")"
-        item = items[pageIndex].stories!
+        lblUserName.text = "\(userData.username ?? userData.name ?? "")"
+        item = userData.stories ?? []
+        
+        guard !item.isEmpty else {
+            dismiss(animated: true)
+            return
+        }
         
         SPB = SegmentedProgressBar(numberOfSegments: item.count, duration: 5)
         if #available(iOS 11.0, *) {
@@ -84,6 +90,10 @@ class PreStoriesItemVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        guard !item.isEmpty else {
+            dismiss(animated: true)
+            return
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             self.SPB.startAnimation()
             self.playVideoOrLoadImage(index: 0)
@@ -102,16 +112,8 @@ class PreStoriesItemVC: UIViewController {
     
     
     @IBAction func trashPressed(_ sender: Any) {
-        self.deleteStory(storyID: Int(self.item[self.SPB.currentAnimationIndex].id!)!)
-//        print("trash Pressed")
-//        print(UserData.getAccess_Token())
-//        print(APIClient.Params.serverKey)
-//        print(APIClient.SERVER_KEY.Server_Key)
-//        print(self.item[self.SPB.currentAnimationIndex].id!)
-        self.refreshStories!()
-        self.dismiss(animated: true, completion: {
-            
-        })
+        refreshStories?()
+        self.dismiss(animated: true, completion: nil)
         resetPlayer()
     }
     @objc func tapOn(_ sender: UITapGestureRecognizer) {
@@ -120,13 +122,12 @@ class PreStoriesItemVC: UIViewController {
     
     private func getDuration(at index: Int) -> TimeInterval {
         var retVal: TimeInterval = 5.0
-        if item[index].videos!.isEmpty{
-            retVal = 5.0
-        } else {
-            guard let url = NSURL(string: item[index].thumbnail!) as URL? else { return retVal }
-            let asset = AVAsset(url: url)
-            let duration = asset.duration
-            retVal = CMTimeGetSeconds(duration)
+        if !(item[index].videos?.isEmpty ?? true) {
+            if let thumb = item[index].thumbnail, let url = URL(string: thumb) {
+                let asset = AVAsset(url: url)
+                let duration = asset.duration
+                retVal = CMTimeGetSeconds(duration)
+            }
         }
         return retVal
     }
@@ -141,41 +142,47 @@ class PreStoriesItemVC: UIViewController {
     
     //MARK: - Button actions
     @IBAction func close(_ sender: Any) {
-        self.refreshStories!()
-        self.dismiss(animated: true, completion: {
-            
-        })
+        refreshStories?()
+        self.dismiss(animated: true, completion: nil)
         resetPlayer()
     }
     
     func playVideoOrLoadImage(index: Int) {
+        guard index < item.count else { return }
         
-        if item[index].videos!.isEmpty {
+        if item[index].videos?.isEmpty ?? true {
             self.SPB.duration = 5
             self.imagePreview.isHidden = false
             self.videoView.isHidden = true
-            self.imagePreview!.sd_setImage(with: URL(string: item[index].thumbnail!)) { (image, error, cacheType, url) in
-                
+            if let thumb = item[index].thumbnail, !thumb.isEmpty {
+                let fullUrl = thumb.hasPrefix("http") ? thumb : "\(APIClient.baseURl)/\(thumb)"
+                if let url = URL(string: fullUrl) {
+                    self.imagePreview!.sd_setImage(with: url) { (image, error, cacheType, url) in }
+                }
             }
         } else {
             self.imagePreview.isHidden = true
             self.videoView.isHidden = false
             
             resetPlayer()
-            guard let url = NSURL(string:  item[index].videos?[0].filename ?? "") as URL? else {return}
-            self.player = AVPlayer(url: url)
-            
-            let videoLayer = AVPlayerLayer(player: self.player)
-            videoLayer.frame = view.bounds
-            videoLayer.videoGravity = .resizeAspect
-            self.videoView.layer.addSublayer(videoLayer)
-            
-            let asset = AVAsset(url: url)
-            let duration = asset.duration
-            let durationTime = CMTimeGetSeconds(duration)
-            
-            self.SPB.duration = durationTime
-            self.player.play()
+            if let videoPath = item[index].videos?.first?.filename, !videoPath.isEmpty {
+                let fullUrl = videoPath.hasPrefix("http") ? videoPath : "\(APIClient.baseURl)/\(videoPath)"
+                if let url = URL(string: fullUrl) {
+                    self.player = AVPlayer(url: url)
+                    
+                    let videoLayer = AVPlayerLayer(player: self.player)
+                    videoLayer.frame = view.bounds
+                    videoLayer.videoGravity = .resizeAspect
+                    self.videoView.layer.addSublayer(videoLayer)
+                    
+                    let asset = AVAsset(url: url)
+                    let duration = asset.duration
+                    let durationTime = CMTimeGetSeconds(duration)
+                    
+                    self.SPB.duration = durationTime
+                    self.player.play()
+                }
+            }
         }
     }
     
