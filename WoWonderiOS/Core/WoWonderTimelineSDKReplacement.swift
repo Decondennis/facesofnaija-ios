@@ -1,10 +1,32 @@
 import Foundation
 import UIKit
 
+// MARK: - Server Environment Configuration
+// Change APP_ENVIRONMENT below to switch between servers.
+// No other code changes are needed.
+
+public enum ServerEnvironment {
+    case development
+    case production
+    
+    var url: String {
+        switch self {
+        case .development:  return "http://172.236.19.52"
+        case .production:   return "https://facesofnaija.ng"
+        }
+    }
+}
+
+// MARK: - Centralized Base URL Configuration
+// ╔══════════════════════════════════════════════╗
+// ║  CHANGE ONLY THIS VALUE TO SWITCH SERVERS   ║
+// ╚══════════════════════════════════════════════╝
+private let APP_ENVIRONMENT: ServerEnvironment = .development
+
 public class ServerCredentials {
     public static let instance = ServerCredentials()
     
-    private var baseUrl: String = "http://172.236.19.52"
+    private var baseUrl: String = APP_ENVIRONMENT.url
     private var serverKey: String = "facesofnaija_ios_key"
     private var purchaseCode: String = ""
     
