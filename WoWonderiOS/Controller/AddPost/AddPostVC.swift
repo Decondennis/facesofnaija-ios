@@ -355,11 +355,10 @@ class AddPostVC: UIViewController {
                         postID = pid
                     }
                     print("Post created with ID: \(postID)")
-                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                     let userInfo = ["data" : ["post_id":postID]]
-                    self.dismiss(animated: true) {
-                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    }
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                    self.dismiss(animated: true)
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
@@ -385,10 +384,9 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
-                self.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                }
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                self.dismiss(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
@@ -398,7 +396,7 @@ class AddPostVC: UIViewController {
                 ZKProgressHUD.dismiss()
                 print(error?.localizedDescription)
             }
-        
+        }
     }
     private func uploadVideo(videoData:Data){
         ZKProgressHUD.show()
@@ -413,10 +411,9 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
-                self.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                }
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                self.dismiss(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
@@ -444,10 +441,9 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
-                self.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                }
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                self.dismiss(animated: true)
 
             }
             else if authError != nil {
@@ -476,10 +472,9 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
-                self.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                }
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                self.dismiss(animated: true)
 
             }
             else if authError != nil {
@@ -507,10 +502,9 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
-                self.dismiss(animated: true) {
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                }
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                self.dismiss(animated: true)
 
             }
             else if authError != nil {
@@ -541,7 +535,7 @@ class AddPostVC: UIViewController {
                         postID = post_data
                     }
                     let userInfo = ["data" : ["post_id":postID]]
-                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                     self.dismiss(animated: true) {
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
                     }
