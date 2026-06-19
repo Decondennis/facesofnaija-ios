@@ -93,7 +93,9 @@ class HomeVC: UIViewController {
         AppInstance.instance.vc = "newsFeedVC"
         NotificationCenter.default.addObserver(self, selector: #selector(self.Segue(notification:)), name: NSNotification.Name(rawValue: "performSegue"), object: nil)
         if AppInstance.instance.commingBackFromAddPost{
-            newsFeedArray.removeLast()
+            if !newsFeedArray.isEmpty {
+                newsFeedArray.removeLast()
+            }
             self.storiesArray.removeAll()
             
             self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit: 20, offset: "0")
