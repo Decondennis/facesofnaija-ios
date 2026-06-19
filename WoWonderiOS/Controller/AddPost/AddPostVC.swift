@@ -31,6 +31,7 @@ class AddPostVC: UIViewController {
     var isOpenSheet = 0
     var isopenCamera = 0
     var delegate: editPostDelegate?
+    var isPosting = false
     
     var location = ""
     
@@ -195,6 +196,8 @@ class AddPostVC: UIViewController {
         
     }
     @objc func Save(){
+        guard !isPosting else { return }
+        isPosting = true
         let indexpathforTextView = IndexPath(row: 0, section: 1)
         let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionTwoTableItem
         self.postText  = cell.textView.text ?? ""
@@ -362,10 +365,12 @@ class AddPostVC: UIViewController {
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
+                    self.isPosting = false
                     self.view.makeToast(authError?.errors?.errorText)
                 }
                 else if error  != nil {
                     ZKProgressHUD.dismiss()
+                    self.isPosting = false
                     print(error?.localizedDescription)
                     
                 }
@@ -543,10 +548,12 @@ class AddPostVC: UIViewController {
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
+                    self.isPosting = false
                     self.view.makeToast(authError?.errors?.errorText)
                 }
                 else if error  != nil {
                     ZKProgressHUD.dismiss()
+                    self.isPosting = false
                     print(error?.localizedDescription)
                     
                 }
