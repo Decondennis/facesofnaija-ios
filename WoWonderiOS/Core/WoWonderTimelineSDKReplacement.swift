@@ -296,7 +296,7 @@ public struct APIClient {
     }
     
     public struct AddPost {
-        public static let AddPostApi = "\(baseURl)/api-v2.php?type=new_post"
+        public static let AddPostApi = "\(baseURl)/api-v2.php?type=create-post"
     }
     
     public struct DeletePost {
