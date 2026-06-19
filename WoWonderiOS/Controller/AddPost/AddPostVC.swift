@@ -349,9 +349,13 @@ class AddPostVC: UIViewController {
                     AppInstance.instance.commingBackFromAddPost = true
                     ZKProgressHUD.dismiss()
                     var postID = ""
-                    if let post_data = success?.post_data["post_id"] as? String{
-                        postID = post_data
+                    // Handle post_id as both Int and String
+                    if let pid = success?.post_data["post_id"] as? Int {
+                        postID = String(pid)
+                    } else if let pid = success?.post_data["post_id"] as? String {
+                        postID = pid
                     }
+                    print("Post created with ID: \(postID)")
                     let userInfo = ["data" : ["post_id":postID]]
                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
                     self.navigationController?.popViewController(animated: true)
@@ -377,8 +381,10 @@ class AddPostVC: UIViewController {
                 print("this is it")
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
-                if let post_data = success?.post_data["post_id"] as? String{
-                    postID = post_data
+                if let pid = success?.post_data["post_id"] as? Int {
+                    postID = String(pid)
+                } else if let pid = success?.post_data["post_id"] as? String {
+                    postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
@@ -410,8 +416,10 @@ class AddPostVC: UIViewController {
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
-                if let post_data = success?.post_data["post_id"] as? String{
-                    postID = post_data
+                if let pid = success?.post_data["post_id"] as? Int {
+                    postID = String(pid)
+                } else if let pid = success?.post_data["post_id"] as? String {
+                    postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
@@ -441,8 +449,10 @@ class AddPostVC: UIViewController {
                 AppInstance.instance.commingBackFromAddPost = true
                 ZKProgressHUD.dismiss()
                 var postID = ""
-                if let post_data = success?.post_data["post_id"] as? String{
-                    postID = post_data
+                if let pid = success?.post_data["post_id"] as? Int {
+                    postID = String(pid)
+                } else if let pid = success?.post_data["post_id"] as? String {
+                    postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
@@ -470,8 +480,10 @@ class AddPostVC: UIViewController {
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
-                if let post_data = success?.post_data["post_id"] as? String{
-                    postID = post_data
+                if let pid = success?.post_data["post_id"] as? Int {
+                    postID = String(pid)
+                } else if let pid = success?.post_data["post_id"] as? String {
+                    postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
@@ -499,8 +511,10 @@ class AddPostVC: UIViewController {
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
-                if let post_data = success?.post_data["post_id"] as? String{
-                    postID = post_data
+                if let pid = success?.post_data["post_id"] as? Int {
+                    postID = String(pid)
+                } else if let pid = success?.post_data["post_id"] as? String {
+                    postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
