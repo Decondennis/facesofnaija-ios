@@ -132,7 +132,7 @@ class AddPostVC: UIViewController {
         self.present(controller, animated: false, completion: nil)
     }
     private func setupUI(){
-        let save = UIBarButtonItem(title: NSLocalizedString("Save", comment: "Save"), style: .done, target: self, action: #selector(Save))
+        let save = UIBarButtonItem(title: NSLocalizedString("Post", comment: "Post"), style: .done, target: self, action: #selector(Save))
         
         let edit = UIBarButtonItem(title: NSLocalizedString("Edit", comment: "Edit"), style: .done, target: self, action: #selector(self.edit))
         

@@ -77,7 +77,7 @@ class AddPostManager{
             if response.value != nil{
                 guard let res = response.value as? [String:Any] else {return}
                 guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if apiStatusCode as? String == "200"{
+                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                     guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
                     let result = AddPostModel.AddPostSuccessModel.init(json: res)
 //                    try? JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
@@ -198,7 +198,7 @@ class AddPostManager{
                         guard let res = response as? [String:Any] else {return}
                         print("Response = \(res)")
                         guard let apiStatusCode = res["api_status"] as? Any else {return}
-                        if apiStatusCode as? String == "200"{
+                        if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                             print("apiStatus Int = \(apiStatusCode)")
                             let data = try! JSONSerialization.data(withJSONObject: response, options: [])
                             let result = AddPostModel.AddPostSuccessModel.init(json: res)
@@ -314,7 +314,7 @@ class AddPostManager{
                         guard let res = response as? [String:Any] else {return}
                         print("Response = \(res)")
                         guard let apiStatusCode = res["api_status"] as? Any else {return}
-                        if apiStatusCode as? String == "200"{
+                        if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                             print("apiStatus Int = \(apiStatusCode)")
                             let data = try! JSONSerialization.data(withJSONObject: response, options: [])
                             let result = AddPostModel.AddPostSuccessModel.init(json: res)
@@ -422,7 +422,7 @@ class AddPostManager{
               if response.value != nil{
                   guard let res = response.value as? [String:Any] else {return}
                   guard let apiStatusCode = res["api_status"] as? Any else {return}
-                  if apiStatusCode as? String == "200"{
+                  if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                     guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
                     let result = AddPostModel.AddPostSuccessModel.init(json: res)
 
@@ -531,7 +531,7 @@ class AddPostManager{
                     guard let res = response.value as? [String:Any] else {return}
                     print("Response = \(res)")
                     guard let apiStatusCode = res["api_status"] as? Any else {return}
-                    if apiStatusCode as? String == "200"{
+                    if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                         print("apiStatus Int = \(apiStatusCode)")
                         let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
                         let result = AddPostModel.AddPostSuccessModel.init(json: res)
@@ -643,7 +643,7 @@ class AddPostManager{
                 guard let res = response.value as? [String:Any] else {return}
                 print("Response = \(res)")
                 guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if apiStatusCode as? String == "200"{
+                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                     print("apiStatus Int = \(apiStatusCode)")
                     let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
                     let result = AddPostModel.AddPostSuccessModel.init(json: res)
@@ -675,7 +675,7 @@ class AddPostManager{
 //                        guard let res = response.value as? [String:Any] else {return}
 //                        print("Response = \(res)")
 //                        guard let apiStatusCode = res["api_status"] as? Any else {return}
-//                        if apiStatusCode as? String == "200"{
+//                        if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
 //                            print("apiStatus Int = \(apiStatusCode)")
 //                            let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
 //                            let result = AddPostModel.AddPostSuccessModel.init(json: res)
@@ -780,7 +780,7 @@ class AddPostManager{
                if response.value != nil{
                    guard let res = response.value as? [String:Any] else {return}
                    guard let apiStatusCode = res["api_status"] as? Any else {return}
-                   if apiStatusCode as? String == "200"{
+                   if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
                        guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
                      let result = AddPostModel.AddPostSuccessModel.init(json: res)
 
