@@ -38,9 +38,7 @@ class AddPostVC: UIViewController {
         super.viewDidLoad()
         
         self.navigationController?.navigationBar.isHidden = false
-        
-
-        self.navigationController?.navigationBar.topItem?.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .plain, target: self, action: #selector(dismissSelf))
         
         let textAttributes = [NSAttributedString.Key.foregroundColor:UIColor.white]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
@@ -178,6 +176,10 @@ class AddPostVC: UIViewController {
                 ZKProgressHUD.dismiss()
             }
         }
+    }
+    
+    @objc func dismissSelf(){
+        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func edit(){
@@ -345,40 +347,36 @@ class AddPostVC: UIViewController {
         performUIUpdatesOnMain {
             AddPostManager.instance.addPostText( userID:userID,postText: postText, postColor: postColor, postPrivacy: postPrivacy, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID:self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
                 if success != nil {
-//                    print(success?.postData)
                     AppInstance.instance.commingBackFromAddPost = true
-                    ZKProgressHUD.dismiss()
                     var postID = ""
-                    // Handle post_id as both Int and String
                     if let pid = success?.post_data["post_id"] as? Int {
                         postID = String(pid)
                     } else if let pid = success?.post_data["post_id"] as? String {
                         postID = pid
                     }
                     print("Post created with ID: \(postID)")
+                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
                     let userInfo = ["data" : ["post_id":postID]]
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    self.navigationController?.popViewController(animated: true)
-                    AppInstance.instance.commingBackFromAddPost = true
+                    self.dismiss(animated: true) {
+                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                    }
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
                     self.view.makeToast(authError?.errors?.errorText)
-                    self.showAlert(title: "", message: (authError?.errors?.errorText)!)
                 }
                 else if error  != nil {
                     ZKProgressHUD.dismiss()
                     print(error?.localizedDescription)
                     
                 }
-            }
-        }
-    }
-    private func uploadImages(imageArray:[Data]){
+             }
+         }
+     }
+     private func uploadImages(imageArray:[Data]){
         ZKProgressHUD.show()
         AddPostManager.instance.addImages(userID : UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, imageDataArray: imageArray, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
             if success != nil {
-                print("this is it")
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
                 if let pid = success?.post_data["post_id"] as? Int {
@@ -387,26 +385,19 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                ZKProgressHUD.dismiss()
-                self.navigationController?.popViewController(animated: true)
-                AppInstance.instance.commingBackFromAddPost = true
-                print("this is it1") 
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                self.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                }
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
-                self.showAlert(title: "", message: (authError?.errors?.errorText)!)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
                 print(error?.localizedDescription)
-                
-            } else {
-                print("This executed")
-                ZKProgressHUD.dismiss()
             }
-        }
         
     }
     private func uploadVideo(videoData:Data){
@@ -422,15 +413,14 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                ZKProgressHUD.dismiss()
-                self.navigationController?.popViewController(animated: true)
-                AppInstance.instance.commingBackFromAddPost = true
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                self.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                }
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
-                self.showAlert(title: "", message: (authError?.errors?.errorText)!)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
@@ -447,7 +437,6 @@ class AddPostVC: UIViewController {
         AddPostManager.instance.postGiF(userID: UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, GIFUrl: GIFURL, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location ) { (success, authError, error) in
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
-                ZKProgressHUD.dismiss()
                 var postID = ""
                 if let pid = success?.post_data["post_id"] as? Int {
                     postID = String(pid)
@@ -455,15 +444,16 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.navigationController?.popViewController(animated: true)
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                self.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                }
 
             }
             else if authError != nil {
                 
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
-                self.showAlert(title: "", message: (authError?.errors?.errorText)!)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
@@ -486,15 +476,15 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                ZKProgressHUD.dismiss()
-                self.navigationController?.popViewController(animated: true)
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                self.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                }
 
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
-                self.showAlert(title: "", message: (authError?.errors?.errorText)!)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
@@ -517,15 +507,15 @@ class AddPostVC: UIViewController {
                     postID = pid
                 }
                 let userInfo = ["data" : ["post_id":postID]]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                ZKProgressHUD.dismiss()
-                self.navigationController?.popViewController(animated: true)
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                self.dismiss(animated: true) {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                }
 
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
-                self.showAlert(title: "", message: (authError?.errors?.errorText)!)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
@@ -544,21 +534,22 @@ class AddPostVC: UIViewController {
             AddPostManager.instance.addFeeling( userID:userID,postText: postText, postColor: postColor, postPrivacy: postPrivacy, feelingName: feelingName, feelingType: feelingType, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
                 if success != nil {
                     AppInstance.instance.commingBackFromAddPost = true
-                      ZKProgressHUD.dismiss()
                     var postID = ""
-                    if let post_data = success?.post_data["post_id"] as? String{
+                    if let pid = success?.post_data["post_id"] as? Int {
+                        postID = String(pid)
+                    } else if let post_data = success?.post_data["post_id"] as? String{
                         postID = post_data
                     }
                     let userInfo = ["data" : ["post_id":postID]]
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    self.navigationController?.popViewController(animated: true)
-
+                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: "Post created successfully!"))
+                    self.dismiss(animated: true) {
+                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                    }
                     
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
                     self.view.makeToast(authError?.errors?.errorText)
-                    self.showAlert(title: "", message: (authError?.errors?.errorText)!)
                 }
                 else if error  != nil {
                     ZKProgressHUD.dismiss()
