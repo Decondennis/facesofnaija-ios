@@ -205,9 +205,13 @@ class AddPostManager{
                 }else{
                     print("apiStatus String = \(apiStatusCode)")
                     guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {return}
-                    guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
-                    print("AuthError = \(result.errors!.errorText)")
-                    completionBlock(nil,result,nil)
+                    if let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
+                        print("AuthError = \(result.errors?.errorText ?? "unknown")")
+                        completionBlock(nil,result,nil)
+                    } else {
+                        let errorResult = AddPostModel.AddPostErrorModel(json: res)
+                        completionBlock(nil,errorResult,nil)
+                    }
                 }
             case .failure(let error):
                 print("Error in upload: \(error.localizedDescription)")
@@ -309,7 +313,7 @@ class AddPostManager{
                     print("apiStatus String = \(apiStatusCode)")
                     guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {return}
                     guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
-                    print("AuthError = \(result.errors!.errorText)")
+                    print("AuthError = \(result.errors?.errorText ?? "unknown")")
                     completionBlock(nil,result,nil)
                 }
             case .failure(let error):
@@ -517,7 +521,7 @@ class AddPostManager{
                         print("apiStatus String = \(apiStatusCode)")
                         let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
                         let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-                        print("AuthError = \(result.errors!.errorText)")
+                        print("AuthError = \(result.errors?.errorText ?? "unknown")")
                         completionBlock(nil,result,nil)
 
                     }
@@ -629,7 +633,7 @@ class AddPostManager{
                     print("apiStatus String = \(apiStatusCode)")
                     let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
                     let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-                    print("AuthError = \(result.errors!.errorText)")
+                    print("AuthError = \(result.errors?.errorText ?? "unknown")")
                     completionBlock(nil,result,nil)
 
                 }
@@ -661,7 +665,7 @@ class AddPostManager{
 //                            print("apiStatus String = \(apiStatusCode)")
 //                            let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
 //                            let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-//                            print("AuthError = \(result.errors!.errorText)")
+//                            print("AuthError = \(result.errors?.errorText ?? "unknown")")
 //                            completionBlock(nil,result,nil)
 //
 //                        }
