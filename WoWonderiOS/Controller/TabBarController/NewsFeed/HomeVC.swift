@@ -803,11 +803,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let count = self.newsFeedArray.count - 1
-        if self.newsFeedArray.count >= count {
-            let count = self.newsFeedArray.count
-            let lastElement = count - 1
-            if indexPath.section == lastElement {
+        if self.newsFeedArray.count >= 15 {
+            let lastPostSection = 4 + self.newsFeedArray.count
+            if indexPath.section == lastPostSection {
                 spinner.startAnimating()
                 spinner.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
                 self.tableView.tableFooterView = spinner
