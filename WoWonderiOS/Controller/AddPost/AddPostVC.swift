@@ -202,6 +202,10 @@ class AddPostVC: UIViewController {
         let indexpathforTextView = IndexPath(row: 0, section: 1)
         let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionTwoTableItem
         self.postText  = cell.textView.text ?? ""
+        let placeholder = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
+        if self.postText == placeholder || self.postText == " " {
+            self.postText = ""
+        }
         
         if self.type == "IMAGE"{
             if AppInstance.instance.musicSelected{
