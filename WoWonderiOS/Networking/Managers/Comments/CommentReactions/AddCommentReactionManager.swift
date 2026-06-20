@@ -15,7 +15,7 @@ class AddCommentReactionManager{
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClient.Params.type:"reaction_comment",APIClient.Params.commentId:commentId,APIClient.Params.reactions:reaction] as [String : Any]
         
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
 
         
         AF.request(APIClient.LikeComment.likeComment + access_token, method: .post, parameters: params, encoding:  URLEncoding.default, headers: nil).responseJSON { (response) in

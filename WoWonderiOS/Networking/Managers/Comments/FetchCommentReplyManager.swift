@@ -8,7 +8,7 @@ class FetchCommentReplyManager{
     
     func fetchCommentReply(comment_Id: String,offset: String,completionBlock : @escaping (_ Success:FetchCommentModel.fetchComment_SuccessModel?, _ AuthError : FetchCommentModel.fetchComment_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.limit : 15, APIClient.Params.type : "fetch_comments_reply",APIClient.Params.commentId: comment_Id, APIClient.Params.offset : offset] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(APIClient.FetchComment.fetchComment + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
                 guard let res = response.value as? [String:Any] else {return}

@@ -9,7 +9,7 @@ class AddReactionManager {
     
     func addReaction(postId : String,reaction : String,completionBlock : @escaping (_ Success:AddReactions.AddReactions_SuccessModel?, _ AuthError : AddReactions.AddReaction_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.reactions : reaction,APIClient.Params.action : "reaction",APIClient.Params.postId : postId]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(APIClient.AddReactions.addReactionApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)
             if response.value != nil {

@@ -16,7 +16,7 @@ class EditCommentManager{
     func editComment(comment_id: Int,text: String,completionBlock : @escaping (_ Success:EditCommentModal.editComment_SuccessModal?, _ AuthError: EditCommentModal.EditComment_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.commentId:comment_id, APIClient.Params.type: "edit",APIClient.Params.text:text] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         let url = APIClient.LikeComment.likeComment
         AF.request(url + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

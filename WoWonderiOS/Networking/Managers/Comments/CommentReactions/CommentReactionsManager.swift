@@ -15,7 +15,7 @@ class GetCommentReactionsManager{
     func getReactions(commentId:Int,offset:Int,completionBlock : @escaping (_ Success:GetCommentReactionsModal.getReactions_SuccessModal?, _ AuthError : GetCommentReactionsModal.getReactions_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClient.Params.type:"comment",APIClient.Params.id:commentId,APIClient.Params.reactions:"1,2,3,4,5,6",APIClient.Params.limit:15,"1_offset":offset] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
 
         AF.request(APIClient.FetchComment.fetchComment, method: .post, parameters: params, encoding:  URLEncoding.default, headers: nil).responseJSON { (response) in
             if (response.value != nil){

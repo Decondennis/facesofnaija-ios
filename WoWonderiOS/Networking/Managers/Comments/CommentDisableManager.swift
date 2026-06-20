@@ -15,7 +15,7 @@ class CommentDisableManager{
     func commentDisable(post_id: Int,completionBlock : @escaping (_ Success:CommentDisableModal.disableComment_SuccessModal?, _ AuthError: CommentDisableModal.disableComment_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.postId:post_id, APIClient.Params.action:"disable_comments"] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         
         let url = APIClient.SavePost.savePostApi
         

@@ -328,11 +328,11 @@ public struct APIClient {
     }
     
     public struct ReportComment {
-        public static let reportComment = "\(baseURl)/api/report_comment"
+        public static let reportComment = "\(baseURl)/api-v2.php?type=report_comment"
     }
     
     public struct ReportPost {
-        public static let reportPostApi = "\(baseURl)/api/report_post"
+        public static let reportPostApi = "\(baseURl)/api-v2.php?type=report_post"
     }
     
     public struct BlogComments {
@@ -356,11 +356,15 @@ public struct APIClient {
     }
     
     public struct GetSavedPost {
-        public static let getSavedPostApi = "\(baseURl)/api/posts"
+        public static let getSavedPostApi = "\(baseURl)/api-v2.php?type=posts"
     }
     
     public struct PopularPost {
-        public static let getPopularPostApi = "\(baseURl)/api/most_liked"
+        public static let getPopularPostApi = "\(baseURl)/api-v2.php?type=most_liked"
+    }
+    
+    public struct VideoView {
+        public static let addVideoView = "\(baseURl)/api-v2.php?type=post-actions"
     }
     
     public struct GetHashtagPost {

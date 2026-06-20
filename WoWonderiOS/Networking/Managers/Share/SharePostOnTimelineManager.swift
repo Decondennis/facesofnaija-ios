@@ -9,7 +9,7 @@ class SharePostOnTimelineManager{
     func sharePostOnTimeline(userId :String, postId :String, completionBlock :@escaping (_ Success: SharePostOnTimlineModal.SharePostOnTimeline_SuccessModal?, _ AuthError: SharePostOnTimlineModal.SharePostOnTimeline_ErrorModal?, Error?)->()){
         
         let params = [APIClient.Params.serverKey :APIClient.SERVER_KEY.Server_Key,APIClient.Params.type :"share_post_on_timeline",APIClient.Params.userId :userId, APIClient.Params.id :postId]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         
         AF.request(APIClient.Share.sharePosts + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

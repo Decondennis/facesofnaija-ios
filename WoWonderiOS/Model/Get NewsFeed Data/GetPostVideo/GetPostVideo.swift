@@ -6,6 +6,7 @@ import AVFoundation
 import AVKit
 import Kingfisher
 import SDWebImage
+import Alamofire
 
 import MobilePlayer
 
@@ -688,6 +689,19 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
         cell.videoView.play()
         cell.videoPlayButton.isHidden = true
         cell.sliderView.isHidden = false
+        
+        if indexPath.row < postArray.count {
+            let postId = postArray[indexPath.row]["post_id"] as? String ?? ""
+            if !postId.isEmpty {
+                let params: [String: Any] = [
+                    APIClient.Params.serverKey: APIClient.SERVER_KEY.Server_Key,
+                    "type": "add_video_view",
+                    "post_id": postId
+                ]
+                let url = APIClient.VideoView.addVideoView + "&access_token=\(UserData.getAccess_Token() ?? "")"
+                AF.request(url, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).response { _ in }
+            }
+        }
     }
     
     

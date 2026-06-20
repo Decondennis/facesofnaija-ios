@@ -9,10 +9,10 @@ class CreateComment_ReplyManager{
     
     func createCommentReply (data :Data?,commentId : String, text : String,completionBlock : @escaping (_ Success:CreateComment_ReplyModel.createComment_ReplySuccessModel?, _ AuthError : CreateComment_ReplyModel.createComment_ReplyErrorModel? , Error?)->()) {
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.type : "create_reply", APIClient.Params.commentId : commentId, APIClient.Params.text : text]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in params {
-                multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
+                multipartFormData.append("\(value)".data(using: String.Encoding.utf8) ?? Data(), withName: key as String)
             }
             if let data = data{
                 multipartFormData.append(data, withName: "image", fileName: "file.jpg", mimeType: "image/png")

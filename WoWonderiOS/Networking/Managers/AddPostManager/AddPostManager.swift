@@ -204,13 +204,15 @@ class AddPostManager{
                     completionBlock(result,nil,nil)
                 }else{
                     print("apiStatus String = \(apiStatusCode)")
-                    guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {return}
-                    if let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
-                        print("AuthError = \(result.errors?.errorText ?? "unknown")")
-                        completionBlock(nil,result,nil)
+                    if let data = try? JSONSerialization.data(withJSONObject: value, options: []) {
+                        if let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
+                            print("AuthError = \(result.errors?.errorText ?? "unknown")")
+                            completionBlock(nil,result,nil)
+                        } else {
+                            completionBlock(nil,nil,nil)
+                        }
                     } else {
-                        let errorResult = AddPostModel.AddPostErrorModel(json: res)
-                        completionBlock(nil,errorResult,nil)
+                        completionBlock(nil,nil,nil)
                     }
                 }
             case .failure(let error):

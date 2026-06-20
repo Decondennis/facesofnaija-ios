@@ -16,7 +16,7 @@ class ReportCommentManager{
     func reportComment(comment_id: Int,completionBlock : @escaping (_ Success:ReportCommentModal.reportComment_SuccessModal?, _ AuthError: ReportCommentModal.reportComment_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.commentId:comment_id] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         
         
         AF.request(APIClient.ReportComment.reportComment + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in

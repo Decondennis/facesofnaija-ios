@@ -15,7 +15,7 @@ class DeleteCommentManager{
     func deleteComment(comment_id: Int,completionBlock : @escaping (_ Success: DeleteCommentModal.deleteComment_SuccessModal?, _ AuthError: DeleteCommentModal.deleteComment_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.commentId:comment_id, APIClient.Params.type: "delete"] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         let url = APIClient.LikeComment.likeComment
         AF.request(url + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

@@ -6,10 +6,10 @@ class CreateCommentsManager {
     
     func createComment (audio_data: Data?,data :Data?,postId : String, text : String, completionBlock : @escaping (_ Success:CreateCommentModel.createComment_SuccessModel?, _ AuthError : CreateCommentModel.createComment_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.type : "create", APIClient.Params.text : text,APIClient.Params.postId :postId]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in params {
-                multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
+                multipartFormData.append("\(value)".data(using: String.Encoding.utf8) ?? Data(), withName: key as String)
             }
             if let data = data{
                 multipartFormData.append(data, withName: "image", fileName: "file.jpg", mimeType: "image/png")
