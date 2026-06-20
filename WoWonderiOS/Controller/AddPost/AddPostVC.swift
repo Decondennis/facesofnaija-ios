@@ -404,7 +404,12 @@ class AddPostVC: UIViewController {
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 print(error?.localizedDescription)
+            } else {
+                ZKProgressHUD.dismiss()
+                self.isPosting = false
+                self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
     }
@@ -427,12 +432,19 @@ class AddPostVC: UIViewController {
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 self.view.makeToast(authError?.errors?.errorText)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 print(error?.localizedDescription)
                 
+            }
+            else {
+                ZKProgressHUD.dismiss()
+                self.isPosting = false
+                self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
         
@@ -489,12 +501,19 @@ class AddPostVC: UIViewController {
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 self.view.makeToast(authError?.errors?.errorText)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 print(error?.localizedDescription)
                 
+            }
+            else {
+                ZKProgressHUD.dismiss()
+                self.isPosting = false
+                self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
         
@@ -519,12 +538,19 @@ class AddPostVC: UIViewController {
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 self.view.makeToast(authError?.errors?.errorText)
             }
             else if error  != nil {
                 ZKProgressHUD.dismiss()
+                self.isPosting = false
                 print(error?.localizedDescription)
                 
+            }
+            else {
+                ZKProgressHUD.dismiss()
+                self.isPosting = false
+                self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
             ZKProgressHUD.dismiss()
         }
