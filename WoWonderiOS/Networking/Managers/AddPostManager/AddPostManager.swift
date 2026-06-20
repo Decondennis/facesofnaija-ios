@@ -163,9 +163,6 @@ class AddPostManager{
         let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
         let decoded = String(data: jsonData, encoding: .utf8)!
         print("Decoded String = \(decoded)")
-        let headers: HTTPHeaders = [
-            "Content-type": "multipart/form-data"
-        ]
         
         AF.upload(multipartFormData: { (multipartFormData) in
             print("============")
@@ -187,7 +184,7 @@ class AddPostManager{
             }
             print("============")
             print("3")
-        }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).responseJSON { (result) in
+        }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
             switch result.result{
             case .success(let value):
                 ZKProgressHUD.dismiss()
@@ -282,14 +279,11 @@ class AddPostManager{
                                 ]
                   }
            
-           let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
-           let decoded = String(data: jsonData, encoding: .utf8)!
-           print("Decoded String = \(decoded)")
-           let headers: HTTPHeaders = [
-               "Content-type": "multipart/form-data"
-           ]
-           
-           AF.upload(multipartFormData: { (multipartFormData) in
+            let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
+            let decoded = String(data: jsonData, encoding: .utf8)!
+            print("Decoded String = \(decoded)")
+            
+            AF.upload(multipartFormData: { (multipartFormData) in
                for (key, value) in param {
                    multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
                }
@@ -297,7 +291,7 @@ class AddPostManager{
                             multipartFormData.append(data, withName: "postVideo", fileName: "video.mp4", mimeType: "video/mp4")
                          }
                           
-            }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).responseJSON { (result) in
+            }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
             switch result.result{
             case .success(let value):
                 print("Succesfully uploaded2")
@@ -488,9 +482,6 @@ class AddPostManager{
               let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
               let decoded = String(data: jsonData, encoding: .utf8)!
               print("Decoded String = \(decoded)")
-              let headers: HTTPHeaders = [
-                  "Content-type": "multipart/form-data"
-              ]
               
               AF.upload(multipartFormData: { (multipartFormData) in
                   for (key, value) in param {
@@ -600,9 +591,6 @@ class AddPostManager{
         let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
         let decoded = String(data: jsonData, encoding: .utf8)!
         print("Decoded String = \(decoded)")
-        let headers: HTTPHeaders = [
-            "Content-type": "multipart/form-data"
-        ]
         
         AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in param {
