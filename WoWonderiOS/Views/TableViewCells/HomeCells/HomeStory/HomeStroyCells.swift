@@ -75,8 +75,13 @@ extension HomeStroyCells: UICollectionViewDelegate, UICollectionViewDataSource, 
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "StoryCells", for: indexPath) as! StoryCells
         if indexPath.row == 0
         {
-            if let imageUrl = UserData.getImage(), !imageUrl.isEmpty, let url = URL(string: imageUrl) {
-                cell.userProfileImageView.kf.setImage(with: url, placeholder: UIImage(named: "no-avatar"))
+            if let imageUrl = UserData.getImage(), !imageUrl.isEmpty {
+                let fullImageUrl = imageUrl.hasPrefix("http") ? imageUrl : "\(APIClient.baseURl)/\(imageUrl)"
+                if let url = URL(string: fullImageUrl) {
+                    cell.userProfileImageView.kf.setImage(with: url, placeholder: UIImage(named: "no-avatar"))
+                } else {
+                    cell.userProfileImageView.image = UIImage(named: "no-avatar")
+                }
             } else {
                 cell.userProfileImageView.image = UIImage(named: "no-avatar")
             }
@@ -87,8 +92,13 @@ extension HomeStroyCells: UICollectionViewDelegate, UICollectionViewDataSource, 
             // Use first story's thumbnail as cover, fallback to avatar
             let storyThumb = index.stories?.first?.thumbnail
             let displayUrl = storyThumb ?? index.avatar ?? index.cover ?? ""
-            if !displayUrl.isEmpty, let url = URL(string: displayUrl) {
-                cell.userProfileImageView.kf.setImage(with: url, placeholder: UIImage(named: "no-avatar"))
+            if !displayUrl.isEmpty {
+                let fullUrl = displayUrl.hasPrefix("http") ? displayUrl : "\(APIClient.baseURl)/\(displayUrl)"
+                if let url = URL(string: fullUrl) {
+                    cell.userProfileImageView.kf.setImage(with: url, placeholder: UIImage(named: "no-avatar"))
+                } else {
+                    cell.userProfileImageView.image = UIImage(named: "no-avatar")
+                }
             } else {
                 cell.userProfileImageView.image = UIImage(named: "no-avatar")
             }

@@ -180,6 +180,7 @@ class AddPostVC: UIViewController {
     }
     
     @objc func dismissSelf(){
+        ZKProgressHUD.dismiss()
         self.dismiss(animated: true, completion: nil)
     }
     

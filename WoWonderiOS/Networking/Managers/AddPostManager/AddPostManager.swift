@@ -187,44 +187,31 @@ class AddPostManager{
             }
             print("============")
             print("3")
-        }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).response { (result) in
+        }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).responseJSON { (result) in
             switch result.result{
-            case .success(let response):
+            case .success(let value):
                 ZKProgressHUD.dismiss()
-//                upload.responseJSON { response in
-                    print("Succesfully uploaded1")
-//                    print("response = \(response.result.value)")
-                if (response != nil){
-                        guard let res = response as? [String:Any] else {return}
-                        print("Response = \(res)")
-                        guard let apiStatusCode = res["api_status"] as? Any else {return}
-                        if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                            print("apiStatus Int = \(apiStatusCode)")
-                            let data = try! JSONSerialization.data(withJSONObject: response, options: [])
-                            let result = AddPostModel.AddPostSuccessModel.init(json: res)
-
-//                            let result = try! JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
-//                            print("Success = \(result.apiText ?? "")")
-                            completionBlock(result,nil,nil)
-                        }else{
-                            print("apiStatus String = \(apiStatusCode)")
-                            let data = try! JSONSerialization.data(withJSONObject: response, options: [])
-                            let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-                            print("AuthError = \(result.errors!.errorText)")
-                            completionBlock(nil,result,nil)
-                            
-                        }
-                        
-                    }else{
-//                        print("error = \(response.localizedDescription)")
-//                        completionBlock(nil,nil,response?.description)
-//                        completionBlock(nil, nil, response)
-                    }
-//                }
+                print("Succesfully uploaded1")
+                guard let res = value as? [String:Any] else {
+                    completionBlock(nil, nil, nil)
+                    return
+                }
+                print("Response = \(res)")
+                guard let apiStatusCode = res["api_status"] as? Any else {return}
+                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
+                    print("apiStatus Int = \(apiStatusCode)")
+                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
+                    completionBlock(result,nil,nil)
+                }else{
+                    print("apiStatus String = \(apiStatusCode)")
+                    guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {return}
+                    guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
+                    print("AuthError = \(result.errors!.errorText)")
+                    completionBlock(nil,result,nil)
+                }
             case .failure(let error):
                 print("Error in upload: \(error.localizedDescription)")
                 completionBlock(nil,nil,error)
-                
             }
         }
     }
@@ -304,43 +291,30 @@ class AddPostManager{
                             multipartFormData.append(data, withName: "postVideo", fileName: "video.mp4", mimeType: "video/mp4")
                          }
                           
-           }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).response { (result) in
+            }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post, headers: headers).responseJSON { (result) in
             switch result.result{
-            case .success(let response):
-//                upload.responseJSON { response in
-                    print("Succesfully uploaded2")
-//                    print("response = \(response.result.value)")
-                if (response != nil){
-                        guard let res = response as? [String:Any] else {return}
-                        print("Response = \(res)")
-                        guard let apiStatusCode = res["api_status"] as? Any else {return}
-                        if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                            print("apiStatus Int = \(apiStatusCode)")
-                            let data = try! JSONSerialization.data(withJSONObject: response, options: [])
-                            let result = AddPostModel.AddPostSuccessModel.init(json: res)
-
-//                            let result = try! JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
-//                            print("Success = \(result.apiText ?? "")")
-                            completionBlock(result,nil,nil)
-                        }else{
-                            print("apiStatus String = \(apiStatusCode)")
-                            let data = try! JSONSerialization.data(withJSONObject: response, options: [])
-                            let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-                            print("AuthError = \(result.errors!.errorText)")
-                            completionBlock(nil,result,nil)
-                            
-                        }
-                        
-                    }else{
-//                        print("error = \(response.localizedDescription)")
-//                        completionBlock(nil,nil,response?.description)
-//                        completionBlock(nil, nil, response)
-                    }
-//                }
+            case .success(let value):
+                print("Succesfully uploaded2")
+                guard let res = value as? [String:Any] else {
+                    completionBlock(nil, nil, nil)
+                    return
+                }
+                print("Response = \(res)")
+                guard let apiStatusCode = res["api_status"] as? Any else {return}
+                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
+                    print("apiStatus Int = \(apiStatusCode)")
+                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
+                    completionBlock(result,nil,nil)
+                }else{
+                    print("apiStatus String = \(apiStatusCode)")
+                    guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {return}
+                    guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
+                    print("AuthError = \(result.errors!.errorText)")
+                    completionBlock(nil,result,nil)
+                }
             case .failure(let error):
                 print("Error in upload: \(error.localizedDescription)")
                 completionBlock(nil,nil,error)
-                
             }
         }
        }
