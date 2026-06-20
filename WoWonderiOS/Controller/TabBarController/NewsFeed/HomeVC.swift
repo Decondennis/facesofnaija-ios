@@ -540,7 +540,7 @@ class HomeVC: UIViewController {
                 GetCommunityNamesManagers.sharedInstance.get_Community_Names() {[weak self] (success, authError, error) in
                     if success != nil {
                         print(success)
-                        self!.communityNames = success?.data ?? ""
+                        self?.communityNames = success?.data ?? ""
                     }
                     else if authError != nil {
                         ZKProgressHUD.dismiss()
