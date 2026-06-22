@@ -97,8 +97,7 @@ class HomeVC: UIViewController {
                 newsFeedArray.removeLast()
             }
             self.storiesArray.removeAll()
-            
-            self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit: 20, offset: "0")
+            self.loadStories()
             AppInstance.instance.commingBackFromAddPost = false
         }
         else{

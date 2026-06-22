@@ -120,7 +120,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         AppInstance.instance.profile = success
                         UserData.setUSER_NAME(AppInstance.instance.profile?.userData?.name)
                         UserData.setWallet(AppInstance.instance.profile?.userData?.wallet)
-                        UserData.SetImage(AppInstance.instance.profile?.userData?.avatar)
+                        if let avatar = AppInstance.instance.profile?.userData?.avatar {
+                            let fullAvatar = avatar.hasPrefix("http") ? avatar : "\(APIClient.baseURl)/\(avatar)"
+                            UserData.SetImage(fullAvatar)
+                        }
                         UserData.SetisPro(AppInstance.instance.profile?.userData?.isPro)
                     }
                     else if authError != nil {

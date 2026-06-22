@@ -173,13 +173,13 @@ class AddPostManager{
             print("============")
             print("2")
             if imageDataArray!.count > 1{
-                for data in imageDataArray!{
-                    multipartFormData.append(data, withName: "postPhotos[]", fileName: "file.jpg", mimeType: "image/png")
+                for (index, data) in imageDataArray!.enumerated(){
+                    multipartFormData.append(data, withName: "postPhotos[\(index)]", fileName: "file.jpg", mimeType: "image/png")
                 }
             }else{
                 let data1 =  imageDataArray?[0]
                 if let data = data1{
-                    multipartFormData.append(data, withName: "postPhotos", fileName: "file.jpg", mimeType: "image/png")
+                    multipartFormData.append(data, withName: "postPhotos[0]", fileName: "file.jpg", mimeType: "image/png")
                 }
             }
             print("============")
