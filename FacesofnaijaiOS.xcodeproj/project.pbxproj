@@ -848,7 +848,6 @@
 		51D54632242A62DE00B542A6 /* TellFriendVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D54631242A62DE00B542A6 /* TellFriendVC.swift */; };
 		51D54636242A63E600B542A6 /* TellFriendTableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D54634242A63E600B542A6 /* TellFriendTableItem.swift */; };
 		51D54637242A63E600B542A6 /* TellFriendTableItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 51D54635242A63E600B542A6 /* TellFriendTableItem.xib */; };
-		51D71472243E2EB0000DE374 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 51D7146B243E2EB0000DE374 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		51D7147A243E3261000DE374 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D71479243E3261000DE374 /* AppSettings.swift */; };
 		51D7147D243E3E99000DE374 /* BaseVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D7147C243E3E99000DE374 /* BaseVC.swift */; };
 		51D9C5A7265B9EFE000A1542 /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D9C5A6265B9EFE000A1542 /* LoginVC.swift */; };
@@ -1842,7 +1841,6 @@
 		51D54631242A62DE00B542A6 /* TellFriendVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellFriendVC.swift; sourceTree = "<group>"; };
 		51D54634242A63E600B542A6 /* TellFriendTableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TellFriendTableItem.swift; sourceTree = "<group>"; };
 		51D54635242A63E600B542A6 /* TellFriendTableItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TellFriendTableItem.xib; sourceTree = "<group>"; };
-		51D7146B243E2EB0000DE374 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		51D7146D243E2EB0000DE374 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		51D7146F243E2EB0000DE374 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		51D71479243E3261000DE374 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -3887,7 +3885,6 @@
 				18D89BF3235AFBAF003560ED /* LaunchScreen.storyboard */,
 				18D89BFE235AFBB0003560ED /* News_FeedTests */,
 				18D89C09235AFBB0003560ED /* News_FeedUITests */,
-				51D7146C243E2EB0000DE374 /* OneSignalNotificationServiceExtension */,
 				52E96A772B6A627600B5D683 /* FacesofnaijaShare */,
 				18D89BE5235AFBA7003560ED /* Products */,
 				477FB9E1F9DC496B06B3C14D /* Pods */,
@@ -3901,7 +3898,6 @@
 				18D89BE4235AFBA7003560ED /* Facesofnaija.app */,
 				18D89BFB235AFBB0003560ED /* FacesofnaijaiOSTests.xctest */,
 				18D89C06235AFBB0003560ED /* FacesofnaijaiOSUITests.xctest */,
-				51D7146B243E2EB0000DE374 /* OneSignalNotificationServiceExtension.appex */,
 				52E96A762B6A627600B5D683 /* FacesofnaijaShare.appex */,
 			);
 			name = Products;
@@ -5874,13 +5870,11 @@
 			path = TellFriend;
 			sourceTree = "<group>";
 		};
-		51D7146C243E2EB0000DE374 /* OneSignalNotificationServiceExtension */ = {
 			isa = PBXGroup;
 			children = (
 				51D7146D243E2EB0000DE374 /* NotificationService.swift */,
 				51D7146F243E2EB0000DE374 /* Info.plist */,
 			);
-			path = OneSignalNotificationServiceExtension;
 			sourceTree = "<group>";
 		};
 		51D71478243E324E000DE374 /* AppSettings */ = {
