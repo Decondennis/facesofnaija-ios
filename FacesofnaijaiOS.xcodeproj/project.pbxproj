@@ -981,18 +981,6 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51D71476243E2EB0000DE374 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				52E96A802B6A627600B5D683 /* FacesofnaijaShare.appex in Embed App Extensions */,
-				51D71472243E2EB0000DE374 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -6187,7 +6175,6 @@
 				51D9C5E9265BA00D000A1542 /* ShellScript */,
 				18D89BE0235AFBA7003560ED /* Sources */,
 				18D89BE1235AFBA7003560ED /* Frameworks */,
-				51D71476243E2EB0000DE374 /* Embed App Extensions */,
 				517A19D024532D73005F9B65 /* Embed Frameworks */,
 				51581AA9245302C700FC989A /* ShellScript */,
 				6F1D92CC1C54A67A1DD034AC /* [CP] Embed Pods Frameworks */,
