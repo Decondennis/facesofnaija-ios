@@ -984,19 +984,20 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                 var shared_info : [String:Any]? = nil
                 var fundDonation: [String:Any]? = nil
                 var live = ""
-                let postfile = index["postFile"] as? String ?? ""
-                let postLink = index["postLink"] as? String ?? ""
-                let postYoutube = index["postYoutube"] as? String ?? ""
-                let blog = index["blog_id"] as? String ?? "0"
+                let postfile = (index["postFile"] as? String) ?? ""
+                let postPhoto = (index["postPhoto"] as? String) ?? ""
+                let postLink = (index["postLink"] as? String) ?? ""
+                let postYoutube = (index["postYoutube"] as? String) ?? ""
+                let blog = String(describing: index["blog_id"] ?? "0")
                 let group = index["group_recipient_exists"] as? Bool ??  false
-                let product = index["product_id"] as? String ?? "0"
-                let event = index["page_event_id"] as? String ?? "0"
-                let postSticker = index["postSticker"] as? String ?? ""
-                let colorId = index["color_id"] as? String ?? "0"
-                let multi_image = index["multi_image"] as? String ?? "0"
-                let photoAlbum = index["album_name"] as? String ?? ""
-                let postOptions = index["poll_id"] as? String ?? "0"
-                let postRecord = index["postRecord"] as? String ?? "0"
+                let product = String(describing: index["product_id"] ?? "0")
+                let event = String(describing: index["page_event_id"] ?? "0")
+                let postSticker = (index["postSticker"] as? String) ?? ""
+                let colorId = String(describing: index["color_id"] ?? "0")
+                let multi_image = String(describing: index["multi_image"] ?? "0")
+                let photoAlbum = (index["album_name"] as? String) ?? ""
+                let postOptions = String(describing: index["poll_id"] ?? "0")
+                let postRecord = String(describing: index["postRecord"] ?? "0")
                 if let postType = index["postType"] as? String{
                     live = postType
                 }
@@ -1036,6 +1037,14 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                     
                     else {
                         tableViewCells = GetPostVideo.sharedInstance.getVideo(targetController: self, tableView: tableView, indexpath: indxPath, postFile: postfile, array: self.newsFeedArray, url: url!, stackViewHeight: 50.0, viewHeight: 22.0, isHidden: false, viewColor: .lightGray)
+                    }
+                }
+                
+                else if (postPhoto != "" && postfile == "") {
+                    if let url = URL(string: postPhoto) {
+                        tableViewCells = GetPostWithImage.sharedInstance.getPostImage(targetController: self, tableView: tableView, indexpath: indxPath, postFile: postPhoto, array: self.newsFeedArray, url: url, stackViewHeight: 50.0, viewHeight: 22.0, isHidden: false, viewColor: .lightGray)
+                    } else {
+                        tableViewCells = GetNormalPost.sharedInstance.getNormalPost(targetController: self, tableView: tableView, indexpath: indxPath, postFile: "", array: self.newsFeedArray, stackViewHeight: 50.0, viewHeight: 22.0, isHidden: false, viewColor: .lightGray)
                     }
                 }
                 
