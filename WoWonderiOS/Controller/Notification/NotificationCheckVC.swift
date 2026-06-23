@@ -1,7 +1,6 @@
 
 
 import UIKit
-import OneSignal
 
 import GoogleMobileAds
 
@@ -168,13 +167,13 @@ extension NotificationCheckVC: UITableViewDataSource {
                                   if cell!.accessoryType == UITableViewCell.AccessoryType.none
                                   {
                                         UserDefaults.standard.setNotificationStatus(value: true, ForKey: "notificationStatus")
-                                     OneSignal.setSubscription(true)
+                                     // OneSignal.setSubscription(true) // OneSignal removed
                                       cell!.accessoryType = UITableViewCell.AccessoryType.checkmark
                                   }
                                   else
                                   {
                                        UserDefaults.standard.setNotificationStatus(value: false, ForKey: "notificationStatus")
-                                     OneSignal.setSubscription(false)
+                                     // OneSignal.setSubscription(false) // OneSignal removed
                                       cell!.accessoryType = UITableViewCell.AccessoryType.none
                                       
                                   }

@@ -6,7 +6,6 @@ import FBSDKLoginKit
 import GoogleSignIn
 import GoogleMaps
 import GooglePlaces
-import OneSignal
 
 import GoogleMobileAds
 import Kingfisher
@@ -47,24 +46,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         IQKeyboardManager.shared().isEnabled = true
-        let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false,kOSSettingsKeyInAppLaunchURL: false]
         
         
         // Replace 'YOUR_APP_ID' with your OneSignal App ID.
-        OneSignal.initWithLaunchOptions(launchOptions,
-                                        appId: ControlSettings.oneSignalAppId,
-                                        handleNotificationAction: nil,
-                                        settings: onesignalInitSettings)
         
-        OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
+        // OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
         
         // Recommend moving the below line to prompt for push after informing the user about
         //   how your app will use them.
-        OneSignal.promptForPushNotifications(userResponse: { accepted in
-            print("User accepted notifications: \(accepted)")
-        })
+        // OneSignal.push notification prompt removed
         
-        let userId = OneSignal.getPermissionSubscriptionState().subscriptionStatus.userId
+        let userId: String? = nil // OneSignal removed
         print("Current playerId \(userId)")
         UserDefaults.standard.setDeviceId(value: userId ?? "", ForKey: "deviceID")
         self.window = UIWindow(frame: UIScreen.main.bounds)

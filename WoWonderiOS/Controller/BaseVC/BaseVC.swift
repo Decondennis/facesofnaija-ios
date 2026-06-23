@@ -2,7 +2,6 @@
 
 import UIKit
 
-import OneSignal
 class BaseVC: UIViewController {
     
     var oneSignalID:String? = ""
@@ -11,7 +10,7 @@ class BaseVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        oneSignalID = OneSignal.getPermissionSubscriptionState().subscriptionStatus.userId
+        oneSignalID = nil // OneSignal removed
                     print("Current playerId \(oneSignalID)")
                     UserDefaults.standard.setDeviceId(value: oneSignalID ?? "", ForKey: "deviceID")
         

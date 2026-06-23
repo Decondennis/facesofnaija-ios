@@ -1044,7 +1044,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                     if let url = URL(string: postPhoto) {
                         tableViewCells = GetPostWithImage.sharedInstance.getPostImage(targetController: self, tableView: tableView, indexpath: indxPath, postFile: postPhoto, array: self.newsFeedArray, url: url, stackViewHeight: 50.0, viewHeight: 22.0, isHidden: false, viewColor: .lightGray)
                     } else {
-                        tableViewCells = GetNormalPost.sharedInstance.getNormalPost(targetController: self, tableView: tableView, indexpath: indxPath, postFile: "", array: self.newsFeedArray, stackViewHeight: 50.0, viewHeight: 22.0, isHidden: false, viewColor: .lightGray)
+                        tableViewCells = GetNormalPost.sharedInstance.getPostText(targetController: self, tableView: tableView, indexpath: indxPath, postFile: "", array: self.newsFeedArray, stackViewHeight: 50.0, viewHeight: 22.0, isHidden: false, viewColor: .lightGray)
                     }
                 }
                 
