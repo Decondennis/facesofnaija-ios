@@ -181,6 +181,9 @@ class AddPostVC: UIViewController {
     
     @objc func dismissSelf(){
         ZKProgressHUD.dismiss()
+        if let presented = self.presentedViewController {
+            presented.dismiss(animated: false, completion: nil)
+        }
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -367,7 +370,10 @@ class AddPostVC: UIViewController {
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 let userInfo = ["data" : ["post_id":postID]]
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.dismiss(animated: true)
+                    if let presented = self.presentedViewController {
+                        presented.dismiss(animated: false, completion: nil)
+                    }
+                    self.dismiss(animated: true)
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
@@ -397,7 +403,10 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.dismiss(animated: true)
+                    if let presented = self.presentedViewController {
+                        presented.dismiss(animated: false, completion: nil)
+                    }
+                    self.dismiss(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
@@ -429,7 +438,10 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.dismiss(animated: true)
+                    if let presented = self.presentedViewController {
+                        presented.dismiss(animated: false, completion: nil)
+                    }
+                    self.dismiss(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
@@ -466,7 +478,10 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.dismiss(animated: true)
+                    if let presented = self.presentedViewController {
+                        presented.dismiss(animated: false, completion: nil)
+                    }
+                    self.dismiss(animated: true)
 
             }
             else if authError != nil {
@@ -497,7 +512,10 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.dismiss(animated: true)
+                    if let presented = self.presentedViewController {
+                        presented.dismiss(animated: false, completion: nil)
+                    }
+                    self.dismiss(animated: true)
 
             }
             else if authError != nil {
@@ -534,7 +552,10 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                self.dismiss(animated: true)
+                    if let presented = self.presentedViewController {
+                        presented.dismiss(animated: false, completion: nil)
+                    }
+                    self.dismiss(animated: true)
 
             }
             else if authError != nil {
