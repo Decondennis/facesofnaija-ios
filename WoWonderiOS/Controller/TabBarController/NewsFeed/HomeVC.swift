@@ -858,6 +858,21 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.communityDetailLabel.speed = .rate(30)
             cell.communityDetailLabel.fadeLength = 10
             
+            // Pin stackView to top so marquee text stays above button
+            if let stackView = cell.communityDetailLabel.superview {
+                stackView.translatesAutoresizingMaskIntoConstraints = false
+                // Remove centerY constraint
+                for c in cell.contentView.constraints {
+                    if c.firstItem === stackView && c.firstAttribute == .centerY {
+                        cell.contentView.removeConstraint(c)
+                    }
+                }
+                // Add top constraint
+                NSLayoutConstraint.activate([
+                    stackView.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 12)
+                ])
+            }
+            
             if let gifImage = UIImage.gif(name: "globe") {
                 cell.userprofileImageView.image = gifImage
             } else {
@@ -923,11 +938,10 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             title.addAttribute(.foregroundColor, value: UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0), range: NSRange(location: 0, length: title.length))
             cell.label.attributedText = title
             
-            if let newsImage = UIImage(named: "ic_rocket")?.withRenderingMode(.alwaysTemplate) {
+            if let newsImage = UIImage(named: "megaphone") {
                 cell.userprofileImageView.image = newsImage
-                cell.userprofileImageView.tintColor = UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0)
             } else {
-                cell.userprofileImageView.image = UIImage(named: "megaphone")
+                cell.userprofileImageView.image = UIImage(named: "ic_post_park")
             }
             cell.userprofileImageView.layer.cornerRadius = 8
             cell.userprofileImageView.clipsToBounds = true
@@ -948,6 +962,19 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.detailLabel.type = .continuous
             cell.detailLabel.speed = .rate(40)
             cell.detailLabel.fadeLength = 10
+            
+            // Pin stackView to top so marquee text stays above button
+            if let stackView = cell.detailLabel.superview {
+                stackView.translatesAutoresizingMaskIntoConstraints = false
+                for c in cell.contentView.constraints {
+                    if c.firstItem === stackView && c.firstAttribute == .centerY {
+                        cell.contentView.removeConstraint(c)
+                    }
+                }
+                NSLayoutConstraint.activate([
+                    stackView.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 12)
+                ])
+            }
             
             if cell.viewWithTag(101) == nil {
                 let btn = UIButton(type: .system)
@@ -1290,7 +1317,7 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         }else if indexPath.section == 3 {
             return 100
         }else if indexPath.section == 4 {
-            return 130
+            return 100
         }else{
             //post cells
             let indexValue = indexPath.section - upperSetctions
