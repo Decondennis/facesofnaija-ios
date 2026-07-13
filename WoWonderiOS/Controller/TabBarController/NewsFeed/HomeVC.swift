@@ -863,10 +863,20 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             } else {
                 cell.userprofileImageView.image = UIImage(named: "globe")
             }
-            cell.userprofileImageView.layer.cornerRadius = 10
+            cell.userprofileImageView.layer.cornerRadius = 20
             cell.userprofileImageView.clipsToBounds = true
             cell.userprofileImageView.contentMode = .scaleAspectFill
             cell.userprofileImageView.backgroundColor = UIColor.clear
+            cell.userprofileImageView.translatesAutoresizingMaskIntoConstraints = false
+            for c in cell.userprofileImageView.constraints {
+                if c.firstAttribute == .width || c.firstAttribute == .height {
+                    cell.userprofileImageView.removeConstraint(c)
+                }
+            }
+            NSLayoutConstraint.activate([
+                cell.userprofileImageView.widthAnchor.constraint(equalToConstant: 40),
+                cell.userprofileImageView.heightAnchor.constraint(equalToConstant: 40)
+            ])
             
             if cell.viewWithTag(100) == nil {
                 let btn = UIButton(type: .system)
@@ -881,9 +891,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                 btn.translatesAutoresizingMaskIntoConstraints = false
                 cell.contentView.addSubview(btn)
                 NSLayoutConstraint.activate([
-                    btn.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -15),
+                    btn.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 15),
                     btn.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -12),
-                    btn.widthAnchor.constraint(equalToConstant: 140),
+                    btn.widthAnchor.constraint(equalToConstant: 150),
                     btn.heightAnchor.constraint(equalToConstant: 32)
                 ])
             }
@@ -913,16 +923,26 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             title.addAttribute(.foregroundColor, value: UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0), range: NSRange(location: 0, length: title.length))
             cell.label.attributedText = title
             
-            if let newsImage = UIImage(named: "internet")?.withRenderingMode(.alwaysTemplate) {
+            if let newsImage = UIImage(named: "ic_rocket")?.withRenderingMode(.alwaysTemplate) {
                 cell.userprofileImageView.image = newsImage
                 cell.userprofileImageView.tintColor = UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0)
             } else {
-                cell.userprofileImageView.image = UIImage(named: "ic_post_park")
+                cell.userprofileImageView.image = UIImage(named: "megaphone")
             }
-            cell.userprofileImageView.layer.cornerRadius = 10
+            cell.userprofileImageView.layer.cornerRadius = 8
             cell.userprofileImageView.clipsToBounds = true
             cell.userprofileImageView.contentMode = .scaleAspectFit
-            cell.userprofileImageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+            cell.userprofileImageView.backgroundColor = UIColor.clear
+            cell.userprofileImageView.translatesAutoresizingMaskIntoConstraints = false
+            for c in cell.userprofileImageView.constraints {
+                if c.firstAttribute == .width || c.firstAttribute == .height {
+                    cell.userprofileImageView.removeConstraint(c)
+                }
+            }
+            NSLayoutConstraint.activate([
+                cell.userprofileImageView.widthAnchor.constraint(equalToConstant: 28),
+                cell.userprofileImageView.heightAnchor.constraint(equalToConstant: 28)
+            ])
             
             cell.detailLabel.text = self.announcement
             cell.detailLabel.type = .continuous
@@ -942,9 +962,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                 btn.translatesAutoresizingMaskIntoConstraints = false
                 cell.contentView.addSubview(btn)
                 NSLayoutConstraint.activate([
-                    btn.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -15),
+                    btn.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 15),
                     btn.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -12),
-                    btn.widthAnchor.constraint(equalToConstant: 140),
+                    btn.widthAnchor.constraint(equalToConstant: 150),
                     btn.heightAnchor.constraint(equalToConstant: 32)
                 ])
             }
@@ -1266,9 +1286,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         }else if indexPath.section == 1 {
             return 185
         }else if indexPath.section == 2 {
-            return 120
+            return 155
         }else if indexPath.section == 3 {
-            return 120
+            return 155
         }else if indexPath.section == 4 {
             return 130
         }else{
