@@ -868,6 +868,26 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.userprofileImageView.contentMode = .scaleAspectFill
             cell.userprofileImageView.backgroundColor = UIColor.clear
             
+            if cell.viewWithTag(100) == nil {
+                let btn = UIButton(type: .system)
+                btn.setTitle("Join Community", for: .normal)
+                btn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+                btn.setTitleColor(.white, for: .normal)
+                btn.backgroundColor = UIColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 1.0)
+                btn.layer.cornerRadius = 16
+                btn.clipsToBounds = true
+                btn.tag = 100
+                btn.addTarget(self, action: #selector(openCommunities), for: .touchUpInside)
+                btn.translatesAutoresizingMaskIntoConstraints = false
+                cell.contentView.addSubview(btn)
+                NSLayoutConstraint.activate([
+                    btn.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -15),
+                    btn.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -12),
+                    btn.widthAnchor.constraint(equalToConstant: 140),
+                    btn.heightAnchor.constraint(equalToConstant: 32)
+                ])
+            }
+            
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openCommunities))
             cell.contentView.addGestureRecognizer(tapGesture)
             cell.contentView.isUserInteractionEnabled = true
@@ -888,13 +908,13 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.contentView.layer.shadowOpacity = 0.1
             cell.selectionStyle = .none
             
-            let title = NSMutableAttributedString(string: "Breaking News / Newspaper Review")
+            let title = NSMutableAttributedString(string: "News")
             title.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 18), range: NSRange(location: 0, length: title.length))
             title.addAttribute(.foregroundColor, value: UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0), range: NSRange(location: 0, length: title.length))
             cell.label.attributedText = title
             
-            if let megaphoneImage = UIImage(named: "megaphone")?.withRenderingMode(.alwaysTemplate) {
-                cell.userprofileImageView.image = megaphoneImage
+            if let newsImage = UIImage(named: "internet")?.withRenderingMode(.alwaysTemplate) {
+                cell.userprofileImageView.image = newsImage
                 cell.userprofileImageView.tintColor = UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0)
             } else {
                 cell.userprofileImageView.image = UIImage(named: "ic_post_park")
@@ -908,6 +928,26 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.detailLabel.type = .continuous
             cell.detailLabel.speed = .rate(40)
             cell.detailLabel.fadeLength = 10
+            
+            if cell.viewWithTag(101) == nil {
+                let btn = UIButton(type: .system)
+                btn.setTitle("Breaking News", for: .normal)
+                btn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+                btn.setTitleColor(.white, for: .normal)
+                btn.backgroundColor = UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0)
+                btn.layer.cornerRadius = 16
+                btn.clipsToBounds = true
+                btn.tag = 101
+                btn.addTarget(self, action: #selector(openAnnouncements), for: .touchUpInside)
+                btn.translatesAutoresizingMaskIntoConstraints = false
+                cell.contentView.addSubview(btn)
+                NSLayoutConstraint.activate([
+                    btn.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -15),
+                    btn.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -12),
+                    btn.widthAnchor.constraint(equalToConstant: 140),
+                    btn.heightAnchor.constraint(equalToConstant: 32)
+                ])
+            }
             
             cell.contentView.tag = 1
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openAnnouncements))
