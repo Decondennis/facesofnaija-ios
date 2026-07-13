@@ -86,9 +86,15 @@ class AddPostManager{
                 }
                     
                 else {
-                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
-                    completionBlock(nil,result,nil)
+                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {
+                        completionBlock(nil, nil, nil)
+                        return
+                    }
+                    if let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
+                        completionBlock(nil,result,nil)
+                    } else {
+                        completionBlock(nil, nil, nil)
+                    }
                 }
             }
             else {
