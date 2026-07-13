@@ -1241,11 +1241,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
     }
     
     @objc func openAnnouncements() {
-        let storyboard = UIStoryboard(name: "Communities", bundle: nil)
-        // Try to find announcements controller, fallback to communities
-        if let vc = storyboard.instantiateViewController(withIdentifier: "MyCommunitiesVC") as? CommunityListController {
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
+        let vc = AnnouncementDetailController()
+        vc.announcementText = self.announcement ?? "No announcements available."
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func openProfile() {
@@ -1403,5 +1401,35 @@ extension UINavigationController {
     var previousViewController: UIViewController? {
         guard viewControllers.count > 1 else { return nil }
         return viewControllers[viewControllers.count - 2]
+    }
+}
+
+class AnnouncementDetailController: UIViewController {
+    var announcementText: String = ""
+    private let textView: UITextView = {
+        let tv = UITextView()
+        tv.isEditable = false
+        tv.font = UIFont.systemFont(ofSize: 16)
+        tv.textColor = .darkGray
+        tv.backgroundColor = .clear
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = "News & Announcements"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
+        view.addSubview(textView)
+        NSLayoutConstraint.activate([
+            textView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            textView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+        ])
+        textView.text = announcementText
+    }
+    @objc func goBack() {
+        navigationController?.popViewController(animated: true)
     }
 }
