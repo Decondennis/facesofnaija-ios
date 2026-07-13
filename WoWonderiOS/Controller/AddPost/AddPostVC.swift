@@ -181,10 +181,7 @@ class AddPostVC: UIViewController {
     
     @objc func dismissSelf(){
         ZKProgressHUD.dismiss()
-        if let presented = self.presentedViewController {
-            presented.dismiss(animated: false, completion: nil)
-        }
-        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc func edit(){
@@ -373,7 +370,7 @@ class AddPostVC: UIViewController {
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
-                    self.dismiss(animated: true)
+                    self.navigationController?.popViewController(animated: true)
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
@@ -406,7 +403,7 @@ class AddPostVC: UIViewController {
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
-                    self.dismiss(animated: true)
+                    self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
@@ -441,7 +438,7 @@ class AddPostVC: UIViewController {
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
-                    self.dismiss(animated: true)
+                    self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
@@ -481,7 +478,7 @@ class AddPostVC: UIViewController {
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
-                    self.dismiss(animated: true)
+                    self.navigationController?.popViewController(animated: true)
 
             }
             else if authError != nil {
@@ -515,7 +512,7 @@ class AddPostVC: UIViewController {
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
-                    self.dismiss(animated: true)
+                    self.navigationController?.popViewController(animated: true)
 
             }
             else if authError != nil {
@@ -555,7 +552,7 @@ class AddPostVC: UIViewController {
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
-                    self.dismiss(animated: true)
+                    self.navigationController?.popViewController(animated: true)
 
             }
             else if authError != nil {

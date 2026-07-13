@@ -681,7 +681,8 @@ class HomeVC: UIViewController {
         let storyboard = UIStoryboard(name: "AddPost", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "AddPostVC") as! AddPostVC
         vc.isOpenSheet = 1
-        self.present(vc, animated: true)
+        vc.hidesBottomBarWhenPushed = true
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func messengerClicked(_ sender: Any) {
