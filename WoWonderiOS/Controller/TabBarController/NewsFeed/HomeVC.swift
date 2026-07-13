@@ -1286,9 +1286,9 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         }else if indexPath.section == 1 {
             return 185
         }else if indexPath.section == 2 {
-            return 155
+            return 130
         }else if indexPath.section == 3 {
-            return 155
+            return 130
         }else if indexPath.section == 4 {
             return 130
         }else{
