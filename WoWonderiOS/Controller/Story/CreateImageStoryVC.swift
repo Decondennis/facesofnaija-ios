@@ -143,6 +143,7 @@ class CreateImageStoryVC: UIViewController {
                     
                     print("success = \(success?.apiStatus ?? 0)")
                     ZKProgressHUD.dismiss()
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadStories"), object: nil)
                     self.navigationController?.popViewController(animated: true)
                 }else if sessionError != nil{
                     
@@ -169,6 +170,7 @@ class CreateImageStoryVC: UIViewController {
                     
                     print("success = \(success?.apiStatus ?? 0)")
                     ZKProgressHUD.dismiss()
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadStories"), object: nil)
                     self.navigationController?.popViewController(animated: true)
                     
                 }else if sessionError != nil{

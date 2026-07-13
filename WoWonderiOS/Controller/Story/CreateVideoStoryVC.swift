@@ -112,7 +112,7 @@ class CreateVideoStoryVC: UIViewController {
 
 
                 print("success = \(success?.apiStatus ?? 0)")
-//                self.view.makeToast(success?.apiStatus ?? 0)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "loadStories"), object: nil)
                 self.navigationController?.popViewController(animated: true)
 
             }else if sessionError != nil{

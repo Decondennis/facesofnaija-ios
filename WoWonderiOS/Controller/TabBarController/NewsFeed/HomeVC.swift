@@ -140,9 +140,13 @@ class HomeVC: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.networkStatusChanged(_:)), name: Notification.Name(rawValue: ReachabilityStatusChangedNotification), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(loadList), name: NSNotification.Name(rawValue: "load"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.Segue(notification:)), name: NSNotification.Name(rawValue: "performSegue"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshStories), name: NSNotification.Name(rawValue: "loadStories"), object: nil)
     }
     
-    ///Network Connectivity.
+    @objc func refreshStories() {
+        self.storiesArray.removeAll()
+        self.loadStories()
+    }
     @objc func networkStatusChanged(_ notification: Notification) {
         
         if let userInfo = notification.userInfo {
@@ -164,7 +168,8 @@ class HomeVC: UIViewController {
                 self.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
             case .online(.wwan), .online(.wiFi):
                 performUIUpdatesOnMain {
-                    GetNewsFeedManagers.sharedInstance.get_News_Feed(filter: self.filter, access_token: "access_token=\(UserData.getAccess_Token()!)", limit: 10, off_set: "") {[weak self] (success, authError, error) in
+                    let token = UserData.getAccess_Token() ?? ""
+                    GetNewsFeedManagers.sharedInstance.get_News_Feed(filter: self.filter, access_token: "access_token=\(token)", limit: 10, off_set: "") {[weak self] (success, authError, error) in
                         if success != nil {
                             for i in success!.data{
                                 if i["post_id"] as? String == post_id{
@@ -179,8 +184,7 @@ class HomeVC: UIViewController {
                         }
                         else if authError != nil {
                             ZKProgressHUD.dismiss()
-                            self?.view.makeToast(authError?.errors.errorText)
-                            self?.showAlert(title: "", message: (authError?.errors.errorText)!)
+                            self?.view.makeToast(authError?.errors.errorText ?? "")
                         }
                         else if error  != nil {
                             ZKProgressHUD.dismiss()
