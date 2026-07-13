@@ -179,7 +179,7 @@ class AddPostManager{
             }else{
                 let data1 =  imageDataArray?[0]
                 if let data = data1{
-                    multipartFormData.append(data, withName: "postPhotos[0]", fileName: "file.jpg", mimeType: "image/png")
+                    multipartFormData.append(data, withName: "postPhotos", fileName: "file.jpg", mimeType: "image/png")
                 }
             }
             print("============")

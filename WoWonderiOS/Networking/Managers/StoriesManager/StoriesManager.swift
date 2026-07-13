@@ -85,9 +85,6 @@ class StoriesManager{
         let jsonData = try! JSONSerialization.data(withJSONObject: params, options: [])
         let decoded = String(data: jsonData, encoding: .utf8)!
         print("Decoded String = \(decoded)")
-        let headers: HTTPHeaders = [
-            "Content-type": "multipart/form-data"
-        ]
         
         AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in params {
@@ -102,29 +99,30 @@ class StoriesManager{
                      multipartFormData.append(data, withName: "file", fileName: "image.jpg", mimeType: mimeType)
                 }
             }
-        }, to: APIClient.Stories.createStories +  "&access_token=\(UserData.getAccess_Token() ?? "")", usingThreshold: UInt64.init(), method: .post, headers: headers)
+        }, to: APIClient.Stories.createStories +  "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post)
         .uploadProgress(queue: .main, closure: { progress in
-            //Current upload progress of file
             print("Upload Progress: \(progress.fractionCompleted)")
         })
         .responseJSON(completionHandler: { response in
-            //Do what ever you want to do with response
             if (response.value != nil){
                 guard let res = response.value as? [String:Any] else {return}
                 print("Response = \(res)")
                 guard let apiStatus = res["api_status"]  as? Any else {return}
                 if apiStatus as? Int == 200{
-                    let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
-                    let result = try! JSONDecoder().decode(CreateStoryModel.CreateStorySuccessModel.self, from: data)
+                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
+                    guard let result = try? JSONDecoder().decode(CreateStoryModel.CreateStorySuccessModel.self, from: data) else {return}
                     print("Success = \(result.storyID ?? 0)")
                     completionBlock(result,nil,nil)
                 }else{
                     print("apiStatus String = \(apiStatus)")
-                    let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
-                    let result = try! JSONDecoder().decode(CreateStoryModel.CreateStoryErrorModel.self, from: data)
-                    print("AuthError = \(result.errors!.errorText)")
-                    completionBlock(nil,result,nil)
-
+                    if let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) {
+                        if let result = try? JSONDecoder().decode(CreateStoryModel.CreateStoryErrorModel.self, from: data) {
+                            print("AuthError = \(result.errors?.errorText ?? "")")
+                            completionBlock(nil,result,nil)
+                        } else {
+                            completionBlock(nil,nil,nil)
+                        }
+                    }
                 }
 
             }else{
