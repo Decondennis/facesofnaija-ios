@@ -947,6 +947,12 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.userprofileImageView.clipsToBounds = true
             cell.userprofileImageView.contentMode = .scaleAspectFit
             cell.userprofileImageView.backgroundColor = UIColor.clear
+            // Center the news icon vertically
+            for c in cell.contentView.constraints {
+                if c.firstItem === cell.userprofileImageView && c.firstAttribute == .centerY {
+                    c.constant = 0
+                }
+            }
             cell.userprofileImageView.translatesAutoresizingMaskIntoConstraints = false
             for c in cell.userprofileImageView.constraints {
                 if c.firstAttribute == .width || c.firstAttribute == .height {
@@ -1313,11 +1319,11 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         }else if indexPath.section == 1 {
             return 185
         }else if indexPath.section == 2 {
-            return 100
+            return 110
         }else if indexPath.section == 3 {
-            return 100
+            return 110
         }else if indexPath.section == 4 {
-            return 100
+            return 110
         }else{
             //post cells
             let indexValue = indexPath.section - upperSetctions
