@@ -207,6 +207,10 @@ class AddPostVC: UIViewController {
             self.postText = ""
         }
         
+        if (self.postText ?? "").isEmpty && self.type != "" {
+            self.postText = "."
+        }
+        
         if self.type == "IMAGE"{
             if AppInstance.instance.musicSelected{
                 let indexpathforTextView = IndexPath(row: 0, section: 3)
