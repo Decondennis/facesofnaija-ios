@@ -354,19 +354,20 @@ class AddPostVC: UIViewController {
         let userID = UserData.getUSER_ID() ?? ""
         performUIUpdatesOnMain {
             AddPostManager.instance.addPostText( userID:userID,postText: postText, postColor: postColor, postPrivacy: postPrivacy, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID:self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
-                if success != nil {
-                    AppInstance.instance.commingBackFromAddPost = true
-                    var postID = ""
-                    if let pid = success?.post_data["post_id"] as? Int {
-                        postID = String(pid)
-                    } else if let pid = success?.post_data["post_id"] as? String {
-                        postID = pid
-                    }
-                    print("Post created with ID: \(postID)")
-                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
-                    let userInfo = ["data" : ["post_id":postID]]
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    self.dismiss(animated: true)
+            if success != nil {
+                AppInstance.instance.commingBackFromAddPost = true
+                var postID = ""
+                if let pid = success?.post_data["post_id"] as? Int {
+                    postID = String(pid)
+                } else if let pid = success?.post_data["post_id"] as? String {
+                    postID = pid
+                }
+                print("Post created with ID: \(postID)")
+                self.isPosting = false
+                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                let userInfo = ["data" : ["post_id":postID]]
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                self.dismiss(animated: true)
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()

@@ -143,6 +143,7 @@ class CreateImageStoryVC: UIViewController {
                     
                     print("success = \(success?.apiStatus ?? 0)")
                     ZKProgressHUD.dismiss()
+                    self.navigationController?.popViewController(animated: true)
                 }else if sessionError != nil{
                     
                     print("sessionError = \(sessionError?.errors?.errorText)")
