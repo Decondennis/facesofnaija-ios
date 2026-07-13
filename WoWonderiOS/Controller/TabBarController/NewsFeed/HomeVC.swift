@@ -842,25 +842,32 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.vc = self
             cell.backgroundColor = .clear
             
-            // Style the cell content
-            cell.contentView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
-            cell.contentView.layer.cornerRadius = 12
+            cell.contentView.backgroundColor = UIColor(red: 0.98, green: 0.98, blue: 1.0, alpha: 1.0)
+            cell.contentView.layer.cornerRadius = 14
             cell.contentView.clipsToBounds = true
+            cell.contentView.layer.shadowColor = UIColor.black.cgColor
+            cell.contentView.layer.shadowOffset = CGSize(width: 0, height: 1)
+            cell.contentView.layer.shadowRadius = 4
+            cell.contentView.layer.shadowOpacity = 0.1
             cell.selectionStyle = .none
             
             cell.communityLabel.text = "Communities"
+            cell.communityLabel.textColor = UIColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 1.0)
             cell.communityDetailLabel.text = self.communityNames
             cell.communityDetailLabel.type = .continuous
             cell.communityDetailLabel.speed = .rate(30)
             cell.communityDetailLabel.fadeLength = 10
             
-            // Community globe icon with rounded corners
-            cell.userprofileImageView.image = UIImage(named: "globe")
+            if let gifImage = UIImage.gif(name: "globe") {
+                cell.userprofileImageView.image = gifImage
+            } else {
+                cell.userprofileImageView.image = UIImage(named: "globe")
+            }
             cell.userprofileImageView.layer.cornerRadius = 10
             cell.userprofileImageView.clipsToBounds = true
             cell.userprofileImageView.contentMode = .scaleAspectFill
+            cell.userprofileImageView.backgroundColor = UIColor.clear
             
-            // Make entire cell tappable
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openCommunities))
             cell.contentView.addGestureRecognizer(tapGesture)
             cell.contentView.isUserInteractionEnabled = true
@@ -872,34 +879,36 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.vc = self
             cell.backgroundColor = .clear
             
-            // Style the cell content
-            cell.contentView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
-            cell.contentView.layer.cornerRadius = 12
+            cell.contentView.backgroundColor = UIColor(red: 1.0, green: 0.97, blue: 0.95, alpha: 1.0)
+            cell.contentView.layer.cornerRadius = 14
             cell.contentView.clipsToBounds = true
+            cell.contentView.layer.shadowColor = UIColor.black.cgColor
+            cell.contentView.layer.shadowOffset = CGSize(width: 0, height: 1)
+            cell.contentView.layer.shadowRadius = 4
+            cell.contentView.layer.shadowOpacity = 0.1
             cell.selectionStyle = .none
             
-            // Title with bold styling
-            let title = NSMutableAttributedString(string: "Breaking News")
+            let title = NSMutableAttributedString(string: "Breaking News / Newspaper Review")
             title.addAttribute(.font, value: UIFont.boldSystemFont(ofSize: 18), range: NSRange(location: 0, length: title.length))
-            title.addAttribute(.foregroundColor, value: UIColor(red: 1.0, green: 0.3, blue: 0.2, alpha: 1.0), range: NSRange(location: 0, length: title.length))
+            title.addAttribute(.foregroundColor, value: UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0), range: NSRange(location: 0, length: title.length))
             cell.label.attributedText = title
             
-            // Animated GIF icon for news
-            if let gifImage = UIImage.gif(name: "ic_news") {
-                cell.userprofileImageView.image = gifImage
+            if let megaphoneImage = UIImage(named: "megaphone")?.withRenderingMode(.alwaysTemplate) {
+                cell.userprofileImageView.image = megaphoneImage
+                cell.userprofileImageView.tintColor = UIColor(red: 0.9, green: 0.3, blue: 0.2, alpha: 1.0)
             } else {
                 cell.userprofileImageView.image = UIImage(named: "ic_post_park")
             }
-            cell.userprofileImageView.layer.cornerRadius = 8
+            cell.userprofileImageView.layer.cornerRadius = 10
             cell.userprofileImageView.clipsToBounds = true
             cell.userprofileImageView.contentMode = .scaleAspectFit
+            cell.userprofileImageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
             
             cell.detailLabel.text = self.announcement
             cell.detailLabel.type = .continuous
             cell.detailLabel.speed = .rate(40)
             cell.detailLabel.fadeLength = 10
             
-            // Make entire cell tappable for navigation
             cell.contentView.tag = 1
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openAnnouncements))
             cell.contentView.addGestureRecognizer(tapGesture)
@@ -912,28 +921,31 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             cell.vc = self
             cell.backgroundColor = .clear
             
-            // Style the cell content
-            cell.contentView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
-            cell.contentView.layer.cornerRadius = 12
+            cell.contentView.backgroundColor = UIColor(red: 0.95, green: 0.98, blue: 1.0, alpha: 1.0)
+            cell.contentView.layer.cornerRadius = 14
             cell.contentView.clipsToBounds = true
+            cell.contentView.layer.shadowColor = UIColor.black.cgColor
+            cell.contentView.layer.shadowOffset = CGSize(width: 0, height: 1)
+            cell.contentView.layer.shadowRadius = 4
+            cell.contentView.layer.shadowOpacity = 0.1
             cell.selectionStyle = .none
-//            if flag {
-                let date = Date()
-                let calendar = Calendar.current
-                var timeText = ""
-                let hour = calendar.component(.hour, from: date)
             
-                if !greeted {
-                    if hour < 8 && hour > 0 {
-                        greeting = RandomMorningGreeting()
-                        timeText = "Good Morning, "
-                        cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
-                        cell.greetingDetailLabel.text = greeting
-                    }
-                    else if hour < 17 {
-                        greeting = RandomAfternoonGreeting()
-                        timeText = "Good Afternoon, "
-                        cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
+            let date = Date()
+            let calendar = Calendar.current
+            var timeText = ""
+            let hour = calendar.component(.hour, from: date)
+            
+            if !greeted {
+                if hour < 8 && hour > 0 {
+                    greeting = RandomMorningGreeting()
+                    timeText = "Good Morning, "
+                    cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
+                    cell.greetingDetailLabel.text = greeting
+                }
+                else if hour < 17 {
+                    greeting = RandomAfternoonGreeting()
+                    timeText = "Good Afternoon, "
+                    cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
                         cell.greetingDetailLabel.text = greeting
                     }
                     else {
@@ -952,6 +964,8 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                     cell.userprofileImageView.layer.cornerRadius = 35
                     cell.userprofileImageView.clipsToBounds = true
                     cell.userprofileImageView.contentMode = .scaleAspectFill
+                    cell.userprofileImageView.layer.borderWidth = 2
+                    cell.userprofileImageView.layer.borderColor = UIColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 0.3).cgColor
             
                     var name = (AppInstance.instance.profile?.userData?.name ?? "")
                     if !name.isEmpty {
@@ -961,7 +975,10 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
                     
                     greeted = true
                 }
-//            }
+                
+                let greetTap = UITapGestureRecognizer(target: self, action: #selector(openProfile))
+                cell.contentView.addGestureRecognizer(greetTap)
+                cell.contentView.isUserInteractionEnabled = true
             return cell
         }
         else{
@@ -1134,6 +1151,13 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
         let storyboard = UIStoryboard(name: "Communities", bundle: nil)
         // Try to find announcements controller, fallback to communities
         if let vc = storyboard.instantiateViewController(withIdentifier: "MyCommunitiesVC") as? CommunityListController {
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
+    @objc func openProfile() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "MyProfileVC") as? MyProfileController {
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
