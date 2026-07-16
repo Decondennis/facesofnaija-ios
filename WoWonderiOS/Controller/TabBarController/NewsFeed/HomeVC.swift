@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 import AlamofireImage
 import Kingfisher
 import SDWebImage
@@ -1242,7 +1243,6 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
     
     @objc func openAnnouncements() {
         let vc = AnnouncementDetailController()
-        vc.announcementText = self.announcement ?? "No announcements available."
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -1404,32 +1404,119 @@ extension UINavigationController {
     }
 }
 
-class AnnouncementDetailController: UIViewController {
-    var announcementText: String = ""
-    private let textView: UITextView = {
-        let tv = UITextView()
-        tv.isEditable = false
-        tv.font = UIFont.systemFont(ofSize: 16)
-        tv.textColor = .darkGray
-        tv.backgroundColor = .clear
+class AnnouncementDetailController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    var announcements: [[String:Any]] = []
+    
+    private let tableView: UITableView = {
+        let tv = UITableView(frame: .zero, style: .plain)
         tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.tableFooterView = UIView()
+        tv.estimatedRowHeight = 120
+        tv.rowHeight = UITableView.automaticDimension
+        tv.separatorStyle = .singleLine
+        tv.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return tv
     }()
+    
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let ai = UIActivityIndicatorView(style: .medium)
+        ai.translatesAutoresizingMaskIntoConstraints = false
+        ai.hidesWhenStopped = true
+        return ai
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "News & Announcements"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
-        view.addSubview(textView)
+        navigationController?.navigationBar.isHidden = false
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: " Back", style: .plain, target: self, action: #selector(goBack))
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        view.addSubview(tableView)
+        view.addSubview(loadingIndicator)
+        
         NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            textView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-        textView.text = announcementText
+        
+        loadingIndicator.startAnimating()
+        fetchAnnouncements()
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     @objc func goBack() {
         navigationController?.popViewController(animated: true)
+    }
+    
+    func fetchAnnouncements() {
+        let token = UserData.getAccess_Token() ?? ""
+        let url = APIClient.baseURl + "/api-v2.php?type=get_announcements&access_token=" + token
+        let params: [String:Any] = ["server_key": APIClient.SERVER_KEY.Server_Key]
+        
+        AF.request(url, method: .post, parameters: params, encoding: URLEncoding.default).responseJSON { [weak self] response in
+            self?.loadingIndicator.stopAnimating()
+            if let value = response.value as? [String:Any] {
+                if let data = value["announcements"] as? [[String:Any]] {
+                    self?.announcements = data
+                    self?.tableView.reloadData()
+                    if data.isEmpty {
+                        self?.showEmptyMessage()
+                    }
+                } else {
+                    self?.showEmptyMessage()
+                }
+            } else {
+                self?.showEmptyMessage()
+            }
+        }
+    }
+    
+    func showEmptyMessage() {
+        let label = UILabel()
+        label.text = "No news announcements available."
+        label.textAlignment = .center
+        label.textColor = .gray
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    // MARK: - Table View
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return announcements.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        let item = announcements[indexPath.row]
+        
+        cell.textLabel?.text = item["text_decode"] as? String ?? ""
+        cell.textLabel?.numberOfLines = 3
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 15)
+        
+        if let timeText = item["time_text"] as? String {
+            cell.detailTextLabel?.text = "Posted " + timeText + " ago"
+            cell.detailTextLabel?.textColor = .gray
+        }
+        
+        cell.selectionStyle = .none
+        return cell
     }
 }
