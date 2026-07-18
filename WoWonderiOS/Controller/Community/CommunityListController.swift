@@ -220,15 +220,13 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
         }
         
         if indexPath.section == 4 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "JoinCommunity") as! JoinedCommunityCell
-            cell.noCommunityview.isHidden = true
-            cell.communityView.isHidden = false
-            cell.communityName.text = "View Requested Communities >"
-            cell.communityName.textAlignment = .center
-            cell.communityName.textColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
-            cell.communityName.font = UIFont.boldSystemFont(ofSize: 16)
-            cell.communityIcon.isHidden = true
-            cell.joinedBtn.isHidden = true
+            let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+            cell.textLabel?.text = "View Requested Communities"
+            cell.textLabel?.textAlignment = .center
+            cell.textLabel?.textColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+            cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+            cell.backgroundColor = .clear
+            cell.selectionStyle = .none
             return cell
         }
         

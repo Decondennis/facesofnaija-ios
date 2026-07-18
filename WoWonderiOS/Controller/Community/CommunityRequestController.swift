@@ -47,12 +47,13 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
         Reach().monitorReachabilityChanges()
         self.publicView.backgroundColor = .white
         self.privateView.backgroundColor = .white
-        //self.categoryField.inputView = UIView()
         self.requestLabel.text = NSLocalizedString("Request Community", comment: "Request Community")
-        self.sendBtn.setTitle(NSLocalizedString("Send", comment: "Send"), for: .normal)
-        //self.describeLbl.text = NSLocalizedString("Describe Your Community", comment: "Describe Your Community")
-        //self.communityDescLbl.text = NSLocalizedString("Tell pontentials members what your communities about to help them know whether its relevant to them", comment: "Tell pontentials members what your communities about to help them know whether its relevant to them")
+        self.requestLabel.font = UIFont.boldSystemFont(ofSize: 22)
+        self.sendBtn.setTitle(NSLocalizedString("Send Request", comment: "Send Request"), for: .normal)
+        self.sendBtn.layer.cornerRadius = 22
+        self.sendBtn.clipsToBounds = true
         self.privacyLabel.text = NSLocalizedString("Privacy", comment: "Privacy")
+        self.privacyLabel.font = UIFont.boldSystemFont(ofSize: 16)
         self.communityNameField.placeholder = NSLocalizedString("Community Name", comment: "Community Name")
         self.countryField.placeholder = NSLocalizedString("Country", comment: "Country")
         self.aboutField.placeholder = NSLocalizedString("Description", comment: "Description")
@@ -61,7 +62,14 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
         self.navView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.designView1.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.designView2.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
- 
+        // Style text fields
+        for field in [communityNameField, countryField, stateField, lgaField, aboutField] as! [UITextField] {
+            field.layer.cornerRadius = 10
+            field.layer.borderWidth = 1
+            field.layer.borderColor = UIColor(white: 0.85, alpha: 1).cgColor
+            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
+            field.leftViewMode = .always
+        }
     }
     override func viewWillAppear(_ animated: Bool) {
 //        self.categoryField.inputView = UIView()
