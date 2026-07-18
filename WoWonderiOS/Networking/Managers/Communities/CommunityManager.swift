@@ -21,8 +21,7 @@ class CommunityManager{
         APIClientCustom.Params.about :about,
         APIClient.Params.userId :UserData.getUSER_ID() ?? "",
         APIClient.Params.type:"request-community"] as [String : Any]
-       let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-        print(access_token)
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(APIClientCustom.ReqeustCommunity.requestCommunityApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)
             if response.value != nil {
@@ -49,8 +48,7 @@ class CommunityManager{
     
     func getCommunityPost(communityId : String,afterPostId : String, completionBlock : @escaping (_ Success:GetCommunityPostModel.getCommunityPost_SuccessModel?, _ AuthError : GetCommunityPostModel.getCommunityPost_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.type : "get_community_posts", APIClient.Params.limit : 10, APIClient.Params.id : communityId, APIClient.Params.afterPostId : afterPostId] as [String : Any]
-    let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-        
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(APIClientCustom.GetCommunityPost.getCommunityPostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
             guard let res = response.value as? [String:Any] else {return}
@@ -71,6 +69,30 @@ class CommunityManager{
             else {
                 print(response.error?.localizedDescription)
                 completionBlock(nil,nil,response.error)
+            }
+        }
+    }
+    
+    // MARK: - Fetch Communities by type
+    func getCommunities(fetch: String, limit: Int = 20, offset: Int = 0, completionBlock: @escaping (_ Success: [[String:Any]]?, _ error: String?) -> ()) {
+        let params: [String:Any] = [
+            APIClient.Params.serverKey: APIClient.SERVER_KEY.Server_Key,
+            APIClientCustom.Params.fetch: fetch,
+            APIClient.Params.userId: UserData.getUSER_ID() ?? "",
+            APIClientCustom.Params.limit: limit,
+            APIClientCustom.Params.offset: offset
+        ]
+        let token = UserData.getAccess_Token() ?? ""
+        let url = APIClientCustom.GetCommunity.getCommunityApi + "&access_token=\(token)"
+        AF.request(url, method: .post, parameters: params, encoding: URLEncoding.default).responseJSON { response in
+            if let value = response.value as? [String:Any] {
+                if let data = value["data"] as? [[String:Any]] {
+                    completionBlock(data, nil)
+                } else {
+                    completionBlock(nil, "No data found")
+                }
+            } else {
+                completionBlock(nil, response.error?.localizedDescription ?? "Network error")
             }
         }
     }

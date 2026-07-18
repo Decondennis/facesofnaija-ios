@@ -1,33 +1,27 @@
-//
-//  APIClientCustom.swift
-//  FacesofnaijaiOS
-//
-//  Created by MacBook Pro on 13/07/2022.
-//  Copyright © 2022 clines329. All rights reserved.
-//
-
 import Foundation
-
 
 public struct APIClientCustom {
     public static let baseURl = "\(APIClient.baseURl)/api"
+    public static let baseV2Url = "\(APIClient.baseURl)/api-v2.php"
+    
     public struct Get_Community_Names {
         public static let Get_Community_Names = "\(baseURl)/communities-custom"
     }
-    public struct ReqeustCommunity{
-        public static let requestCommunityApi = "\(baseURl)/request-community"
+    
+    public struct ReqeustCommunity {
+        public static let requestCommunityApi = "\(baseV2Url)?type=request-community"
     }
     
     public struct GetCommunityData {
-        public static let getCommunitiesDataApi =  "\(baseURl)/get-community-data"
+        public static let getCommunitiesDataApi = "\(baseV2Url)?type=get-community-data"
     }
     
-    public struct GetCommunityPost{
-        public static let getCommunityPostApi = "\(baseURl)/posts"
+    public struct GetCommunityPost {
+        public static let getCommunityPostApi = "\(baseV2Url)?type=get_community_posts"
     }
     
-    public struct JoinCommunity{
-        public static let joinCommunityAPi = "\(baseURl)/join-community"
+    public struct JoinCommunity {
+        public static let joinCommunityAPi = "\(baseV2Url)?type=join-community"
     }
     
     public struct AddMembertoCommunity {
@@ -35,11 +29,15 @@ public struct APIClientCustom {
     }
     
     public struct GetCommunityMember {
-        public static let getCommunityMemberApi = "\(baseURl)/get_community_members"
+        public static let getCommunityMemberApi = "\(baseV2Url)?type=get_community_members"
     }
     
     public struct UpdateCommunityData {
-        public static let updateCommunityDataApi = "\(baseURl)/update-community-data"
+        public static let updateCommunityDataApi = "\(baseV2Url)?type=update-community-data"
+    }
+    
+    public struct GetCommunity {
+        public static let getCommunityApi = "\(baseV2Url)?type=get-community"
     }
     
     public struct Params {
@@ -51,6 +49,9 @@ public struct APIClientCustom {
         public static let privacy = "privacy"
         public static let community_id = "community_id"
         public static let communityId = "communityId"
+        public static let fetch = "fetch"
+        public static let limit = "limit"
+        public static let offset = "offset"
+        public static let category = "category"
     }
-    
 }
