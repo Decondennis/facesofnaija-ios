@@ -62,7 +62,11 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
         self.navView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.designView1.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.designView2.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        for field in [communityNameField, countryField, stateField, lgaField, aboutField] as! [UITextField] {
+        // Remove country, state, LGA fields
+        countryField.isHidden = true
+        stateField.isHidden = true
+        lgaField.isHidden = true
+        for field in [communityNameField, aboutField] as! [UITextField] {
             field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
             field.leftViewMode = .always
             field.leftViewMode = .always
@@ -89,23 +93,17 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
             ZKProgressHUD.show()
        performUIUpdatesOnMain {
                 
-           CommunityManager.sharedInstance.requestCommunity(name: self.communityNameField.text!, country: self.countryField.text!, state: self.stateField.text!, lga: self.lgaField.text!, about: self.aboutField.text!, privacy: self.privacy) { (success, authError, error) in
-        if success != nil {
-            print(success!.community_data)
-            let communityData = (success!.community_data)
-            print(communityData)
-            ZKProgressHUD.dismiss()
-            //if self.isHome == 0{
-                //self.delegate.sendCommunityData(communityData: communityData)
-            //}
-            self.view.makeToast("Community Request Submitted")
-            self.communityNameField.text = NSLocalizedString("", comment: "")
-            self.countryField.text = NSLocalizedString("", comment: "")
-            self.aboutField.text = NSLocalizedString("", comment: "")
-            self.stateField.text = NSLocalizedString("", comment: "")
-            self.lgaField.text = NSLocalizedString("", comment: "")
-            self.privacy = 0
-            self.navigationController?.popViewController(animated: true)
+            CommunityManager.sharedInstance.requestCommunity(name: self.communityNameField.text ?? "", country: "", state: "", lga: "", about: self.aboutField.text ?? "", privacy: self.privacy) { (success, authError, error) in
+         if success != nil {
+             print(success!.community_data)
+             let communityData = (success!.community_data)
+             print(communityData)
+             ZKProgressHUD.dismiss()
+             self.view.makeToast("Community Request Submitted")
+             self.communityNameField.text = ""
+             self.aboutField.text = ""
+             self.privacy = 0
+             self.navigationController?.popViewController(animated: true)
         }
         else if authError != nil {
             ZKProgressHUD.dismiss()
@@ -153,16 +151,7 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
     
     @IBAction func Send(_ sender: Any) {
         if (self.communityNameField.text?.isEmpty == true) {
-            self.view.makeToast(NSLocalizedString("Enter Commmunity Name", comment: "Enter Community Name"))
-        }
-        else if (self.countryField.text?.isEmpty == true) {
-            self.view.makeToast(NSLocalizedString("Enter Community Country", comment: "Enter Community Country"))
-        }
-        else if (self.countryField.text?.isEmpty == true) {
-            self.view.makeToast(NSLocalizedString("Enter Community State", comment: "Enter State Country"))
-        }
-        else if (self.countryField.text?.isEmpty == true) {
-            self.view.makeToast(NSLocalizedString("Enter Community LGA", comment: "Enter Community LGA"))
+            self.view.makeToast(NSLocalizedString("Enter Community Name", comment: "Enter Community Name"))
         }
         else if (self.aboutField.text?.isEmpty == true) {
             self.view.makeToast(NSLocalizedString("Enter Community Description", comment: "Enter Community Description"))
