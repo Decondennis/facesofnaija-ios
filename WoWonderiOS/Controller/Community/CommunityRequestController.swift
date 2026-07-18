@@ -100,7 +100,7 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
             self.stateField.text = NSLocalizedString("", comment: "")
             self.lgaField.text = NSLocalizedString("", comment: "")
             self.privacy = 0
-            //self.dismiss(animated: true, completion: nil)
+            self.navigationController?.popViewController(animated: true)
         }
         else if authError != nil {
             ZKProgressHUD.dismiss()
@@ -138,7 +138,7 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
     
     
     @IBAction func Back(_ sender: Any) {
-        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     
     

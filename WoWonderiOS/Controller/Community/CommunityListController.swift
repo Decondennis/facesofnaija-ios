@@ -224,8 +224,10 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
             cell.noCommunityview.isHidden = true
             cell.communityView.isHidden = false
             cell.communityName.text = "View Requested Communities >"
+            cell.communityName.textAlignment = .center
             cell.communityName.textColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
-            cell.communityIcon.image = UIImage(named: "ic_check")
+            cell.communityName.font = UIFont.boldSystemFont(ofSize: 16)
+            cell.communityIcon.isHidden = true
             cell.joinedBtn.isHidden = true
             return cell
         }
