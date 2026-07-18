@@ -46,7 +46,7 @@ class CommunityListController: UIViewController {
             self.myCommunities = AppInstance.instance.myCommunities
             self.tableView.reloadData()
         }
-        self.getJoinedCommunities(user_id: UserData.getUSER_ID()!)
+        self.getJoinedCommunities(user_id: UserData.getUSER_ID() ?? "")
         
         self.view.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.navView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
@@ -105,40 +105,16 @@ class CommunityListController: UIViewController {
     
     
     private func getJoinedCommunities(user_id: String){
-        switch status {
-        case .unknown, .offline:
-            showAlert(title: "", message: "Internet Connection Failed")
-        case .online(.wwan),.online(.wiFi):
-            DispatchQueue.main.async {
-                Get_User_DataManagers.sharedInstance.get_User_Data(userId: user_id, access_token: "&access_token=\(UserData.getAccess_Token() ?? "")") { [weak self] (success, authError, error) in
-                    if success != nil {
-                        print("This is community start")
-                        for i in success!.joined_communities{
-                            print(i)
-                            self?.communityList.append(i)
-                        }
-                        print("this is community end")
-                        if (AppInstance.instance.myCommunities.count == 0){
-                            self?.myCommunities.removeAll()
-                            self?.myCommunities = (self?.communityList.filter({$0["user_id"] as? String == UserData.getUSER_ID()!})) ?? []
-                        }
-                        self?.communityList = self?.communityList.filter({$0["user_id"] as? String != UserData.getUSER_ID()!}) ?? []
-                        if (self?.communityList.count == 0){
-                            self?.isCommunityExist = 0
-                        }
-                        else{
-                            self?.isCommunityExist = 1
-                        }
-                        self?.tableView.reloadData()
-                        self?.activityIndicator.stopAnimating()
-                    }
-                    else if authError != nil {
-                        self?.showAlert(title: "", message: (authError?.errors.errorText)!)
-                    }
-                    else if error != nil {
-                        print(error?.localizedDescription)
-                    }
-                }
+        self.activityIndicator.startAnimating()
+        CommunityManager.sharedInstance.getCommunities(fetch: "joined_communities", limit: 50, offset: 0) { [weak self] success, error in
+            guard let self = self else { return }
+            self.activityIndicator.stopAnimating()
+            if let data = success {
+                self.communityList = data
+                self.myCommunities = data.filter { ($0["user_id"] as? String) == UserData.getUSER_ID() ?? "" }
+                self.communityList = self.communityList.filter { ($0["user_id"] as? String) != UserData.getUSER_ID() ?? "" }
+                self.isCommunityExist = self.communityList.isEmpty ? 0 : 1
+                self.tableView.reloadData()
             }
         }
     }

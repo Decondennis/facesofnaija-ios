@@ -9,7 +9,7 @@ class Get_User_DataManagers {
     
     func get_User_Data (userId : String, access_token : String, completionBlock : @escaping (_ Success:Get_User_DataModel.get_Uers_DataSuccessModel?, _ AuthError : Get_User_DataModel.get_Uers_DataErrorModel? , Error?)->()){
         
-    let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key, APIClient.Params.userId : userId, APIClient.Params.fetch : "followers,user_data,followers,following,liked_pages,joined_groups,joined_communities"] as [String : Any]
+    let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key, APIClient.Params.userId : userId, APIClient.Params.fetch : "followers,user_data,followers,following,liked_pages,joined_groups"] as [String : Any]
         
         AF.request(APIClient.User_Data.getUserDataApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
