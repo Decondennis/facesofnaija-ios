@@ -190,7 +190,7 @@ class CommunityListController: UIViewController {
 extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 4
+        return 5
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -199,6 +199,7 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
         case 1: return max(joinedCommunities.count, 1)
         case 2: return max(allCommunities.count, 1)
         case 3: return max(suggestedCommunities.count, 1)
+        case 4: return 1
         default: return 1
         }
     }
@@ -215,6 +216,17 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
                 self?.gotoCommunityController(indexPath: indexPath)
             }
             cell.groupCollectionView.reloadData()
+            return cell
+        }
+        
+        if indexPath.section == 4 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "JoinCommunity") as! JoinedCommunityCell
+            cell.noCommunityview.isHidden = true
+            cell.communityView.isHidden = false
+            cell.communityName.text = "View Requested Communities >"
+            cell.communityName.textColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+            cell.communityIcon.image = UIImage(named: "ic_check")
+            cell.joinedBtn.isHidden = true
             return cell
         }
         
@@ -256,6 +268,9 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
         if indexPath.section == 0 {
             return self.myCommunities.isEmpty ? 0 : 130
         }
+        if indexPath.section == 4 {
+            return 60
+        }
         let data: [[String:Any]]
         switch indexPath.section {
         case 1: data = joinedCommunities
@@ -267,6 +282,13 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 4 {
+            let storyboard = UIStoryboard(name: "Communities", bundle: nil)
+            if let vc = storyboard.instantiateViewController(withIdentifier: "CommunityRequestVC") as? CommunityRequestController {
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+            return
+        }
         guard indexPath.section > 0 else { return }
         let data: [[String:Any]]
         switch indexPath.section {
@@ -318,48 +340,31 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if section == 0 {
-            
-            let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 50))
-            let label = UILabel()
-            label.frame = CGRect.init(x: 10, y: 5, width: headerView.frame.width-10, height: headerView.frame.height-10)
-            label.text = "\("  ")\(NSLocalizedString("Manage Community", comment: "Manage Community"))"
-            label.textColor = .black
-            label.backgroundColor = UIColor.hexStringToUIColor(hex: "#E4E6E8")
-            headerView.addSubview(label)
-            return headerView
+        let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 50))
+        let label = UILabel()
+        label.frame = CGRect.init(x: 10, y: 5, width: headerView.frame.width-10, height: headerView.frame.height-10)
+        if section < sectionTitles.count {
+            label.text = "  \(NSLocalizedString(sectionTitles[section], comment: sectionTitles[section]))"
+        } else {
+            label.text = "  Requested Communities"
         }
-        else {
-            
-            
-            let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 50))
-            
-            let label = UILabel()
-            label.frame = CGRect.init(x: 10, y: 5, width: headerView.frame.width-10, height: headerView.frame.height-10)
-            label.text = "\("  ")\(NSLocalizedString("Joined Community", comment: "Joined Community"))"
-            label.textColor = .black
-            label.backgroundColor = UIColor.hexStringToUIColor(hex: "#E4E6E8")
-            headerView.addSubview(label)
-            return headerView
-        }
+        label.textColor = .black
+        label.backgroundColor = UIColor.hexStringToUIColor(hex: "#E4E6E8")
+        headerView.addSubview(label)
+        return headerView
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 0{
-            if self.myCommunities.count == 0{
-                return 0
-            }
-            else {
-                return 50
-            }
+            return self.myCommunities.isEmpty ? 0 : 50
         }
-        else {
-            if self.communityList.count == 0{
-                return 0
-            }
-            else {
-                return 50
-            }
+        let sectionData: [[String:Any]]
+        switch section {
+        case 1: sectionData = joinedCommunities
+        case 2: sectionData = allCommunities
+        case 3: sectionData = suggestedCommunities
+        default: sectionData = []
         }
+        return sectionData.isEmpty ? 0 : 50
     }
     
     func sendCommunityData(communityData: [String : Any]) {
