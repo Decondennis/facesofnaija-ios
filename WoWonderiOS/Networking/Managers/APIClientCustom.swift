@@ -17,7 +17,7 @@ public struct APIClientCustom {
     }
     
     public struct GetCommunityPost {
-        public static let getCommunityPostApi = "\(baseV2Url)?type=get_community_posts"
+        public static let getCommunityPostApi = "\(baseV2Url)?type=posts"
     }
     
     public struct JoinCommunity {

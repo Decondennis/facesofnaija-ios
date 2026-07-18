@@ -8,7 +8,7 @@ class GetCommunityPostManager{
     
     func getCommunityPost(communityId : String,afterPostId : String, completionBlock : @escaping (_ Success:GetCommunityPostModel.getCommunityPost_SuccessModel?, _ AuthError : GetCommunityPostModel.getCommunityPost_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.type : "get_community_posts", APIClient.Params.limit : 10, APIClient.Params.id : communityId, APIClient.Params.afterPostId : afterPostId] as [String : Any]
-    let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         
         AF.request(APIClientCustom.GetCommunityPost.getCommunityPostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
