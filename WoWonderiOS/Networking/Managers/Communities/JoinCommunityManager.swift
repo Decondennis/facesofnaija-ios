@@ -8,8 +8,8 @@ class JoinCommunityManager {
     
     func joinCommunity(communityId : Int,completionBlock : @escaping (_ Success:JoinCommunityModel.JoinCommunity_SuccessModel?, _ AuthError : JoinCommunityModel.JoinCommunity_ErrorModel? , Error?)->()) {
         
-    let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key, APIClientCustom.Params.communityId : communityId] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+    let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key, "community_id" : communityId] as [String : Any]
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         
         AF.request(APIClientCustom.JoinCommunity.joinCommunityAPi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
