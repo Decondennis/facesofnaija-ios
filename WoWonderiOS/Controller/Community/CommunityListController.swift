@@ -110,7 +110,7 @@ class CommunityListController: UIViewController {
             showAlert(title: "", message: "Internet Connection Failed")
         case .online(.wwan),.online(.wiFi):
             DispatchQueue.main.async {
-                Get_User_DataManagers.sharedInstance.get_User_Data(userId: user_id, access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)") { [weak self] (success, authError, error) in
+                Get_User_DataManagers.sharedInstance.get_User_Data(userId: user_id, access_token: "&access_token=\(UserData.getAccess_Token() ?? "")") { [weak self] (success, authError, error) in
                     if success != nil {
                         print("This is community start")
                         for i in success!.joined_communities{
