@@ -1576,7 +1576,7 @@ class CommunitiesDashboardController: UIViewController, UITableViewDelegate, UIT
         let group = DispatchGroup()
         for (i, s) in sections.enumerated() {
             group.enter()
-            CommunityManager.sharedInstance.getCommunities(fetch: s.fetchKey, limit: 10, offset: 0) { (data: [[String:Any]]?), _ in
+            CommunityManager.sharedInstance.getCommunities(fetch: s.fetchKey, limit: 10, offset: 0) { success, _ in
                 if let d = data { if let data = d { self.sectionData[i] = data } }
                 group.leave()
             }
