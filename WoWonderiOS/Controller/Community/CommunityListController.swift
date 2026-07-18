@@ -106,16 +106,38 @@ class CommunityListController: UIViewController {
     
     private func getJoinedCommunities(user_id: String){
         self.activityIndicator.startAnimating()
-        CommunityManager.sharedInstance.getCommunities(fetch: "joined_communities", limit: 50, offset: 0) { [weak self] success, error in
+        let group = DispatchGroup()
+        var allCommunities: [[String:Any]] = []
+        
+        group.enter()
+        CommunityManager.sharedInstance.getCommunities(fetch: "joined_communities", limit: 50, offset: 0) { data, _ in
+            if let d = data { allCommunities.append(contentsOf: d) }
+            group.leave()
+        }
+        
+        group.enter()
+        CommunityManager.sharedInstance.getCommunities(fetch: "random_communities", limit: 50, offset: 0) { data, _ in
+            if let d = data { allCommunities.append(contentsOf: d) }
+            group.leave()
+        }
+        
+        group.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
             self.activityIndicator.stopAnimating()
-            if let data = success {
-                self.communityList = data
-                self.myCommunities = data.filter { ($0["user_id"] as? String) == UserData.getUSER_ID() ?? "" }
-                self.communityList = self.communityList.filter { ($0["user_id"] as? String) != UserData.getUSER_ID() ?? "" }
-                self.isCommunityExist = self.communityList.isEmpty ? 0 : 1
-                self.tableView.reloadData()
+            
+            // Remove duplicates by community_id
+            var seen = Set<String>()
+            self.communityList = allCommunities.filter { item in
+                let cid = (item["community_id"] as? String) ?? (item["id"] as? String ?? "")
+                if seen.contains(cid) { return false }
+                seen.insert(cid)
+                return true
             }
+            
+            self.myCommunities = self.communityList.filter { ($0["user_id"] as? String) == UserData.getUSER_ID() ?? "" }
+            self.communityList = self.communityList.filter { ($0["user_id"] as? String) != UserData.getUSER_ID() ?? "" }
+            self.isCommunityExist = self.communityList.isEmpty ? 0 : 1
+            self.tableView.reloadData()
         }
     }
     
