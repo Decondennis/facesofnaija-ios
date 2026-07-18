@@ -283,10 +283,8 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 4 {
-            let storyboard = UIStoryboard(name: "Communities", bundle: nil)
-            if let vc = storyboard.instantiateViewController(withIdentifier: "CommunityRequestVC") as? CommunityRequestController {
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
+            let vc = RequestedCommunitiesController()
+            self.navigationController?.pushViewController(vc, animated: true)
             return
         }
         guard indexPath.section > 0 else { return }
@@ -452,4 +450,65 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
         }
     }
 
+}
+
+
+class RequestedCommunitiesController: UITableViewController {
+    
+    var items: [[String:Any]] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "Requested Communities"
+        view.backgroundColor = .white
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.tableFooterView = UIView()
+        navigationController?.navigationBar.isHidden = false
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: " Back", style: .plain, target: self, action: #selector(goBack))
+        
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.center = view.center
+        view.addSubview(indicator)
+        indicator.startAnimating()
+        
+        CommunityManager.sharedInstance.getCommunities(fetch: "requested_communities", limit: 50, offset: 0) { data, _ in
+            indicator.stopAnimating()
+            indicator.removeFromSuperview()
+            if let d = data { self.items = d }
+            self.tableView.reloadData()
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
+    @objc func goBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return max(items.count, 1)
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if items.isEmpty {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+            cell.textLabel?.text = "No requested communities."
+            cell.textLabel?.textColor = .gray
+            cell.textLabel?.textAlignment = .center
+            return cell
+        }
+        let item = items[indexPath.row]
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        let name = (item["community_title"] as? String) ?? (item["community_name"] as? String ?? "Community")
+        cell.textLabel?.text = name
+        if let status = item["request_status"] as? String {
+            cell.detailTextLabel?.text = "Status: " + status.capitalized
+            cell.detailTextLabel?.textColor = status == "approved" ? .systemGreen : (status == "pending" ? .systemOrange : .systemRed)
+        }
+        cell.selectionStyle = .none
+        return cell
+    }
 }
