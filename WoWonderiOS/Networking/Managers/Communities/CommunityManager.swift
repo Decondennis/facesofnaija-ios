@@ -15,7 +15,7 @@ class CommunityManager{
     func requestCommunity (name:String,country:String,state:String,lga:String, about:String,privacy:Int,completionBlock : @escaping (_ Success: RequestCommunityModel.requestCommunity_SuccessModel?, _ AuthError : RequestCommunityModel.requestCommunity_ErrorModel? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, 
-        APIClientCustom.Params.name : name, APIClientCustom.Params.country : country, 
+        "community_name" : name, APIClientCustom.Params.country : country, 
         APIClientCustom.Params.state : state, APIClientCustom.Params.lga : lga, 
         APIClientCustom.Params.privacy :privacy,
         APIClientCustom.Params.about :about,
