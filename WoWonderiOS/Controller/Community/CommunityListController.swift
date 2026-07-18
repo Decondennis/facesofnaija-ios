@@ -187,7 +187,7 @@ class CommunityListController: UIViewController {
     }
     
 }
-extension CommunityListController:UITableViewDelegate,UITableViewDataSource,RequestCommunityDelegate,JoinCommunityDelegate{
+extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 4
@@ -277,7 +277,9 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource,Requ
         }
         guard !data.isEmpty else { return }
         let index = data[indexPath.row]
-            self.selctedIndex = indexPath.row
+        let storyboard = UIStoryboard(name: "Communities", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "CommunityVC") as! CommunityController
+        self.selctedIndex = indexPath.row
             if let communityId = index["community_id"] as? String{
                 vc.communityId = communityId
             }
@@ -313,7 +315,6 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource,Requ
             //vc.delegate = self
             vc.communityData = index
             self.navigationController?.pushViewController(vc, animated: true)
-        }
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -445,4 +446,3 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource,Requ
             }
         }
     }
-}
