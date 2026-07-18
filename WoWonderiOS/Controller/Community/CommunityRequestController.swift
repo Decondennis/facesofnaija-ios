@@ -49,7 +49,7 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
         self.privateView.backgroundColor = .white
         self.requestLabel.text = NSLocalizedString("Request Community", comment: "Request Community")
         self.requestLabel.font = UIFont.boldSystemFont(ofSize: 22)
-        self.sendBtn.setTitle(NSLocalizedString("Send Request", comment: "Send Request"), for: .normal)
+        self.sendBtn.setTitle(NSLocalizedString("Send", comment: "Send"), for: .normal)
         self.sendBtn.layer.cornerRadius = 22
         self.sendBtn.clipsToBounds = true
         self.privacyLabel.text = NSLocalizedString("Privacy", comment: "Privacy")
@@ -62,12 +62,9 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
         self.navView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.designView1.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
         self.designView2.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        // Style text fields
         for field in [communityNameField, countryField, stateField, lgaField, aboutField] as! [UITextField] {
-            field.layer.cornerRadius = 10
-            field.layer.borderWidth = 1
-            field.layer.borderColor = UIColor(white: 0.85, alpha: 1).cgColor
             field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
+            field.leftViewMode = .always
             field.leftViewMode = .always
         }
     }
@@ -146,7 +143,11 @@ class CommunityRequestController: UIViewController,UITextFieldDelegate {
     
     
     @IBAction func Back(_ sender: Any) {
-        self.navigationController?.popViewController(animated: true)
+        if let nav = self.navigationController {
+            nav.popViewController(animated: true)
+        } else {
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     
     
