@@ -26122,3 +26122,5 @@ echo "SUCCESS" &gt; "${SCRIPT_OUTPUT_FILE_0}"
 	<string>18D89BDC235AFBA7003560ED</string>
 </dict>
 </plist>
+		7B72EBFB1DDA4DD3A631444C /* CommunitiesDashboardController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommunitiesDashboardController.swift; sourceTree = "<group>"; };		3732F9A884044826BD5D0E7D /* CommunitiesDashboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B72EBFB1DDA4DD3A631444C /* CommunitiesDashboardController.swift */; };
+
