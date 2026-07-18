@@ -1235,8 +1235,10 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
     }
     
     @objc func openCommunities() {
-        let vc = CommunitiesDashboardController()
-        self.navigationController?.pushViewController(vc, animated: true)
+        let sb = UIStoryboard(name: "Communities", bundle: nil)
+        if let vc = sb.instantiateViewController(withIdentifier: "MyCommunitiesVC") as? CommunityListController {
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     @objc func openAnnouncements() {
