@@ -1527,7 +1527,7 @@ class CommunitiesDashboardController: UIViewController, UITableViewDelegate, UIT
         ("Suggested Communities", "Recommended for you", "random_communities"),
         ("Requested Communities", "Your join requests", "requested_communities")
     ]
-    var sectionData: [[String:Any]] = [[], [], [], []]
+    var sectionData: [[[String:Any]]] = [[], [], [], []]
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
@@ -1577,7 +1577,7 @@ class CommunitiesDashboardController: UIViewController, UITableViewDelegate, UIT
         for (i, s) in sections.enumerated() {
             group.enter()
             CommunityManager.sharedInstance.getCommunities(fetch: s.fetchKey, limit: 10, offset: 0) { data, _ in
-                if let d = data { self.sectionData[i] = d }
+                if let d = data { if let data = d { self.sectionData[i] = data } }
                 group.leave()
             }
         }
@@ -1635,7 +1635,7 @@ class CommunitiesDashboardController: UIViewController, UITableViewDelegate, UIT
         case 0:
             if let vc = sb.instantiateViewController(withIdentifier: "MyCommunitiesVC") as? CommunityListController { navigationController?.pushViewController(vc, animated: true) }
         default:
-            if let vc = sb.instantiateViewController(withIdentifier: "ShowAllSuggestedCommunityVC") { navigationController?.pushViewController(vc, animated: true) }
+            let vc = sb.instantiateViewController(withIdentifier: "ShowAllSuggestedCommunityVC"); navigationController?.pushViewController(vc, animated: true)
         }
     }
     func openCommunityDetail(_ community: [String:Any]) {
