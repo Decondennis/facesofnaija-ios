@@ -15,6 +15,9 @@ class CommunityListController: UIViewController {
     
     var communityList = [[String:Any]]()
     var myCommunities  = [[String:Any]]()
+    var joinedCommunities: [[String:Any]] = []
+    var allCommunities: [[String:Any]] = []
+    var suggestedCommunities: [[String:Any]] = []
     let status = Reach().connectionStatus()
     
     var offset = "0"
@@ -22,6 +25,8 @@ class CommunityListController: UIViewController {
     var isAdmin = false
     var selctedIndex = 0
     var isCommunityExist = 1
+    
+    let sectionTitles = ["My Community", "Joined Communities", "All Communities", "Suggested Communities"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,17 +112,19 @@ class CommunityListController: UIViewController {
     private func getJoinedCommunities(user_id: String){
         self.activityIndicator.startAnimating()
         let group = DispatchGroup()
-        var allCommunities: [[String:Any]] = []
         
         group.enter()
         CommunityManager.sharedInstance.getCommunities(fetch: "joined_communities", limit: 50, offset: 0) { data, _ in
-            if let d = data { allCommunities.append(contentsOf: d) }
+            if let d = data { self.joinedCommunities = d }
             group.leave()
         }
         
         group.enter()
         CommunityManager.sharedInstance.getCommunities(fetch: "random_communities", limit: 50, offset: 0) { data, _ in
-            if let d = data { allCommunities.append(contentsOf: d) }
+            if let d = data { 
+                self.allCommunities = d
+                self.suggestedCommunities = d
+            }
             group.leave()
         }
         
@@ -125,17 +132,10 @@ class CommunityListController: UIViewController {
             guard let self = self else { return }
             self.activityIndicator.stopAnimating()
             
-            // Remove duplicates by community_id
-            var seen = Set<String>()
-            self.communityList = allCommunities.filter { item in
-                let cid = (item["community_id"] as? String) ?? (item["id"] as? String ?? "")
-                if seen.contains(cid) { return false }
-                seen.insert(cid)
-                return true
-            }
-            
-            self.myCommunities = self.communityList.filter { ($0["user_id"] as? String) == UserData.getUSER_ID() ?? "" }
-            self.communityList = self.communityList.filter { ($0["user_id"] as? String) != UserData.getUSER_ID() ?? "" }
+            // My communities = joined where user_id matches current user
+            self.myCommunities = self.joinedCommunities.filter { ($0["user_id"] as? String) == UserData.getUSER_ID() ?? "" }
+            // Community list (section 1-3 combined view)
+            self.communityList = self.joinedCommunities + self.allCommunities
             self.isCommunityExist = self.communityList.isEmpty ? 0 : 1
             self.tableView.reloadData()
         }
@@ -190,21 +190,21 @@ class CommunityListController: UIViewController {
 extension CommunityListController:UITableViewDelegate,UITableViewDataSource,RequestCommunityDelegate,JoinCommunityDelegate{
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return 4
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
+        switch section {
+        case 0: return 1
+        case 1: return max(joinedCommunities.count, 1)
+        case 2: return max(allCommunities.count, 1)
+        case 3: return max(suggestedCommunities.count, 1)
+        default: return 1
         }
-        else {
-            if (self.isCommunityExist == 1){
-            return self.communityList.count
-            }
-            else{
-                return 1
-            }
-        }
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return section < sectionTitles.count ? sectionTitles[section] : nil
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -218,61 +218,65 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource,Requ
             return cell
         }
         
-        else {
-            if (self.isCommunityExist == 1){
-                let cell = tableView.dequeueReusableCell(withIdentifier: "JoinCommunity") as! JoinedCommunityCell
-                cell.noCommunityview.isHidden = true
-                cell.communityView.isHidden = false
-                let index =  self.communityList[indexPath.row]
-                if let image = index["avatar"] as? String {
-                    let trimmedString = image.trimmingCharacters(in: .whitespaces)
-                    print(trimmedString)
-                    let url = URL(string: trimmedString)
-                    cell.communityIcon.kf.setImage(with: url)
-                }
-                if let communityName = index["community_title"] as? String {
-                    cell.communityName.text = communityName
-                }
-                
-                cell.joinedBtn.tag = indexPath.row
-                cell.joinedBtn.addTarget(self, action: #selector(self.JoinCommunity(sender:)), for: .touchUpInside)
-                return cell
-            }
-            else{
-                let cell = tableView.dequeueReusableCell(withIdentifier: "JoinCommunity") as! JoinedCommunityCell
-                cell.noCommunityview.isHidden = false
-                cell.communityView.isHidden = true
-                cell.searchBtn.addTarget(self, action: #selector(self.gotoSearch(sender:)), for: .touchUpInside)
-                return cell
-            }
+        let data: [[String:Any]]
+        switch indexPath.section {
+        case 1: data = joinedCommunities
+        case 2: data = allCommunities
+        case 3: data = suggestedCommunities
+        default: data = []
         }
+        
+        if data.isEmpty {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "JoinCommunity") as! JoinedCommunityCell
+            cell.noCommunityview.isHidden = false
+            cell.communityView.isHidden = true
+            cell.searchBtn.addTarget(self, action: #selector(self.gotoSearch(sender:)), for: .touchUpInside)
+            return cell
+        }
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "JoinCommunity") as! JoinedCommunityCell
+        cell.noCommunityview.isHidden = true
+        cell.communityView.isHidden = false
+        let index = data[indexPath.row]
+        if let image = index["avatar"] as? String {
+            let url = URL(string: image.trimmingCharacters(in: .whitespaces))
+            cell.communityIcon.kf.setImage(with: url)
+        }
+        if let communityName = index["community_title"] as? String {
+            cell.communityName.text = communityName
+        } else if let name = index["name"] as? String {
+            cell.communityName.text = name
+        }
+        cell.joinedBtn.tag = indexPath.row
+        cell.joinedBtn.addTarget(self, action: #selector(self.JoinCommunity(sender:)), for: .touchUpInside)
+        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
-            if self.myCommunities.count == 0 {
-                return 0
-            }
-            else {
-                return 130.0
-            }
+            return self.myCommunities.isEmpty ? 0 : 130
         }
-        else {
-            if (self.isCommunityExist == 1){
-            return 100.0
-            }
-            else{
-                return 350.0
-            }
+        let data: [[String:Any]]
+        switch indexPath.section {
+        case 1: data = joinedCommunities
+        case 2: data = allCommunities
+        case 3: data = suggestedCommunities
+        default: data = []
         }
+        return data.isEmpty ? 350 : 100
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        if indexPath.section == 1{
-            let storyboard = UIStoryboard(name: "Communities", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "CommunityVC") as! CommunityController
-            let index = self.communityList[indexPath.row]
+        guard indexPath.section > 0 else { return }
+        let data: [[String:Any]]
+        switch indexPath.section {
+        case 1: data = joinedCommunities
+        case 2: data = allCommunities
+        case 3: data = suggestedCommunities
+        default: data = []
+        }
+        guard !data.isEmpty else { return }
+        let index = data[indexPath.row]
             self.selctedIndex = indexPath.row
             if let communityId = index["community_id"] as? String{
                 vc.communityId = communityId
