@@ -201,7 +201,7 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
                     self.view.makeToast("Community Request Submitted")
                     self.navigationController?.popViewController(animated: true)
                 } else if authError != nil {
-                    self.view.makeToast(authError?.errors?.errorText ?? "Error")
+                    self.view.makeToast(authError?.errors.errorText ?? "Error")
                 } else {
                     print(error?.localizedDescription ?? "")
                 }
