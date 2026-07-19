@@ -163,13 +163,9 @@ class CommunityListController: UIViewController {
     }
     
     @IBAction func Create(_ sender: Any) {
-        print("Testing from community")
-        let storyboard = UIStoryboard(name: "Communities", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "CommunityRequestVC") as! CommunityRequestController
-        vc.modalPresentationStyle = .fullScreen
-        vc.modalTransitionStyle = .coverVertical
-        //vc.delegate = self
-        self.present(vc, animated: true, completion: nil)
+        let vc = CommunityRequestController()
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     }
     
     @IBAction func Back(_ sender: Any) {
@@ -391,8 +387,11 @@ extension CommunityListController:UITableViewDelegate,UITableViewDataSource {
     
     func gotoCommunityController(indexPath:IndexPath){
         let storyboard = UIStoryboard(name: "Communities", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "CommunityRequestVC") as! CommunityRequestController
+        let vc = CommunityRequestController()
         let index = self.myCommunities[indexPath.row]
+        vc.setCommunityName(index["community_name"] as? String ?? index["name"] as? String ?? "")
+        vc.setDescription(index["about"] as? String ?? "")
+        vc.privacy = Int(index["privacy"] as? String ?? "0") ?? 0
         /*if let groupId = index["group_id"] as? String{
             vc.groupId = groupId
         }

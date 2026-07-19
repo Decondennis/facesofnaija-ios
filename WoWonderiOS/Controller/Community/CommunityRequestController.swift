@@ -8,6 +8,9 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
     var isHome = 0
     let status = Reach().connectionStatus()
     
+    func setCommunityName(_ name: String) { nameField.text = name }
+    func setDescription(_ desc: String) { descField.text = desc }
+    
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.translatesAutoresizingMaskIntoConstraints = false
