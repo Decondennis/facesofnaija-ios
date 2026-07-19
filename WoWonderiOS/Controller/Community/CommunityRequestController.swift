@@ -1,168 +1,211 @@
-//
-//  CommunityRequestController.swift
-//  FacesofnaijaiOS
-//
-//  Created by MacBook Pro on 19/07/2022.
-//  Copyright © 2022 clines329. All rights reserved.
-//
-
 import UIKit
 import Toast_Swift
 import ZKProgressHUD
 
-
-class CommunityRequestController: UIViewController,UITextFieldDelegate {
+class CommunityRequestController: UIViewController, UITextFieldDelegate {
     
-    @IBOutlet weak var communityNameField: RoundTextField!
-    @IBOutlet weak var countryField: RoundTextField!
-    @IBOutlet weak var stateField: RoundTextField!
-    @IBOutlet weak var lgaField: RoundTextField!
-    @IBOutlet weak var aboutField: RoundTextField!
-    @IBOutlet weak var publicBtn: UIButton!
-    @IBOutlet weak var privateBtn: UIButton!
-    @IBOutlet weak var publicView: DesignView!
-    @IBOutlet weak var privateView: DesignView!
-    @IBOutlet weak var requestLabel: UILabel!
-    @IBOutlet weak var sendBtn: UIButton!
-    @IBOutlet weak var backBtn: UIButton!
-    //@IBOutlet weak var describeLbl: UILabel!
-    //@IBOutlet weak var communityDescLbl: UILabel!
-    @IBOutlet weak var privacyLabel: UILabel!
-    @IBOutlet var navView: UIView!
-    @IBOutlet weak var designView1: DesignView!
-    @IBOutlet weak var designView2: DesignView!
-    
-    let status = Reach().connectionStatus()
-    var delegate : RequestCommunityDelegate!
     var privacy = 0
     var isHome = 0
+    let status = Reach().connectionStatus()
+    
+    private let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.backgroundColor = .systemBackground
+        return sv
+    }()
+    
+    private let stackView: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .vertical
+        sv.spacing = 16
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.layoutMargins = UIEdgeInsets(top: 20, left: 24, bottom: 40, right: 24)
+        sv.isLayoutMarginsRelativeArrangement = true
+        return sv
+    }()
+    
+    private let titleLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Request Community"
+        l.font = UIFont.boldSystemFont(ofSize: 24)
+        l.textAlignment = .center
+        return l
+    }()
+    
+    private let nameField: UITextField = {
+        let f = UITextField()
+        f.placeholder = "Community Name"
+        f.borderStyle = .roundedRect
+        f.font = UIFont.systemFont(ofSize: 16)
+        return f
+    }()
+    
+    private let descField: UITextField = {
+        let f = UITextField()
+        f.placeholder = "Description"
+        f.borderStyle = .roundedRect
+        f.font = UIFont.systemFont(ofSize: 16)
+        return f
+    }()
+    
+    private let privacyLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Privacy"
+        l.font = UIFont.boldSystemFont(ofSize: 16)
+        return l
+    }()
+    
+    private let privacyStack: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .horizontal
+        sv.spacing = 12
+        sv.distribution = .fillEqually
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
+    
+    private let publicBtn: UIButton = {
+        let b = UIButton(type: .system)
+        b.setTitle("Public", for: .normal)
+        b.backgroundColor = .white
+        b.setTitleColor(.darkGray, for: .normal)
+        b.layer.cornerRadius = 10
+        b.layer.borderWidth = 1.5
+        b.layer.borderColor = UIColor.lightGray.cgColor
+        b.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        return b
+    }()
+    
+    private let privateBtn: UIButton = {
+        let b = UIButton(type: .system)
+        b.setTitle("Private", for: .normal)
+        b.backgroundColor = .white
+        b.setTitleColor(.darkGray, for: .normal)
+        b.layer.cornerRadius = 10
+        b.layer.borderWidth = 1.5
+        b.layer.borderColor = UIColor.lightGray.cgColor
+        b.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        return b
+    }()
+    
+    private let submitBtn: UIButton = {
+        let b = UIButton(type: .system)
+        b.setTitle("Send", for: .normal)
+        b.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+        b.setTitleColor(.white, for: .normal)
+        b.layer.cornerRadius = 22
+        b.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+        b.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        return b
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        self.navView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        self.navigationItem.hidesBackButton = true
-        self.navigationController?.navigationBar.isHidden = true
-        NotificationCenter.default.addObserver(self, selector: #selector(self.networkStatusChanged(_:)), name: Notification.Name(rawValue: ReachabilityStatusChangedNotification), object: nil)
-        Reach().monitorReachabilityChanges()
-        self.publicView.backgroundColor = .white
-        self.privateView.backgroundColor = .white
-        self.requestLabel.text = NSLocalizedString("Request Community", comment: "Request Community")
-        self.requestLabel.font = UIFont.boldSystemFont(ofSize: 22)
-        self.sendBtn.setTitle(NSLocalizedString("Send", comment: "Send"), for: .normal)
-        self.sendBtn.layer.cornerRadius = 22
-        self.sendBtn.clipsToBounds = true
-        self.privacyLabel.text = NSLocalizedString("Privacy", comment: "Privacy")
-        self.privacyLabel.font = UIFont.boldSystemFont(ofSize: 16)
-        self.communityNameField.placeholder = NSLocalizedString("Community Name", comment: "Community Name")
-        self.countryField.placeholder = NSLocalizedString("Country", comment: "Country")
-        self.aboutField.placeholder = NSLocalizedString("Description", comment: "Description")
-        self.stateField.placeholder = NSLocalizedString("State", comment: "State")
-        self.lgaField.placeholder = NSLocalizedString("LGA", comment: "LGA")
-        self.navView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        self.designView1.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        self.designView2.borderColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        // Remove country, state, LGA fields
-        countryField.isHidden = true
-        stateField.isHidden = true
-        lgaField.isHidden = true
-        for field in [communityNameField, aboutField] as! [UITextField] {
-            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
-            field.leftViewMode = .always
-            field.leftViewMode = .always
+        view.backgroundColor = .systemBackground
+        navigationItem.title = ""
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: " Back", style: .plain, target: self, action: #selector(goBack))
+        navigationController?.navigationBar.isHidden = false
+        
+        setupViews()
+        setupActions()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
+    @objc func goBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    private func setupViews() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(stackView)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+        
+        privacyStack.addArrangedSubview(publicBtn)
+        privacyStack.addArrangedSubview(privateBtn)
+        
+        stackView.addArrangedSubview(titleLabel)
+        stackView.setCustomSpacing(24, after: titleLabel)
+        stackView.addArrangedSubview(nameField)
+        stackView.addArrangedSubview(descField)
+        stackView.setCustomSpacing(8, after: descField)
+        stackView.addArrangedSubview(privacyLabel)
+        stackView.addArrangedSubview(privacyStack)
+        stackView.setCustomSpacing(32, after: privacyStack)
+        stackView.addArrangedSubview(submitBtn)
+    }
+    
+    private func setupActions() {
+        publicBtn.addTarget(self, action: #selector(didTapPublic), for: .touchUpInside)
+        privateBtn.addTarget(self, action: #selector(didTapPrivate), for: .touchUpInside)
+        submitBtn.addTarget(self, action: #selector(didTapSend), for: .touchUpInside)
+    }
+    
+    @objc private func didTapPublic() {
+        privacy = 1
+        publicBtn.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+        publicBtn.setTitleColor(.white, for: .normal)
+        privateBtn.backgroundColor = .white
+        privateBtn.setTitleColor(.darkGray, for: .normal)
+    }
+    
+    @objc private func didTapPrivate() {
+        privacy = 2
+        privateBtn.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+        privateBtn.setTitleColor(.white, for: .normal)
+        publicBtn.backgroundColor = .white
+        publicBtn.setTitleColor(.darkGray, for: .normal)
+    }
+    
+    @objc private func didTapSend() {
+        guard let name = nameField.text, !name.isEmpty else {
+            view.makeToast("Enter Community Name")
+            return
         }
+        guard let desc = descField.text, !desc.isEmpty else {
+            view.makeToast("Enter Community Description")
+            return
+        }
+        guard privacy != 0 else {
+            view.makeToast("Select Community Privacy")
+            return
+        }
+        sendRequest(name: name, desc: desc)
     }
-    override func viewWillAppear(_ animated: Bool) {
-//        self.categoryField.inputView = UIView()
-    }
     
-    
-    /// Network Connectivity
-      @objc func networkStatusChanged(_ notification: Notification) {
-          if let userInfo = notification.userInfo {
-              let status = userInfo["Status"] as! String
-              print("Status",status)
-          }
-      }
-    
-    private func sendRequest() {
+    private func sendRequest(name: String, desc: String) {
         switch status {
         case .unknown, .offline:
             showAlert(title: "", message: "Internet Connection Failed")
-        case .online(.wwan),.online(.wiFi):
+        case .online(.wwan), .online(.wiFi):
             ZKProgressHUD.show()
-       performUIUpdatesOnMain {
-                
-            CommunityManager.sharedInstance.requestCommunity(name: self.communityNameField.text ?? "", country: "", state: "", lga: "", about: self.aboutField.text ?? "", privacy: self.privacy) { (success, authError, error) in
-         if success != nil {
-             print(success!.community_data)
-             let communityData = (success!.community_data)
-             print(communityData)
-             ZKProgressHUD.dismiss()
-             self.view.makeToast("Community Request Submitted")
-             self.communityNameField.text = ""
-             self.aboutField.text = ""
-             self.privacy = 0
-             self.navigationController?.popViewController(animated: true)
-        }
-        else if authError != nil {
-            ZKProgressHUD.dismiss()
-            self.view.makeToast(authError?.errors.errorText)
-//            if authError?.errors.errorText == "Invalid group name characters"{
-//                self.view.makeToast("Invalid group URL")
-//            }
-//            else{
-//                self.view.makeToast(authError?.errors.errorText)
-//            }
-                }
-            else {
+            CommunityManager.sharedInstance.requestCommunity(name: name, country: "", state: "", lga: "", about: desc, privacy: privacy) { success, authError, error in
                 ZKProgressHUD.dismiss()
-                print(error?.localizedDescription)
+                if success != nil {
+                    self.view.makeToast("Community Request Submitted")
+                    self.navigationController?.popViewController(animated: true)
+                } else if authError != nil {
+                    self.view.makeToast(authError?.errors?.errorText ?? "Error")
+                } else {
+                    print(error?.localizedDescription ?? "")
                 }
             }
         }
     }
-        
-        
-    }
-    
-    @IBAction func Public(_ sender: Any) {
-        self.publicView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        self.privateView.backgroundColor = .white
-        self.privacy = 1
-        
-    }
-    
-    @IBAction func Private(_ sender: Any) {
-        self.publicView.backgroundColor = .white
-        self.privateView.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.appMainColor)
-        self.privacy = 2
-    }
-    
-    
-    @IBAction func Back(_ sender: Any) {
-        if let nav = self.navigationController {
-            nav.popViewController(animated: true)
-        } else {
-            self.dismiss(animated: true, completion: nil)
-        }
-    }
-    
-    
-    @IBAction func Send(_ sender: Any) {
-        if (self.communityNameField.text?.isEmpty == true) {
-            self.view.makeToast(NSLocalizedString("Enter Community Name", comment: "Enter Community Name"))
-        }
-        else if (self.aboutField.text?.isEmpty == true) {
-            self.view.makeToast(NSLocalizedString("Enter Community Description", comment: "Enter Community Description"))
-        }
-        else if (self.privacy == 0) {
-            self.view.makeToast(NSLocalizedString("Select Community Privacy", comment: "Select Community Privacy"))
-        }
-        else {
-            self.sendRequest()
-        }
-        
-    }
-    
 }
