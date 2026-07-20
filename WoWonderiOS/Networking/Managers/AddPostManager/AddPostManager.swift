@@ -74,32 +74,22 @@ class AddPostManager{
         let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(url, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)
-            if response.value != nil{
-                guard let res = response.value as? [String:Any] else {return}
-                guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
-//                    try? JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
-                    print("result",result)
-                    completionBlock(result,nil,nil)
-                }
-                    
-                else {
-                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {
-                        completionBlock(nil, nil, nil)
-                        return
-                    }
-                    if let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
-                        completionBlock(nil,result,nil)
+            if let value = response.value as? [String:Any] {
+                let apiStatus = value["api_status"] as? Int ?? 0
+                if apiStatus == 200 || value["api_status"] as? String == "200" {
+                    let result = AddPostModel.AddPostSuccessModel.init(json: value)
+                    print("result", result)
+                    completionBlock(result, nil, nil)
+                } else {
+                    if let data = try? JSONSerialization.data(withJSONObject: value, options: []),
+                       let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
+                        completionBlock(nil, result, nil)
                     } else {
                         completionBlock(nil, nil, nil)
                     }
                 }
-            }
-            else {
-                print(response.error?.localizedDescription)
-                completionBlock(nil,nil,response.error)
+            } else {
+                completionBlock(nil, nil, response.error)
             }
         }
     }
