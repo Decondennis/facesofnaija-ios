@@ -452,12 +452,16 @@ class CommentController: UIViewController,UITextViewDelegate,uploadImageDelegate
                             self.noCommentLbl.text = "\(NSLocalizedString("Comments are disabled by", comment: "Comments are disabled by"))\(AppInstance.instance.profile?.userData?.name ?? "")"
                         }
                     }
-                    print(success?.data)
-//                    self.comments.append(success!.data)
-                    let last = self.comments.count - 1
-                    self.comments[last] = success!.data
+                    if let data = success?.data {
+                        if !self.comments.isEmpty {
+                            self.comments[self.comments.count - 1] = data
+                        } else {
+                            self.comments.append(data)
+                        }
+                    }
                     self.isImage = false
                     self.tableView.reloadData()
+                    self.navigationController?.popViewController(animated: true)
                 }
                 else if (authError != nil) {
                     self.view.makeToast(authError?.errors.errorText)
