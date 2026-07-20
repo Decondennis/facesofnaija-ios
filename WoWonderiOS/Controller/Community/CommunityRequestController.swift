@@ -233,20 +233,15 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
         case .online(.wwan), .online(.wiFi):
             ZKProgressHUD.show()
             CommunityManager.sharedInstance.requestCommunity(name: name, communityTitle: title, about: desc, category: category, reason: reason, privacy: privacy) { success, authError, error in
-                ZKProgressHUD.dismiss()
-                if success != nil {
-                    let alert = UIAlertController(title: "Success", message: "Community request submitted successfully.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                DispatchQueue.main.async {
+                    ZKProgressHUD.dismiss()
+                    if success != nil {
+                        self.view.makeToast("Request submitted!")
                         self.navigationController?.popViewController(animated: true)
-                    }))
-                    self.present(alert, animated: true)
-                } else if authError != nil {
-                    let msg = authError?.errors.errorText ?? "An error occurred"
-                    let alert = UIAlertController(title: "Error", message: msg, preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self.present(alert, animated: true)
-                } else {
-                    print(error?.localizedDescription ?? "")
+                    } else {
+                        let msg = authError?.errors.errorText ?? error?.localizedDescription ?? "Request failed"
+                        self.view.makeToast(msg)
+                    }
                 }
             }
         }
