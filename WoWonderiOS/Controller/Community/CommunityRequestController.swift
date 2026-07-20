@@ -219,11 +219,15 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
             view.makeToast("Enter Reason for Request")
             return
         }
+        guard let category = categoryField.text, !category.isEmpty else {
+            view.makeToast("Enter Category")
+            return
+        }
         guard privacy != 0 else {
             view.makeToast("Select Privacy")
             return
         }
-        sendRequest(name: name, title: title, desc: desc, category: categoryField.text ?? "", reason: reason)
+        sendRequest(name: name, title: title, desc: desc, category: category, reason: reason)
     }
     
     private func sendRequest(name: String, title: String, desc: String, category: String, reason: String) {
