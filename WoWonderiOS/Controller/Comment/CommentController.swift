@@ -461,7 +461,7 @@ class CommentController: UIViewController,UITextViewDelegate,uploadImageDelegate
                     }
                     self.isImage = false
                     self.tableView.reloadData()
-                    self.navigationController?.popViewController(animated: true)
+                    self.dismiss(animated: true, completion: nil)
                 }
                 else if (authError != nil) {
                     self.view.makeToast(authError?.errors.errorText)
