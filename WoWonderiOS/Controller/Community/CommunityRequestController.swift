@@ -2,11 +2,13 @@ import UIKit
 import Toast_Swift
 import ZKProgressHUD
 
-class CommunityRequestController: UIViewController, UITextFieldDelegate {
+class CommunityRequestController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
     var privacy = 0
     var isHome = 0
     let status = Reach().connectionStatus()
+    private let categories = ["Select Category", "General", "Education", "Business", "Technology", "Entertainment", "Sports", "Health", "Music", "Art", "Other"]
+    private var selectedCategoryId = "1"
     
     func setCommunityName(_ name: String) { nameField.text = name }
     func setDescription(_ desc: String) { descField.text = desc }
@@ -76,6 +78,8 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
         return f
     }()
     
+    private let pickerView = UIPickerView()
+    
     private let privacyLabel: UILabel = {
         let l = UILabel()
         l.text = "Privacy *"
@@ -133,6 +137,10 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
         navigationItem.title = ""
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: " Back", style: .plain, target: self, action: #selector(goBack))
         navigationController?.navigationBar.isHidden = false
+        
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        categoryField.inputView = pickerView
         
         setupViews()
         setupActions()
@@ -219,15 +227,15 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
             view.makeToast("Enter Reason for Request")
             return
         }
-        guard let category = categoryField.text, !category.isEmpty else {
-            view.makeToast("Enter Category")
+        guard let category = categoryField.text, !category.isEmpty, category != "Select Category" else {
+            view.makeToast("Select a Category")
             return
         }
         guard privacy != 0 else {
             view.makeToast("Select Privacy")
             return
         }
-        sendRequest(name: name, title: title, desc: desc, category: category, reason: reason)
+        sendRequest(name: name, title: title, desc: desc, category: selectedCategoryId, reason: reason)
     }
     
     private func sendRequest(name: String, title: String, desc: String, category: String, reason: String) {
@@ -248,6 +256,18 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
                     }
                 }
             }
+        }
+    }
+}
+
+extension CommunityRequestController {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { return categories.count }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return categories[row] }
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if row > 0 {
+            selectedCategoryId = String(row)
+            categoryField.text = categories[row]
         }
     }
 }
