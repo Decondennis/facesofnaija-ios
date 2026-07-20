@@ -312,7 +312,7 @@ class GetPostWithBg_Image :AddReactionDelegate,SharePostDelegate,comment_CountsD
         case .unknown, .offline:
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! PostwithBg_imageCell
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? PostwithBg_imageCell else { return }
             self.audioPlayer.play()
             if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                 var totalCount = 0
@@ -428,7 +428,7 @@ class GetPostWithBg_Image :AddReactionDelegate,SharePostDelegate,comment_CountsD
     }
     
     func addReaction(reation: String) {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PostwithBg_imageCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PostwithBg_imageCell else { return }
         //        self.postArray[gesture.view!.tag]["reaction"]!["Like"]   = true
         self.audioPlayer.play()
         self.reactions(index: self.selectedIndex, reaction: reation)
@@ -559,7 +559,7 @@ class GetPostWithBg_Image :AddReactionDelegate,SharePostDelegate,comment_CountsD
     }
     
     func comment_Count() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PostwithBg_imageCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PostwithBg_imageCell else { return }
             
             let count = Int(self.comment_count) ?? 0
             let total = count + 1

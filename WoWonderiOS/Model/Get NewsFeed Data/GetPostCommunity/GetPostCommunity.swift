@@ -291,7 +291,7 @@ class GetPostCommunity : AddReactionDelegate,SharePostDelegate,comment_CountsDel
         case .unknown, .offline:
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! GroupCell
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? GroupCell else { return }
             
             self.audioPlayer.play()
             
@@ -410,7 +410,7 @@ class GetPostCommunity : AddReactionDelegate,SharePostDelegate,comment_CountsDel
     }
     
     func addReaction(reation: String) {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0 , section:  self.selectedIndex+sumAmount)) as! GroupCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0 , section:  self.selectedIndex+sumAmount)) as? GroupCell else { return }
         self.audioPlayer.play()
         self.reactions(index: self.selectedIndex, reaction: reation)
         var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
@@ -542,7 +542,7 @@ class GetPostCommunity : AddReactionDelegate,SharePostDelegate,comment_CountsDel
     
     
     func comment_Count() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! GroupCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? GroupCell else { return }
         let count = Int(self.comment_count) ?? 0
         let total = count + 1
         cell.commentsCountBtn.setTitle("\(" ")\(total)", for: .normal)

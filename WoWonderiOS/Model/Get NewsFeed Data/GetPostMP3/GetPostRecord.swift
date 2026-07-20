@@ -318,7 +318,7 @@ class GetPostRecord :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
         case .unknown, .offline:
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! MusicCell
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? MusicCell else { return }
             self.audioPlayer.play()
             if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                 var totalCount = 0
@@ -434,7 +434,7 @@ class GetPostRecord :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
     }
     
     func addReaction(reation: String) {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! MusicCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MusicCell else { return }
         self.audioPlayer.play()
         //        self.postArray[gesture.view!.tag]["reaction"]!["Like"]   = true
         self.reactions(index: self.selectedIndex, reaction: reation)
@@ -571,7 +571,7 @@ class GetPostRecord :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
     }
     
     func comment_Count() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! MusicCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MusicCell else { return }
             
             let count = Int(self.comment_count) ?? 0
             let total = count + 1
@@ -1046,7 +1046,7 @@ class GetPostRecord :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
     
     
     @IBAction func PlayBtn (sender:UIButton){
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: sender.tag + sumAmount)) as! MusicCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: sender.tag + sumAmount)) as? MusicCell else { return }
         if self.isPlay == false{
             if self.isDownlodingComplete == true{
                 self.selectIndex = sender.tag
@@ -1076,7 +1076,7 @@ class GetPostRecord :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
     @objc func checkDownload(){
         if self.isDownlodingComplete == true{
             if self.isPlay == true{
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectIndex! + sumAmount)) as! MusicCell
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectIndex! + sumAmount)) as? MusicCell else { return }
                 cell.indicatorView.stopAnimating()
                 self.isPlay = false
             }
@@ -1085,7 +1085,7 @@ class GetPostRecord :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
     }
     
     @IBAction func updateSlider(){
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectIndex! + sumAmount)) as! MusicCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectIndex! + sumAmount)) as? MusicCell else { return }
         cell.slider.value = Float(self.player.currentTime)
     }
     

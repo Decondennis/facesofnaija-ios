@@ -1046,7 +1046,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
     }
     
     func comment_Count() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! NewsFeedCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
         
         let count = Int(self.comment_count) ?? 0
         let total = count + 1
@@ -1077,31 +1077,31 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
     
     
     func addReaction(reation: String) {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! NewsFeedCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
         self.reaction = reation
         cell.addREact?()
     }
     
     func sharePost() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! NewsFeedCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
         cell.share_timeLine?()
     }
     
     func sharePostTo(type:String) {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! NewsFeedCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
         self.share_type = type
         cell.share_postTo?()
     }
     
     func selectPageandGroup(data: [String : Any],type : String) {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! NewsFeedCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
         self.groupPageData = data
         self.groupPageType = type
         cell.share_page_group?()
     }
     
     func sharePostLink() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! NewsFeedCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
         cell.share_link?()
         
     }

@@ -831,7 +831,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
             self.audioPlayer.play()
              if let images_count = self.postArray[gesture.view!.tag]["photo_album"] as? [[String:Any]]{
                 if images_count.count == 1{
-                let cell = self.tableView.cellForRow(at: IndexPath(row:  0, section: gesture.view!.tag + sumAmount)) as! PhotoAlbumCell
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row:  0, section: gesture.view!.tag + sumAmount)) as? PhotoAlbumCell else { return }
                 
                 if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                     var totalCount = 0
@@ -905,7 +905,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
                 }
             }
                 else if (images_count.count == 2){
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! PhotoAlbum2
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? PhotoAlbum2 else { return }
                 
                 if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                     var totalCount = 0
@@ -945,7 +945,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
                 
             }
             else {
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! PhotoAlbum3
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? PhotoAlbum3 else { return }
                 
                 if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                     var totalCount = 0
@@ -1030,7 +1030,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
         self.audioPlayer.play()
          if let images_count = self.postArray[self.selectedIndex]["photo_album"] as? [[String:Any]]{
             if  images_count.count == 1{
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PhotoAlbumCell
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PhotoAlbumCell else { return }
             self.reactions(index: self.selectedIndex, reaction: reation)
             var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
             var totalCount = 0
@@ -1122,7 +1122,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
             }
         }
             else if images_count.count == 2{
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PhotoAlbum2
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PhotoAlbum2 else { return }
             self.reactions(index: self.selectedIndex, reaction: reation)
             var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
             var totalCount = 0
@@ -1193,7 +1193,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
             }
         }
         else {
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PhotoAlbumCell
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PhotoAlbumCell else { return }
             self.reactions(index: self.selectedIndex, reaction: reation)
             var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
             var totalCount = 0
@@ -1317,7 +1317,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
     func comment_Count() {
             if let images_count = self.postArray[self.selectedIndex]["photo_album"] as? [[String:Any]]{
                 if images_count.count == 1{
-                    let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PhotoAlbumCell
+                    guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PhotoAlbumCell else { return }
                         
                         let count = Int(self.comment_count) ?? 0
                         let total = count + 1
@@ -1345,7 +1345,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
                         }
                 }
                 else if (images_count.count == 2){
-                    let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PhotoAlbum2
+                    guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PhotoAlbum2 else { return }
                         
                         let count = Int(self.comment_count) ?? 0
                         let total = count + 1
@@ -1373,7 +1373,7 @@ class getPhotoAlbum :AddReactionDelegate,SharePostDelegate,comment_CountsDelegat
                         }
                 }
                 else{
-                    let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PhotoAlbum3
+                    guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PhotoAlbum3 else { return }
                         
                         let count = Int(self.comment_count) ?? 0
                         let total = count + 1

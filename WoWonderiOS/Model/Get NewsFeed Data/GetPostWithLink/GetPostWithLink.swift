@@ -341,7 +341,7 @@ class GetPostWithLink : AddReactionDelegate,SharePostDelegate,comment_CountsDele
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
             self.audioPlayer.play()
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! PostWithLinkCell
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? PostWithLinkCell else { return }
             
             if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                 var totalCount = 0
@@ -455,7 +455,7 @@ class GetPostWithLink : AddReactionDelegate,SharePostDelegate,comment_CountsDele
     
     func addReaction(reation: String) {
         self.audioPlayer.play()
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0 , section: self.selectedIndex+sumAmount)) as! PostWithLinkCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0 , section: self.selectedIndex+sumAmount)) as? PostWithLinkCell else { return }
         self.reactions(index: self.selectedIndex, reaction: reation)
         var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
         var totalCount = 0
@@ -585,7 +585,7 @@ class GetPostWithLink : AddReactionDelegate,SharePostDelegate,comment_CountsDele
     }
     
     func comment_Count() {
-        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! PostWithLinkCell
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PostWithLinkCell else { return }
             
             let count = Int(self.comment_count) ?? 0
             let total = count + 1

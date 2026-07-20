@@ -482,7 +482,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
            
             cell.addREact = {[unowned self] in
                 print(self.selectedIndex)
-                  let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! MultiImage2
+                  guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MultiImage2 else { return }
                   cell.addREact?()
                 self.reactions(index: self.selectedIndex, reaction: self.reaction ?? "1")
                   var localPostArray = array[self.selectedIndex]["reaction"] as! [String:Any]
@@ -582,7 +582,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                 case .online(.wwan), .online(.wiFi):
                     if let images_count = index["photo_multi"] as? [[String:Any]]{
                         if images_count.count == 2{
-                            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: indexpath.row + sumAmount)) as! MultiImage2
+                            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: indexpath.row + sumAmount)) as? MultiImage2 else { return }
                             if let reactions = index["reaction"] as? [String:Any]{
                                 var totalCount = 0
                                 if let count = reactions["count"] as? Int{
@@ -1031,7 +1031,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
             self.audioPlayer.play()
             if let images_count = self.postArray[gesture.view!.tag]["photo_multi"] as? [[String:Any]]{
                 if images_count.count == 2{
-                    let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! MultiImage2
+                    guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? MultiImage2 else { return }
                     if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                         var totalCount = 0
                         if let count = reactions["count"] as? Int{
@@ -1107,7 +1107,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                     }
                 }
                 else{
-                    let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as! MultiImage3
+                    guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? MultiImage3 else { return }
                     if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                         var totalCount = 0
                         if let count = reactions["count"] as? Int{
@@ -1381,13 +1381,13 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
            if self.imageCount == 2{
             print(selectedIndex)
             self.reaction = reation
-            let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! MultiImage2
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MultiImage2 else { return }
             cell.addREact?()
             self.imageCount = 3
 
         }
             else{
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as! MultiImage3
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MultiImage3 else { return }
                 self.reactions(index: self.selectedIndex, reaction: reation)
                 var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
                 var totalCount = 0
