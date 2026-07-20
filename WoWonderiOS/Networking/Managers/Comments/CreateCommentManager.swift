@@ -17,8 +17,7 @@ class CreateCommentsManager {
             if let voice_data = audio_data{
                 multipartFormData.append(voice_data, withName: "audio", fileName: "audio.mp3", mimeType: "audio/mp3")
             }
-        },with: APIClient.CreateCommentReply.createCommentReply as! URLRequestConvertible )
-            .uploadProgress(queue: .main, closure: { progress in
+        }, to: APIClient.CreateCommentReply.createCommentReply + access_token, method: .post).uploadProgress(queue: .main, closure: { progress in
                 //Current upload progress of file
                 print("Upload Progress: \(progress.fractionCompleted)")
             })
