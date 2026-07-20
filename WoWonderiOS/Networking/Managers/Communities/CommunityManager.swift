@@ -28,24 +28,21 @@ class CommunityManager{
         let url = APIClientCustom.ReqeustCommunity.requestCommunityApi + "&access_token=\(token)"
         AF.request(url, method: .post, parameters: params, encoding: URLEncoding.default).responseJSON { (response) in
             print(response.value)
-            if response.value != nil {
-                guard let res = response.value as? [String:Any]  else {return}
-                guard let apiCodeString = res["api_status"] as? Any else {return}
-                if apiCodeString as? Int == 200 {
-                    let result = RequestCommunityModel.requestCommunity_SuccessModel.init(json: res)
-                completionBlock(result,nil,nil)
+            if let value = response.value as? [String:Any] {
+                let apiStatus = value["api_status"] as? Int ?? 0
+                if apiStatus == 200 {
+                    let result = RequestCommunityModel.requestCommunity_SuccessModel.init(json: value)
+                    completionBlock(result, nil, nil)
+                } else {
+                    if let data = try? JSONSerialization.data(withJSONObject: value, options: []),
+                       let result = try? JSONDecoder().decode(RequestCommunityModel.requestCommunity_ErrorModel.self, from: data) {
+                        completionBlock(nil, result, nil)
+                    } else {
+                        completionBlock(nil, nil, nil)
+                    }
                 }
-                else  {
-        guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    print(data)
-                    guard let result = try? JSONDecoder().decode(RequestCommunityModel.requestCommunity_ErrorModel.self, from: data) else {return}
-                    print(result)
-                completionBlock(nil,result,nil)
-                }
-            }
-            else {
-                print(response.error?.localizedDescription)
-                completionBlock(nil,nil,response.error)
+            } else {
+                completionBlock(nil, nil, response.error)
             }
         }
     }

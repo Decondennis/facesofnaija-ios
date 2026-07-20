@@ -2,13 +2,11 @@ import UIKit
 import Toast_Swift
 import ZKProgressHUD
 
-class CommunityRequestController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+class CommunityRequestController: UIViewController, UITextFieldDelegate {
     
     var privacy = 0
     var isHome = 0
     let status = Reach().connectionStatus()
-    private let categories = ["General", "Education", "Business", "Technology", "Entertainment", "Sports", "Health", "Music", "Art", "Other"]
-    private var selectedCategory = "General"
     
     func setCommunityName(_ name: String) { nameField.text = name }
     func setDescription(_ desc: String) { descField.text = desc }
@@ -78,8 +76,6 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate, UIPicke
         return f
     }()
     
-    private let pickerView = UIPickerView()
-    
     private let privacyLabel: UILabel = {
         let l = UILabel()
         l.text = "Privacy *"
@@ -137,11 +133,6 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate, UIPicke
         navigationItem.title = ""
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: " Back", style: .plain, target: self, action: #selector(goBack))
         navigationController?.navigationBar.isHidden = false
-        
-        pickerView.delegate = self
-        pickerView.dataSource = self
-        categoryField.inputView = pickerView
-        categoryField.text = selectedCategory
         
         setupViews()
         setupActions()
@@ -232,7 +223,7 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate, UIPicke
             view.makeToast("Select Privacy")
             return
         }
-        sendRequest(name: name, title: title, desc: desc, category: selectedCategory, reason: reason)
+        sendRequest(name: name, title: title, desc: desc, category: categoryField.text ?? "", reason: reason)
     }
     
     private func sendRequest(name: String, title: String, desc: String, category: String, reason: String) {
@@ -253,14 +244,5 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate, UIPicke
                 }
             }
         }
-    }
-    
-    // MARK: - Picker
-    func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { return categories.count }
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return categories[row] }
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        selectedCategory = categories[row]
-        categoryField.text = selectedCategory
     }
 }
