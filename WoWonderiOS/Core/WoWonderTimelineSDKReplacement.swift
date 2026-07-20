@@ -349,7 +349,7 @@ public struct APIClient {
     }
     
     public struct Share {
-        public static let sharePosts = "\(baseURl)/api-v2.php?type=post-actions"
+        public static let sharePosts = "\(baseURl)/api-v2.php?type=posts"
     }
     
     public struct SavePost {
