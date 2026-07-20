@@ -180,7 +180,7 @@ class AddPostManager{
             }
             print("============")
             print("3")
-        }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
+        }, to: APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
             switch result.result{
             case .success(let value):
                 ZKProgressHUD.dismiss()
@@ -287,7 +287,7 @@ class AddPostManager{
                             multipartFormData.append(data, withName: "postVideo", fileName: "video.mp4", mimeType: "video/mp4")
                          }
                           
-            }, to: APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
+            }, to: APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
             switch result.result{
             case .success(let value):
                 print("Succesfully uploaded2")
@@ -387,7 +387,7 @@ class AddPostManager{
         
           
            print("PARAMS= \(param)")
-           let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
+           let url = APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
            AF.request(url, method: .post, parameters: param, encoding: JSONEncoding.default, headers: nil).responseJSON { (response) in
               if response.value != nil{
                   guard let res = response.value as? [String:Any] else {return}
@@ -487,7 +487,7 @@ class AddPostManager{
                                multipartFormData.append(data, withName: "postMusic", fileName: "music.mp3", mimeType: "audio/mp3")
                             }
                            
-              }, with: APIClient.AddPost.AddPostApi as! URLRequestConvertible).uploadProgress(queue: .main, closure: { progress in
+              }, with: APIClient.AddPost.AddPostMediaApi as! URLRequestConvertible).uploadProgress(queue: .main, closure: { progress in
                 //Current upload progress of file
                 print("Upload Progress: \(progress.fractionCompleted)")
             }).responseJSON(completionHandler: {
@@ -596,7 +596,7 @@ class AddPostManager{
                          multipartFormData.append(data, withName: "postFile", fileName: "file.\(extension1)", mimeType: "file/\(extension1)")
                       }
                      
-        }, with: APIClient.AddPost.AddPostApi as! URLRequestConvertible).uploadProgress(queue: .main, closure: { progress in
+        }, with: APIClient.AddPost.AddPostMediaApi as! URLRequestConvertible).uploadProgress(queue: .main, closure: { progress in
             //Current upload progress of file
             print("Upload Progress: \(progress.fractionCompleted)")
         }).responseJSON(completionHandler: {
