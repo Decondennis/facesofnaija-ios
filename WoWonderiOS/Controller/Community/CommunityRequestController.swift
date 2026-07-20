@@ -235,10 +235,16 @@ class CommunityRequestController: UIViewController, UITextFieldDelegate {
             CommunityManager.sharedInstance.requestCommunity(name: name, communityTitle: title, about: desc, category: category, reason: reason, privacy: privacy) { success, authError, error in
                 ZKProgressHUD.dismiss()
                 if success != nil {
-                    self.view.makeToast("Community Request Submitted")
-                    self.navigationController?.popViewController(animated: true)
+                    let alert = UIAlertController(title: "Success", message: "Community request submitted successfully.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                        self.navigationController?.popViewController(animated: true)
+                    }))
+                    self.present(alert, animated: true)
                 } else if authError != nil {
-                    self.view.makeToast(authError?.errors.errorText ?? "Error")
+                    let msg = authError?.errors.errorText ?? "An error occurred"
+                    let alert = UIAlertController(title: "Error", message: msg, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(alert, animated: true)
                 } else {
                     print(error?.localizedDescription ?? "")
                 }
