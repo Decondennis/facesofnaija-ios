@@ -166,7 +166,6 @@ class CommunityListController: UIViewController {
         let vc = CommunityRequestController()
         self.navigationController?.pushViewController(vc, animated: true)
     }
-    }
     
     @IBAction func Back(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
