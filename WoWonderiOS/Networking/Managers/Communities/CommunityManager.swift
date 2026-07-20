@@ -12,17 +12,21 @@ import Alamofire
 
 class CommunityManager{
     
-    func requestCommunity (name:String,country:String,state:String,lga:String, about:String,privacy:Int,completionBlock : @escaping (_ Success: RequestCommunityModel.requestCommunity_SuccessModel?, _ AuthError : RequestCommunityModel.requestCommunity_ErrorModel? , Error?)->()){
+    func requestCommunity(name: String, communityTitle: String, about: String, category: String, reason: String, privacy: Int, completionBlock: @escaping (_ Success: RequestCommunityModel.requestCommunity_SuccessModel?, _ AuthError: RequestCommunityModel.requestCommunity_ErrorModel?, Error?) -> ()) {
         
-        let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, 
-        "community_name" : name, APIClientCustom.Params.country : country, 
-        APIClientCustom.Params.state : state, APIClientCustom.Params.lga : lga, 
-        APIClientCustom.Params.privacy :privacy,
-        APIClientCustom.Params.about :about,
-        APIClient.Params.userId :UserData.getUSER_ID() ?? "",
-        APIClient.Params.type:"request-community"] as [String : Any]
-        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
-        AF.request(APIClientCustom.ReqeustCommunity.requestCommunityApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+        let params: [String:Any] = [
+            APIClient.Params.serverKey: APIClient.SERVER_KEY.Server_Key,
+            "community_name": name,
+            "community_title": communityTitle,
+            "about": about,
+            "category": category,
+            "reason": reason,
+            "privacy": privacy,
+            APIClient.Params.userId: UserData.getUSER_ID() ?? ""
+        ]
+        let token = UserData.getAccess_Token() ?? ""
+        let url = APIClientCustom.ReqeustCommunity.requestCommunityApi + "&access_token=\(token)"
+        AF.request(url, method: .post, parameters: params, encoding: URLEncoding.default).responseJSON { (response) in
             print(response.value)
             if response.value != nil {
                 guard let res = response.value as? [String:Any]  else {return}
