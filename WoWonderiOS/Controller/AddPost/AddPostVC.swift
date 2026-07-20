@@ -212,57 +212,56 @@ class AddPostVC: UIViewController {
         }
         
         if self.type == "IMAGE"{
-            if AppInstance.instance.musicSelected{
-                let indexpathforTextView = IndexPath(row: 0, section: 3)
-                let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionThreeTableItem
-                var imagesDataArray  = [Data]()
-                cell.imageArray.forEach { (it) in
-                    let data = it.jpegData(compressionQuality: 0.1)
-                    imagesDataArray.append(data!)
-                    self.uploadImages(imageArray: imagesDataArray)
+            let indexPath = AppInstance.instance.musicSelected ? IndexPath(row: 0, section: 3) : IndexPath(row: 0, section: 2)
+            let cell = tableView.cellForRow(at: indexPath) as! AddPostSectionThreeTableItem
+            if cell.imageArray.isEmpty {
+                self.type = ""
+                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+            } else {
+                var imagesDataArray = [Data]()
+                cell.imageArray.forEach { it in
+                    if let data = it.jpegData(compressionQuality: 0.1) {
+                        imagesDataArray.append(data)
+                    }
                 }
-            }else{
-                let indexpathforTextView = IndexPath(row: 0, section: 2)
-                let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionThreeTableItem
-                var imagesDataArray  = [Data]()
-                cell.imageArray.forEach { (it) in
-                    let data = it.jpegData(compressionQuality: 0.1)
-                    imagesDataArray.append(data!)
-                    self.uploadImages(imageArray: imagesDataArray)
-                }
+                self.uploadImages(imageArray: imagesDataArray)
             }
             
         }else if self.type == "VIDEO"{
-            if AppInstance.instance.musicSelected{
-                let indexpathforTextView = IndexPath(row: 0, section: 3)
-                let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionThreeTableItem
+            let indexPath = AppInstance.instance.musicSelected ? IndexPath(row: 0, section: 3) : IndexPath(row: 0, section: 2)
+            let cell = tableView.cellForRow(at: indexPath) as! AddPostSectionThreeTableItem
+            if cell.VideoData != nil {
                 self.uploadVideo(videoData: cell.VideoData!)
-                
-            }else{
-                let indexpathforTextView = IndexPath(row: 0, section: 2)
-                let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionThreeTableItem
-                self.uploadVideo(videoData: cell.VideoData!)
+            } else {
+                self.type = ""
+                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
             }
             
         }else if self.type == "GIF"{
-            if AppInstance.instance.musicSelected{
-                let indexpathforTextView = IndexPath(row: 0, section: 3)
-                let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionThreeTableItem
-                self.postGIF(GIFURL: cell.gifURLString ?? "")
-                
-            }else{
-                let indexpathforTextView = IndexPath(row: 0, section: 2)
-                let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionThreeTableItem
-                self.postGIF(GIFURL: cell.gifURLString ?? "")
+            let indexPath = AppInstance.instance.musicSelected ? IndexPath(row: 0, section: 3) : IndexPath(row: 0, section: 2)
+            let cell = tableView.cellForRow(at: indexPath) as! AddPostSectionThreeTableItem
+            if let gifUrl = cell.gifURLString, !gifUrl.isEmpty {
+                self.postGIF(GIFURL: gifUrl)
+            } else {
+                self.type = ""
+                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
             }
             
         }else if self.type == "MUSIC"{
-            
-            self.uploadMusic(musicData: self.musicData ?? Data())
+            if self.musicData != nil && self.musicData?.isEmpty == false {
+                self.uploadMusic(musicData: self.musicData ?? Data())
+            } else {
+                self.type = ""
+                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+            }
             
         }else if self.type == "FILE"{
-            
-            self.uploadFile(fileData: self.fileData ?? Data(), extension1: self.fileExtension ?? "")
+            if self.fileData != nil && self.fileData?.isEmpty == false {
+                self.uploadFile(fileData: self.fileData ?? Data(), extension1: self.fileExtension ?? "")
+            } else {
+                self.type = ""
+                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+            }
             
         }else if self.type == "FEELING"{
             
