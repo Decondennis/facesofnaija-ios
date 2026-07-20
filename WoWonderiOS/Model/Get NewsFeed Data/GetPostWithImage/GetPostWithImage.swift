@@ -751,7 +751,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
             case .unknown, .offline:
                 self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
             case .online(.wwan), .online(.wiFi):
-                let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: indexpath.row + sumAmount)) as! NewsFeedCell
+                guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: indexpath.row + sumAmount)) as? NewsFeedCell else { return }
                 
                 self.audioPlayer.play()
                 if let reactions = index["reaction"] as? [String:Any]{
