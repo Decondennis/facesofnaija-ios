@@ -341,7 +341,7 @@ public struct APIClient {
     }
     
     public struct AddReactions {
-        public static let addReactionApi = "\(baseURl)/api-v2.php?type=get-reactions"
+        public static let addReactionApi = "\(baseURl)/api-v2.php?type=post-actions"
     }
     
     public struct GetReactions {
