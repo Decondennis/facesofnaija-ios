@@ -49,44 +49,38 @@ class LikeReactionsController: UIViewController {
     }
     
     @IBAction func LikeReact(_ sender: UIButton) {
-        let status = Reach().connectionStatus()
-        switch status {
-        case .unknown, .offline:
-            self.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
-        case .online(.wwan), .online(.wiFi):
-            switch sender.tag{
-            case 0:
-                print("Like")
-                self.dismiss(animated: true) {
-                    self.delegate.addReaction(reation: "1")
-                }
-            case 1:
-                print("Love")
-                self.dismiss(animated: true) {
-                    self.delegate.addReaction(reation: "2")
-                }
-            case 2:
-                print("haha")
-                self.dismiss(animated: true) {
-                    self.delegate.addReaction(reation: "3")
-                }
-            case 3:
-                self.dismiss(animated: true) {
-                    self.delegate.addReaction(reation: "4")
-                }
-            case 4:
-                print("sad")
-                self.dismiss(animated: true) {
-                    self.delegate.addReaction(reation: "5")
-                }
-            case 5:
-                print("Angry")
-                self.dismiss(animated: true) {
-                    self.delegate.addReaction(reation: "6")
-                }
-            default:
-                print("Nothing")
+        switch sender.tag{
+        case 0:
+            print("Like")
+            self.dismiss(animated: true) {
+                self.delegate.addReaction(reation: "1")
             }
+        case 1:
+            print("Love")
+            self.dismiss(animated: true) {
+                self.delegate.addReaction(reation: "2")
+            }
+        case 2:
+            print("haha")
+            self.dismiss(animated: true) {
+                self.delegate.addReaction(reation: "3")
+            }
+        case 3:
+            self.dismiss(animated: true) {
+                self.delegate.addReaction(reation: "4")
+            }
+        case 4:
+            print("sad")
+            self.dismiss(animated: true) {
+                self.delegate.addReaction(reation: "5")
+            }
+        case 5:
+            print("Angry")
+            self.dismiss(animated: true) {
+                self.delegate.addReaction(reation: "6")
+            }
+        default:
+            print("Nothing")
         }
     }
     

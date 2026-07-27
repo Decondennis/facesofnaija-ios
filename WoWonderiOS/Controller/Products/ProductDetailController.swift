@@ -360,7 +360,7 @@ extension ProductDetailController :UITableViewDelegate,UITableViewDataSource{
                 }
                 if let isreact  = reactions["is_reacted"] as? Bool {
                     if isreact == true{
-                        if let type = reactions["type"] as? String{
+                        if let type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
                             if type == "6"{
                                 cell.likeBtn.setImage(UIImage(named: "angry"), for: .normal)
                                 cell.likeBtn.setTitle("\(" ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)

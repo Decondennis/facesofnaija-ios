@@ -35,7 +35,7 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
         if AppInstance.instance.vc == "userProfile" {
             self.sumAmount = 9
         }else if AppInstance.instance.vc == "newsFeedVC" {
-            self.sumAmount = 3
+            self.sumAmount = 5
         }
 
         let cell = tableView.dequeueReusableCell(withIdentifier: "PostShare") as! PostShareCell
@@ -317,7 +317,7 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
         case .unknown, .offline:
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))        case .online(.wwan), .online(.wiFi):
             guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: view.tag + sumAmount)) as? PostShareCell else { return }
-            self.audioPlayer.play()
+            
             if let reactions = self.postArray[gesture.view?.tag ?? 0]["reaction"] as? [String:Any]{
                 var totalCount = 0
                 if let count = reactions["count"] as? Int{
@@ -433,8 +433,8 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
     
     
     func addReaction(reation: String) {
-        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0 , section: self.selectedIndex+sumAmount)) as? PostShareCell else { return }
-        self.audioPlayer.play()
+        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PostShareCell
+        
         self.reactions(index: self.selectedIndex, reaction: reation)
         var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
         var totalCount = 0
@@ -446,7 +446,7 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
                     }
                     localPostArray["count"] = totalCount + 1
                     totalCount =  localPostArray["count"] as? Int ?? 0
-            cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
+            cell?.likesCountBtn?.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
                 }
                 else{
                     if let count = reactions["count"] as? Int{
@@ -457,22 +457,16 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
         }
         
         let action = ["count": totalCount, "reaction": reation,"index": self.selectedIndex] as [String : Any]
-        var count = 0
-        print(self.selectedIndexs.count)
-        if self.selectedIndexs.count == 0 {
-            self.selectedIndexs.append(action)
-        }
-        else{
-            for i in self.selectedIndexs{
-                count += 1
-                if i["index"] as? Int == self.selectedIndex{
-                    print((count) - 1)
-                    self.selectedIndexs[(count) - 1] = action
-                }
-                else{
-                    self.selectedIndexs.append(action)
-                }
+        var found = false
+        for (idx, i) in self.selectedIndexs.enumerated() {
+            if (i["index"] as? Int) == self.selectedIndex {
+                self.selectedIndexs[idx] = action
+                found = true
+                break
             }
+        }
+        if !found {
+            self.selectedIndexs.append(action)
         }
         localPostArray["is_reacted"] = true
         localPostArray["type"]  = reation
@@ -481,44 +475,44 @@ class GetPostShare: AddReactionDelegate,comment_CountsDelegate {
             localPostArray["Like"] = 1
             
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "like-2"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
         }
         else if reation == "2"{
             localPostArray["Love"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "love"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Love", comment: "Love"))", for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FB1002"), for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "love"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Love", comment: "Love"))", for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FB1002"), for: .normal)
         }
         else if reation == "3"{
             localPostArray["HaHa"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "haha"), for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "haha"), for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)
         }
         else if reation == "4"{
             localPostArray["Wow"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "wow"), for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Wow", comment: "Wow"))", for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "wow"), for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Wow", comment: "Wow"))", for: .normal)
         }
         else if reation == "5"{
             localPostArray["Sad"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "sad"), for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Sad", comment: "Sad"))", for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "sad"), for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Sad", comment: "Sad"))", for: .normal)
         }
         else {
             localPostArray["Angry"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
-            cell.LikeBtn.setTitleColor(.red, for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "angry"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
+            cell?.LikeBtn?.setTitleColor(.red, for: .normal)
         }
     }
     

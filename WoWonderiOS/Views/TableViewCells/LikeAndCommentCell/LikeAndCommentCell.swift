@@ -31,11 +31,8 @@ class LikeAndCommentCell: UITableViewCell,AddReactionDelegate{
         self.commentBtn.setTitle("\("     ")\(NSLocalizedString("Comment", comment: "Comment"))", for: .normal)
         
         let normalTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.NormalTapped(gesture:)))
-        let longGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.LongTapped(gesture:)))
         normalTapGesture.numberOfTapsRequired = 1
-        longGesture.minimumPressDuration = 0.30
         self.likeBtn.addGestureRecognizer(normalTapGesture)
-        self.likeBtn.addGestureRecognizer(longGesture)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -54,7 +51,7 @@ class LikeAndCommentCell: UITableViewCell,AddReactionDelegate{
         if let reactions = self.reaction as? [String:Any]{
             if let isreact  = reactions["is_reacted"] as? Bool {
                 if isreact == true{
-                    if let type = reactions["type"] as? String{
+                    if let type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
                         if type == "6"{
                             self.likeBtn.setImage(UIImage(named: "angry"), for: .normal)
                             self.likeBtn.setTitle("\("      ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
@@ -98,14 +95,6 @@ class LikeAndCommentCell: UITableViewCell,AddReactionDelegate{
     }
     
     
-    @IBAction func LongTapped(gesture: UILongPressGestureRecognizer){
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "LikeReactionsVC") as! LikeReactionsController
-        vc.delegate = self
-        vc.modalPresentationStyle = .overFullScreen
-        vc.modalTransitionStyle = .crossDissolve
-        self.vc?.present(vc, animated: true, completion: nil)
-    }
     @IBAction func NormalTapped(gesture: UIGestureRecognizer){
         let status = Reach().connectionStatus()
         switch status {
@@ -253,7 +242,7 @@ class LikeAndCommentCell: UITableViewCell,AddReactionDelegate{
         else if reation == "3"{
             localPostArray["HaHa"] = 1
             localPostArray["3"] = 1
-            self.reaction["reaction"] = localPostArray
+            self.reaction = localPostArray
             self.likeBtn.setImage(UIImage(named: "haha"), for: .normal)
             self.likeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
             self.likeBtn.setTitle("\("      ")\(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)

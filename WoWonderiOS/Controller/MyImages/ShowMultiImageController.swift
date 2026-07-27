@@ -59,7 +59,7 @@ class ShowMultiImageController: UIViewController,AddReactionDelegate,SharePostDe
         }
         if let isReacted = self.reactions["is_reacted"] as? Bool{
             if isReacted == true{
-                if let type = self.reactions["type"] as? String{
+                if let type = (self.reactions["type"] as? String) ?? ((self.reactions["type"] as? Int).map { "\($0)" }){
                     if type == "6"{
                         self.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
                         self.LikeBtn.setTitle("   Angry", for: .normal)

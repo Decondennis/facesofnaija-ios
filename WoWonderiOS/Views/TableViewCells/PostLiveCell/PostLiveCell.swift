@@ -124,7 +124,7 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
             }
             if let isreact  = reactions["is_reacted"] as? Bool {
                 if isreact == true{
-                    if let type = reactions["type"] as? String{
+                    if let type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
                         if type == "6"{
                             self.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
                             self.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
@@ -609,7 +609,6 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
             self.vc?.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
 //            let cell =  self.vc?.view.cellForRow(at: IndexPath(row: gesture.view!.tag, section: 6)) as! NormalPostCell
-            self.audioPlayer.play()
             if let reactions = self.data["reaction"] as? [String:Any]{
                 var totalCount = 0
                 if let count = reactions["count"] as? Int{
@@ -706,8 +705,6 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
     }
     
     func addReaction(reation: String) {
-//        let cell = self.tableView.cellForRow(at: IndexPath(row: self.selectedIndex, section: 6)) as! NormalPostCell
-        self.audioPlayer.play()
         self.reactions(index: self.indexPath, reaction: reation)
         var localPostArray = self.data["reaction"] as! [String:Any]
         var totalCount = 0

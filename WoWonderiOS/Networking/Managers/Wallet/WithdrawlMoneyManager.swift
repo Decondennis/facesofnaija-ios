@@ -17,7 +17,7 @@ class WithdrawlMoneyManager{
     func withdrawlMoney(params:[String:Any],completionBlock :@escaping (_ Success: WithdrawlMoneyModal.WithdrawlMoney_SuccessModal?, _ AuthError: WithdrawlMoneyModal.WithdrawlMoney_ErrorModal?, Error?)->()){
         
         let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
-        let url = "http://localhost:8012/wowonder/api/withdraw"
+        let url = "\("\(APIClient.baseURl)/api/withdraw")"
         AF.request(url + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if (response.value != nil){
                 guard let res = response.value as? [String:Any] else {return}

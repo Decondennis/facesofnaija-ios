@@ -42,6 +42,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
     var comment_count = "0"
     var reaction: String? = nil
     var share_type: String? = nil
+    var sharePostData: [String:Any]? = nil
     var groupPageData = [String:Any]()
     var groupPageType: String? = nil
     let Storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -54,7 +55,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
         if AppInstance.instance.vc == "userProfile" {
             self.sumAmount = 9
         }else if AppInstance.instance.vc == "newsFeedVC" {
-            self.sumAmount = 3
+            self.sumAmount = 5
         }
         
         self.targetController = targetController
@@ -245,6 +246,10 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
             }
         }
         
+        if let sharesCount = index["post_shares"] as? String {
+            cell.sharesCountBtn.setTitle("\(sharesCount) Shares", for: .normal)
+        }
+        
         cell.imageAction = { [unowned self] in
             let vc = self.Storyboard.instantiateViewController(withIdentifier: "ShowImageVC") as! ShowImageController
             if let image = index["postFile"] as? String{
@@ -299,13 +304,15 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
                 }
             }
         }
+        let currentTarget: UIViewController? = targetController
         cell.shareAction = {[unowned self] in
             self.selectedIndex = indexpath.row
+            self.sharePostData = index
             let vc = self.Storyboard.instantiateViewController(withIdentifier: "ShareVC") as! ShareController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            targetController.present(vc, animated: true, completion: nil)
+            currentTarget?.present(vc, animated: true, completion: nil)
         }
         cell.share_link = {[unowned self] in
             var text = ""
@@ -652,7 +659,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
         }
         
         cell.addREact = {[unowned self] in
-            self.audioPlayer.play()
+            
             self.reactions(index: self.selectedIndex, reaction: self.reaction ?? "")
             var localPostArray = index["reaction"] as! [String:Any]
             var totalCount = 0
@@ -753,7 +760,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
             case .online(.wwan), .online(.wiFi):
                 guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: indexpath.row + sumAmount)) as? NewsFeedCell else { return }
                 
-                self.audioPlayer.play()
+                
                 if let reactions = index["reaction"] as? [String:Any]{
                     var totalCount = 0
                     if let count = reactions["count"] as? Int{
@@ -1077,20 +1084,69 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
     
     
     func addReaction(reation: String) {
-        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
+        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell
         self.reaction = reation
-        cell.addREact?()
+        cell?.addREact?()
     }
     
     func sharePost() {
-        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
-        cell.share_timeLine?()
+        print("[Share] sharePost called, selectedIndex=\(selectedIndex), postArray.count=\(postArray.count)")
+        guard self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count else {
+            print("[Share] FAILED: selectedIndex out of bounds")
+            return
+        }
+        guard let postId = self.postArray[self.selectedIndex]["post_id"] as? String else {
+            print("[Share] FAILED: post_id not found in postArray[\(selectedIndex)]")
+            return
+        }
+        print("[Share] Calling API with postId=\(postId)")
+        SharePostOnTimelineManager.sharedInstance.sharePostOnTimeline(
+            userId: UserData.getUSER_ID() ?? "",
+            postId: postId
+        ) { [weak self] (success, authError, error) in
+            if success != nil {
+                print("[Share] API success")
+                var presenter = self?.targetController
+                if presenter == nil {
+                    presenter = UIApplication.shared.keyWindow?.rootViewController
+                }
+                presenter?.view.makeToast("Post shared successfully")
+                if let result = success {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: ["data": result.data])
+                }
+            } else if authError != nil {
+                print("[Share] Auth error: \(authError?.errors.errorText ?? "")")
+            } else {
+                print("[Share] Error: \(error?.localizedDescription ?? "unknown")")
+            }
+        }
     }
     
     func sharePostTo(type:String) {
-        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
-        self.share_type = type
-        cell.share_postTo?()
+        var presenter = self.targetController
+        if presenter == nil {
+            presenter = UIApplication.shared.keyWindow?.rootViewController
+        }
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
+        if (type == "group") || (type == "page"){
+            let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
+            let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
+            vc.type = type
+            vc.delegate = self
+            vc.modalPresentationStyle = .overFullScreen
+            vc.modalTransitionStyle = .crossDissolve
+            topVC.present(vc, animated: true, completion: nil)
+        }
+        else {
+            let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
+            vc.delegate = self
+            vc.modalPresentationStyle = .overFullScreen
+            vc.modalTransitionStyle = .crossDissolve
+            topVC.present(vc, animated: true, completion: nil)
+        }
     }
     
     func selectPageandGroup(data: [String : Any],type : String) {

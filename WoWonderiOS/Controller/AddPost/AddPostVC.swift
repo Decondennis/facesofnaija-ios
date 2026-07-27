@@ -872,7 +872,7 @@ extension AddPostVC:didSelectPostType{
             self.type = "IMAGE"
         }else if type == "VIDEO" {
             self.openVideoController()
-            self.type == "VIDEO"
+            self.type = "VIDEO"
         }else if type == "GIF"{
             self.showGif()
             self.type = "GIF"

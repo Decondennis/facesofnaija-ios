@@ -16,6 +16,7 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
     var targetController : UIViewController!
     var tableView : UITableView!
     var selectedIndex = 0
+    var sharePostData: [String:Any]? = nil
     var sumAmount = 0
     var postArray = [[String:Any]]()
     var selectedIndexs = [[String:Any]]()
@@ -34,7 +35,7 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
         if AppInstance.instance.vc == "userProfile" {
             self.sumAmount = 9
         }else if AppInstance.instance.vc == "newsFeedVC" {
-            self.sumAmount = 3
+            self.sumAmount = 5
         }
         let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
         cell.likeandcommentViewHeight.constant = viewHeight
@@ -312,7 +313,7 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
             guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? VideoCell else { return }
-            self.audioPlayer.play()
+            
             if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
                 var totalCount = 0
                 if let count = reactions["count"] as? Int{
@@ -426,8 +427,8 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
     }
     
     func addReaction(reation: String) {
-        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? VideoCell else { return }
-        self.audioPlayer.play()
+        let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? VideoCell
+        
         self.reactions(index: self.selectedIndex, reaction: reation)
         var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
         var totalCount = 0
@@ -439,7 +440,7 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
                     }
                     localPostArray["count"] = totalCount + 1
                     totalCount =  localPostArray["count"] as? Int ?? 0
-                    cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)                }
+                    cell?.likesCountBtn?.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)                }
                 else{
                     if let count = reactions["count"] as? Int{
                         totalCount = count
@@ -448,22 +449,16 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
             }
         }
         let action = ["count": totalCount, "reaction": reation,"index": self.selectedIndex] as [String : Any]
-        var count = 0
-        print(self.selectedIndexs.count)
-        if self.selectedIndexs.count == 0 {
-            self.selectedIndexs.append(action)
-        }
-        else{
-            for i in self.selectedIndexs{
-                count += 1
-                if i["index"] as? Int == self.selectedIndex{
-                    print((count) - 1)
-                    self.selectedIndexs[(count) - 1] = action
-                }
-                else{
-                    self.selectedIndexs.append(action)
-                }
+        var found = false
+        for (idx, i) in self.selectedIndexs.enumerated() {
+            if (i["index"] as? Int) == self.selectedIndex {
+                self.selectedIndexs[idx] = action
+                found = true
+                break
             }
+        }
+        if !found {
+            self.selectedIndexs.append(action)
         }
         
         localPostArray["is_reacted"] = true
@@ -474,74 +469,109 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
             localPostArray["1"] = 1
 
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
-           cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "like-2"), for: .normal)
+           cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
         }
         else if reation == "2"{
             localPostArray["Love"] = 1
             localPostArray["2"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "love"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Love", comment: "Love"))", for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FB1002"), for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "love"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Love", comment: "Love"))", for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FB1002"), for: .normal)
         }
         else if reation == "3"{
             localPostArray["HaHa"] = 1
             localPostArray["3"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "haha"), for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-           cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "haha"), for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
+           cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)
             
         }
         else if reation == "4"{
             localPostArray["Wow"] = 1
             localPostArray["4"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "wow"), for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-           cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Wow", comment: "Wow"))", for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "wow"), for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
+           cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Wow", comment: "Wow"))", for: .normal)
             
         }
         else if reation == "5"{
             localPostArray["Sad"] = 1
             localPostArray["5"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "sad"), for: .normal)
-            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Sad", comment: "Sad"))", for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "sad"), for: .normal)
+            cell?.LikeBtn?.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Sad", comment: "Sad"))", for: .normal)
             
         }
         else {
             localPostArray["Angry"] = 1
             localPostArray["6"] = 1
             self.postArray[self.selectedIndex]["reaction"] = localPostArray
-            cell.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
-            cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
-            cell.LikeBtn.setTitleColor(.red, for: .normal)
+            cell?.LikeBtn?.setImage(UIImage(named: "angry"), for: .normal)
+            cell?.LikeBtn?.setTitle("\("   ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
+            cell?.LikeBtn?.setTitleColor(.red, for: .normal)
         }
         
     }
     
     @IBAction func GotoShare(sender :UIButton){
         self.selectedIndex = sender.tag
+        self.sharePostData = self.selectedIndex < self.postArray.count ? self.postArray[self.selectedIndex] : nil
         let vc = Storyboard.instantiateViewController(withIdentifier: "ShareVC") as! ShareController
         vc.delegate = self
         vc.modalPresentationStyle = .overFullScreen
         vc.modalTransitionStyle = .crossDissolve
-        targetController.present(vc, animated: true, completion: nil)
+        let currentTarget: UIViewController? = targetController
+        currentTarget?.present(vc, animated: true, completion: nil)
     }
     
     func sharePost() {
-        let vc = Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts =  [self.postArray[self.selectedIndex]]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.targetController.present(vc, animated: true, completion: nil)
+        print("[Share-Video] sharePost called, selectedIndex=\(selectedIndex), postArray.count=\(postArray.count)")
+        guard self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count else {
+            print("[Share-Video] FAILED: selectedIndex out of bounds")
+            return
+        }
+        guard let postId = self.postArray[self.selectedIndex]["post_id"] as? String else {
+            print("[Share-Video] FAILED: post_id not found")
+            return
+        }
+        print("[Share-Video] Calling API with postId=\(postId)")
+        SharePostOnTimelineManager.sharedInstance.sharePostOnTimeline(
+            userId: UserData.getUSER_ID() ?? "",
+            postId: postId
+        ) { [weak self] (success, authError, error) in
+            if success != nil {
+                print("[Share-Video] API success")
+                var presenter = self?.targetController
+                if presenter == nil {
+                    presenter = UIApplication.shared.keyWindow?.rootViewController
+                }
+                presenter?.view.makeToast("Post shared successfully")
+                if let result = success {
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: ["data": result.data])
+                }
+            } else if authError != nil {
+                print("[Share-Video] Auth error: \(authError?.errors.errorText ?? "")")
+            } else {
+                print("[Share-Video] Error: \(error?.localizedDescription ?? "unknown")")
+            }
+        }
     }
     
     func sharePostTo(type:String) {
+        var presenter = self.targetController
+        if presenter == nil {
+            presenter = UIApplication.shared.keyWindow?.rootViewController
+        }
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
         if (type == "group") || (type == "page"){
             let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
             let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -549,14 +579,14 @@ class GetPostVideo :AddReactionDelegate,SharePostDelegate,comment_CountsDelegate
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
         else {
             let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
     }
     

@@ -17,7 +17,7 @@ class CreateJobManager {
             if let data = data{
             multipartFormData.append(data, withName: "thumbnail", fileName: "file.jpg", mimeType: "image/png")
             }
-        }, with: APIClient.Events.createEventApi + access_token as! URLRequestConvertible)
+        }, with: APIClient.Job.jobApi + access_token as! URLRequestConvertible)
         .uploadProgress(queue: .main, closure: { progress in
             //Current upload progress of file
             print("Upload Progress: \(progress.fractionCompleted)")

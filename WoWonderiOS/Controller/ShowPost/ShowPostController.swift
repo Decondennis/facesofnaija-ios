@@ -649,7 +649,7 @@ extension ShowPostController: UITableViewDelegate,UITableViewDataSource{
                 if let is_react = index["reaction"] as? [String:Any]{
                     if let isLiked = is_react["is_reacted"] as? Bool{
                         if isLiked == true{
-                            if let type = is_react["type"] as? String{
+                            if let type = (is_react["type"] as? String) ?? ((is_react["type"] as? Int).map { "\($0)" }){
                                 if type == "1"{
                                     cell.likeBtn.setTitle(NSLocalizedString("Like", comment: "Like"), for: .normal)
                                     cell.likeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
@@ -838,7 +838,7 @@ extension ShowPostController: UITableViewDelegate,UITableViewDataSource{
                             cell.reactionImage.image = nil
                             cell.reactionCount.text = nil
                         }
-                        if let reaction_type = reactions["type"] as? String{
+                        if let reaction_type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
                             if reaction_type == "1"{
                                 if let likecount = reactions["1"] as? Int{
                                     localPostArray["1"] = likecount - 1
