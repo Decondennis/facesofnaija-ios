@@ -268,6 +268,12 @@ class TrendingVC: UIViewController,UITabBarControllerDelegate,loadEventDelegate,
         self.present(nav, animated: true, completion: nil)
     }
     
+    @objc private func openPopularPost(){
+        let storyboard = UIStoryboard(name: "MarketPlaces-PopularPost-Events", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "PopularPostVC") as! PopularPostController
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
     private func setupUI(){
         
          rightButton.setImage(UIImage(named: "add-button"), for: .normal)
@@ -287,7 +293,8 @@ class TrendingVC: UIViewController,UITabBarControllerDelegate,loadEventDelegate,
          NSLayoutConstraint.activate([trailingContraint, bottomConstraint])
         
         let reelButton = UIBarButtonItem(title: NSLocalizedString("Reels", comment: "Reels"), style: .plain, target: self, action: #selector(self.openReels))
-        self.navigationItem.leftBarButtonItem = reelButton
+        let popularButton = UIBarButtonItem(title: NSLocalizedString("Popular", comment: "Popular"), style: .plain, target: self, action: #selector(self.openPopularPost))
+        self.navigationItem.leftBarButtonItems = [reelButton, popularButton]
         
         self.tableView.separatorStyle = .none
         
