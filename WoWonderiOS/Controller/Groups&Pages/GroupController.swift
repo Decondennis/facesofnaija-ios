@@ -33,7 +33,7 @@ class GroupController: UIViewController,GroupMoreDelegate,editPostDelegate{
     var id: String? = nil
     var isFromList = false
     var isData_nil: Bool = false
-    private var viewAppearedAt: Date = Date()
+    private var viewAppearedAt: Date?
 
     
     var delegate : DeleteGroupDelegate!
@@ -741,7 +741,7 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
             self.navigationController?.pushViewController(vc, animated: true)
         }
         else if (indexPath.section == 2){
-            guard Date().timeIntervalSince(self.viewAppearedAt) > 0.5 else { return }
+            guard let appearedAt = self.viewAppearedAt, Date().timeIntervalSince(appearedAt) > 0.5, self.view.window != nil else { return }
             let storyboard = UIStoryboard(name: "Search", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "SearchPostVC") as! SearchPostController
             vc.type = "group"

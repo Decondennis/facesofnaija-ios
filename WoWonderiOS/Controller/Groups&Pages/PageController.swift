@@ -18,7 +18,7 @@ class PageController: UIViewController,EditPageDelegete,DeletePageDelegate,PageM
     var pagelikes = "", afterpostid  = "0"
     var isLike  = false
     var isPageOwner = false
-    private var viewAppearedAt: Date = Date()
+    private var viewAppearedAt: Date?
     var pageData : ForwardPageData!
     var delegate : EditPageDelegete!
     var deleteDelegate : DeletePageDelegate!
@@ -858,7 +858,7 @@ extension PageController : UITableViewDataSource,UITableViewDelegate,uploadImage
             self.navigationController?.pushViewController(vc, animated: true)
         }
         else if (indexPath.section == 2){
-            guard Date().timeIntervalSince(self.viewAppearedAt) > 0.5 else { return }
+            guard let appearedAt = self.viewAppearedAt, Date().timeIntervalSince(appearedAt) > 0.5, self.view.window != nil else { return }
             let storyboard = UIStoryboard(name: "Search", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "SearchPostVC") as! SearchPostController
             vc.type = "page"
