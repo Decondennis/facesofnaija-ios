@@ -505,16 +505,28 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
             return 1
         }
         else if (section == 3){
-            return 1
+            return 0
         }
         else if (section == 4){
-            return 1
+            return 0
         }
         else if (section == 5){
-            return 1
+            return 0
         }
         else {
            return self.groupPostsArray.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
+            return 362.0
+        } else if indexPath.section == 1 {
+            return 60.0
+        } else if indexPath.section == 2 {
+            return 70.0
+        } else {
+            return UITableView.automaticDimension
         }
     }
     
@@ -522,7 +534,6 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
     if indexPath.section == 0 {
         
     let cell = tableView.dequeueReusableCell(withIdentifier: "GroupCover") as! GroupCoverCell
-     self.tableView.rowHeight = 362.0
         if let avatar = self.groupData["avatar"] as? String{
             let image = avatar.trimmingCharacters(in: .whitespaces)
             let url = URL(string: image)
@@ -582,30 +593,22 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
         cell.moreBtn.addTarget(self, action: #selector(self.GotoAddPost(sender:)), for: .touchUpInside)
         cell.photoBtn.addTarget(self, action: #selector(self.GotoAddPost(sender:)), for: .touchUpInside)
         cell.bind(page_data: self.groupData)
-        self.tableView.rowHeight = 60.0
         return cell
 
     }
     else if (indexPath.section == 2){
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchCell") as! SearchPostCell
-        self.tableView.rowHeight = 70.0
         return cell
 
     }
     else if (indexPath.section == 3){
-        let cell = UITableViewCell()
-        self.tableView.rowHeight = 0
-        return cell
+        return UITableViewCell()
     }
     else if (indexPath.section == 4){
-        let cell = UITableViewCell()
-        self.tableView.rowHeight = 0
-        return cell
+        return UITableViewCell()
     }
     else if (indexPath.section == 5){
-        let cell = UITableViewCell()
-        self.tableView.rowHeight = 0
-        return cell
+        return UITableViewCell()
     }
     else {
         var cell = UITableViewCell()
@@ -652,8 +655,6 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
         
         else if (live != ""){
             let cells = tableView.dequeueReusableCell(withIdentifier: "LiveCell") as! PostLiveCell
-//            self.tableView.rowHeight = 350.0
-            self.tableView.rowHeight = UITableView.automaticDimension
             self.tableView.estimatedRowHeight = 350.0
             cells.bind(index: index, indexPath: indexPath.row)
             cells.shareBtn.isUserInteractionEnabled = true

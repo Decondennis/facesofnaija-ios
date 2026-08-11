@@ -75,14 +75,15 @@ class RegisterVC: BaseVC {
         }
         else {
             ZKProgressHUD.show(NSLocalizedString("Loading", comment: "Loading"))
-            self.signUPAuthentication(userName: cell.usernameTextField.text!, email: cell.emailTextField.text!, password: cell.passwordTextField.text!, confirmPassword: cell.confrimPassTextField.text!, deviceID: self.oneSignalID ?? "")
+            let gender = cell.genderTextField.text ?? ""
+            self.signUPAuthentication(userName: cell.usernameTextField.text!, email: cell.emailTextField.text!, password: cell.passwordTextField.text!, confirmPassword: cell.confrimPassTextField.text!, deviceID: self.oneSignalID ?? "", gender: gender)
         }
         
     }
     
     private func updateUserData(){
         guard let cell = tableView.cellForRow(at: IndexPath(item: 0, section: 0)) as? RegisterTableItem else { return }
-        UpdateUserDataManager.sharedInstance.updateUserData(firstName: cell.firstnameTextField.text!, lastName: cell.lastnameTextField.text!, phoneNumber: "", website: "", address: "", workPlace: "", school: "", gender: cell.genderTextField.text!) { (success,authError , error) in
+        UpdateUserDataManager.sharedInstance.updateUserData(firstName: cell.firstnameTextField.text!, lastName: cell.lastnameTextField.text!, phoneNumber: "", website: "", address: "", workPlace: "", school: "", gender: cell.genderTextField.text ?? "male") { (success,authError , error) in
             if success != nil{
                 print(success?.message)
             }
@@ -96,7 +97,7 @@ class RegisterVC: BaseVC {
        
     }
 
-    private func signUPAuthentication(userName : String,email : String, password : String,confirmPassword : String,deviceID:String) {
+    private func signUPAuthentication(userName : String,email : String, password : String,confirmPassword : String,deviceID:String,gender:String) {
         
         let status = Reach().connectionStatus()
         switch status {
@@ -106,12 +107,17 @@ class RegisterVC: BaseVC {
             self.showErrorPopup(error: self.error)
         case .online(.wwan), .online(.wiFi):
             
-            AuthenticationManager.sharedInstance.signUPAuthentication(userName: userName, password: password, email: email, confirmPassword: confirmPassword,deviceId:deviceID) { (success, authError, error) in
+            AuthenticationManager.sharedInstance.signUPAuthentication(userName: userName, password: password, email: email, confirmPassword: confirmPassword,deviceId:deviceID, gender:gender) { (success, authError, error) in
                 if success != nil {
+                    ZKProgressHUD.dismiss()
+                    if success?.apiStatus == 220 || (success?.accessToken ?? "").isEmpty {
+                        self.error = NSLocalizedString("Registration successful! Please check your email to verify your account.", comment: "")
+                        self.showErrorPopup(error: self.error)
+                        return
+                    }
                     UserData.setUSER_ID(success?.userID)
                     UserData.setaccess_token(success?.accessToken)
                     self.updateUserData()
-                    ZKProgressHUD.dismiss()
                     AppInstance.instance.getProfile()
                     let vc = R.storyboard.authentication.introController()
                     vc?.modalPresentationStyle = .fullScreen

@@ -86,11 +86,13 @@ class RegisterTableItem: UITableViewCell {
         
         alert.addAction(UIAlertAction(title: NSLocalizedString("Male", comment: "Male"), style: .default, handler: { (_) in
             self.genderBtn.setTitle(NSLocalizedString("Male", comment: "Male"), for: .normal)
+            self.genderTextField.text = "male"
          }))
 
         alert.addAction(UIAlertAction(title: NSLocalizedString("Female", comment: "Female"), style: .default, handler: { (_) in
             
             self.genderBtn.setTitle(NSLocalizedString("Female", comment: "Female"), for: .normal)
+            self.genderTextField.text = "female"
         }))
         
         alert.addAction(UIAlertAction(title: NSLocalizedString("Close", comment: "Close"), style: .cancel, handler: { (_) in
