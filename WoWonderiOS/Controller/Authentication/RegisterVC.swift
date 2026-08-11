@@ -24,10 +24,7 @@ class RegisterVC: BaseVC {
     }
     
     private func setupUI(){
-        let backgroundImage = UIImageView(frame: UIScreen.main.bounds)
-        backgroundImage.image = UIImage(named: "loginImage")
-        backgroundImage.contentMode = .redraw
-        self.view.insertSubview(backgroundImage, at: 0)
+        self.tableView.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.11, alpha: 1.0)
         self.tableView.tableFooterView = UIView()
         self.tableView.register(UINib(nibName: "RegisterTableItem", bundle: nil), forCellReuseIdentifier: "RegisterTableItem")
     }
