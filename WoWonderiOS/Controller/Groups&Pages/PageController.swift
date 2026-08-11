@@ -18,6 +18,7 @@ class PageController: UIViewController,EditPageDelegete,DeletePageDelegate,PageM
     var pagelikes = "", afterpostid  = "0"
     var isLike  = false
     var isPageOwner = false
+    private var viewAppearedAt: Date = Date()
     var pageData : ForwardPageData!
     var delegate : EditPageDelegete!
     var deleteDelegate : DeletePageDelegate!
@@ -62,6 +63,11 @@ class PageController: UIViewController,EditPageDelegete,DeletePageDelegate,PageM
         let interstitial = GADInterstitialAd()
 //        interstitial.load(GADRequest())
         return interstitial
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.viewAppearedAt = Date()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -852,6 +858,7 @@ extension PageController : UITableViewDataSource,UITableViewDelegate,uploadImage
             self.navigationController?.pushViewController(vc, animated: true)
         }
         else if (indexPath.section == 2){
+            guard Date().timeIntervalSince(self.viewAppearedAt) > 0.5 else { return }
             let storyboard = UIStoryboard(name: "Search", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "SearchPostVC") as! SearchPostController
             vc.type = "page"
