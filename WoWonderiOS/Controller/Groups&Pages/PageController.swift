@@ -597,9 +597,8 @@ extension PageController : UITableViewDataSource,UITableViewDelegate,uploadImage
             if let name = self.page_data["page_name"] as? String{
                 cell.pageName.text = "\("@")\(name)"
             }
-            if let rating = self.page_data["rating"] as? Double{
-                cell.ratingView.rating = rating
-            }
+            let ratingValue = self.page_data["rating"] as? Double ?? Double(self.page_data["rating"] as? Int ?? 0)
+            cell.ratingView.rating = ratingValue
             if let category = self.page_data["category"] as? String{
                 cell.categoryBtn.setTitle("\("       ")\(category)", for: .normal)
             }

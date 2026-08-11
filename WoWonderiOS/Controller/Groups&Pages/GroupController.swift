@@ -319,6 +319,22 @@ class GroupController: UIViewController,GroupMoreDelegate,editPostDelegate{
             }
         }
     }
+    private func isGroupJoined() -> Bool {
+        if let v = self.groupData["is_group_joined"] as? Int {
+            return v >= 1
+        }
+        if let v = self.groupData["is_group_joined"] as? String {
+            return v == "1" || v.lowercased() == "yes"
+        }
+        if let v = self.groupData["is_joined"] as? Bool {
+            return v
+        }
+        if let v = self.groupData["is_joined"] as? String {
+            return v.lowercased() == "yes" || v == "1"
+        }
+        return false
+    }
+    
     private func getGroupData(groupId: String){
         switch status {
         case .unknown, .offline:
@@ -329,7 +345,7 @@ class GroupController: UIViewController,GroupMoreDelegate,editPostDelegate{
                     if success != nil{
                     self.groupData = success!.group_data
                         self.isAdmin = self.groupData["is_owner"] as? Bool ?? true
-                        self.isJoined = self.groupData["is_joined"] as? Bool ?? true
+                        self.isJoined = self.isGroupJoined()
                     self.tableView.reloadData()
                     }
                     else if authError != nil{
@@ -532,8 +548,7 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
                 cell.editIconBtn.isHidden = true
                 cell.editCoverBtn.isHidden = true
                 cell.editView.isHidden = true
-                if let is_Joined = self.groupData["is_joined"] as? Bool{
-                    if is_Joined{
+                     if self.isGroupJoined(){
                 cell.joinGroupBtn.setTitle(NSLocalizedString("Joined", comment: "Joined"), for: .normal)
                 cell.joinGroupBtn.backgroundColor = UIColor.hexStringToUIColor(hex: "#e5e5e5")
                         cell.joinGroupBtn.setTitleColor(.black, for: .normal)
@@ -544,7 +559,6 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
 //                            UIColor.hexStringToUIColor(hex: "984243")
                         cell.joinGroupBtn.setTitleColor(.white, for: .normal)
                     }
-                }
             }
         }
      cell.backBtn.addTarget(self, action: #selector(self.Back), for: .touchUpInside)
@@ -783,8 +797,8 @@ extension GroupController : UITableViewDataSource,UITableViewDelegate,DeleteGrou
     
     @IBAction func GroupJoin(sender:UIButton) {
        let position = (sender as AnyObject).convert(CGPoint.zero, to: self.tableView)
-        let indexPath = self.tableView.indexPathForRow(at: position)!
-        let cell = self.tableView.cellForRow(at: IndexPath(row: indexPath.row, section: 0)) as! GroupCoverCell
+        guard let indexPath = self.tableView.indexPathForRow(at: position) else { return }
+        guard let cell = self.tableView.cellForRow(at: IndexPath(row: indexPath.row, section: 0)) as? GroupCoverCell else { return }
         if self.isAdmin == true {
         let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
         let vc = Storyboard.instantiateViewController(withIdentifier: "GroupSettingVC") as! GroupSettingController
