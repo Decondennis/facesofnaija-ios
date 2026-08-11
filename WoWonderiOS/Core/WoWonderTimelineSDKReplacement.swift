@@ -11,8 +11,8 @@ public enum ServerEnvironment {
     
     var url: String {
         switch self {
-        case .development:  return "http://172.236.19.52"
-        case .production:   return "https://facesofnaija.ng"
+        case .development:  return "https://www.facesofnaija.ng"
+        case .production:   return "https://www.facesofnaija.ng"
         }
     }
 }
@@ -361,7 +361,7 @@ public struct APIClient {
     }
     
     public struct PopularPost {
-        public static let getPopularPostApi = "\(baseURl)/api-v2.php?type=most_liked"
+        public static let getPopularPostApi = "\(baseURl)/api-v2.php?type=get_popular_posts"
     }
     
     public struct VideoView {
@@ -393,7 +393,7 @@ public struct APIClient {
     }
     
     public struct GeneralData {
-        public static let getGeneralDataApi = "\(baseURl)/api/get-general-data"
+        public static let getGeneralDataApi = "\(baseURl)/api-v2.php?type=get-general-data"
     }
     
     public struct Stie_Setting {

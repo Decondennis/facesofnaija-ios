@@ -1,5 +1,6 @@
 
 import UIKit
+import AVFoundation
 import FittedSheets
 import ZKProgressHUD
 import MediaPlayer
@@ -282,15 +283,47 @@ class AddPostVC: UIViewController {
         print("test = \(self.postText ?? "")")
         
     }
+    private func launchCamera(){
+        self.type = "IMAGE"
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            self.view.makeToast(NSLocalizedString("Camera not available on this device", comment: ""))
+            return
+        }
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        imagePickerController.sourceType = .camera
+        self.present(imagePickerController, animated: true, completion: nil)
+    }
+    
     private func openCamera(){
         self.type = "IMAGE"
-        let imagePickerController = UIImagePickerController()
-                                                  
-                                                  imagePickerController.delegate = self
-                                                  
-                                                  imagePickerController.allowsEditing = true
-                                                  imagePickerController.sourceType = .camera
-                                                  self.present(imagePickerController, animated: true, completion: nil)
+        let cameraStatus = AVCaptureDevice.authorizationStatus(for: .video)
+        switch cameraStatus {
+        case .authorized:
+            self.launchCamera()
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self?.launchCamera()
+                    } else {
+                        self?.view.makeToast(NSLocalizedString("Camera permission denied", comment: ""))
+                    }
+                }
+            }
+        case .denied, .restricted:
+            let alert = UIAlertController(title: NSLocalizedString("Camera Access Required", comment: ""), message: NSLocalizedString("Please enable camera access in Settings to take photos.", comment: ""), preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
+            alert.addAction(UIAlertAction(title: NSLocalizedString("Settings", comment: ""), style: .default, handler: { (_) in
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }))
+            self.present(alert, animated: true, completion: nil)
+        @unknown default:
+            self.launchCamera()
+        }
     }
     private func openMusicLibrary(){
         let pickerController = MPMediaPickerController(mediaTypes: .music)
@@ -331,13 +364,7 @@ class AddPostVC: UIViewController {
                                             
                                             
                                         }else if value == 1 {
-                                            let imagePickerController = UIImagePickerController()
-                                            
-                                            imagePickerController.delegate = self
-                                            
-                                            imagePickerController.allowsEditing = true
-                                            imagePickerController.sourceType = .camera
-                                            self.present(imagePickerController, animated: true, completion: nil)
+                                            self.openCamera()
                                         }
                                         return
                                         

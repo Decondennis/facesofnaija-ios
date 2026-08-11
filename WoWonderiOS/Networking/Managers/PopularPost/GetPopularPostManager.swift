@@ -5,8 +5,12 @@ import Alamofire
 class GetPostPopularManager{
     
     func getPopularPost(offset: String, completionBlock :@escaping (_ Success: GetPopularPostModal.getPopularPost_SuccessModal?, _ AuthError: GetPopularPostModal.getPopularPost_ErrorModal?, Error?)->()) {
-        let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClient.Params.offset:offset,APIClient.Params.limit:15] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,
+                      APIClient.Params.userId: UserData.getUSER_ID() ?? "",
+                      APIClient.Params.offset: offset,
+                      APIClient.Params.afterPostId: offset,
+                      APIClient.Params.limit: 15] as [String : Any]
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         
         AF.request(APIClient.PopularPost.getPopularPostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

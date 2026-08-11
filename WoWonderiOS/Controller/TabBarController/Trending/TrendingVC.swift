@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 import AlamofireImage
 import Kingfisher
 import SDWebImage
@@ -260,9 +261,15 @@ class TrendingVC: UIViewController,UITabBarControllerDelegate,loadEventDelegate,
         }
              self.present(alert, animated: true, completion: nil)
          }
+    @objc private func openReels(){
+        let vc = ReelsController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+    }
+    
     private func setupUI(){
         
-       
          rightButton.setImage(UIImage(named: "add-button"), for: .normal)
          rightButton.addTarget(self, action: #selector(self.AddAction(sender:)), for: .touchUpInside)
          navigationController?.navigationBar.addSubview(rightButton)
@@ -278,6 +285,9 @@ class TrendingVC: UIViewController,UITabBarControllerDelegate,loadEventDelegate,
                                          toItem: targetView, attribute: .bottom, multiplier: 1.0, constant: -13)
          rightButton.translatesAutoresizingMaskIntoConstraints = false
          NSLayoutConstraint.activate([trailingContraint, bottomConstraint])
+        
+        let reelButton = UIBarButtonItem(title: NSLocalizedString("Reels", comment: "Reels"), style: .plain, target: self, action: #selector(self.openReels))
+        self.navigationItem.leftBarButtonItem = reelButton
         
         self.tableView.separatorStyle = .none
         
@@ -811,3 +821,142 @@ extension TrendingVC: FollowRequestDelegate{
   
 }
 
+
+class ReelsController: UIViewController {
+    
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.isPagingEnabled = true
+        cv.backgroundColor = .black
+        cv.showsVerticalScrollIndicator = false
+        return cv
+    }()
+    
+    private var videos: [[String:Any]] = []
+    private var offset = ""
+    private var isLoading = false
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .black
+        self.navigationItem.title = NSLocalizedString("Reels", comment: "Reels")
+        view.addSubview(collectionView)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(ReelsCollectionViewCell.self, forCellWithReuseIdentifier: "ReelsCell")
+        loadReels()
+    }
+    
+    private func loadReels() {
+        guard !isLoading else { return }
+        isLoading = true
+        GetReelsManager.sharedInstance.getReels(offset: offset, limit: 10) { [weak self] (posts, error, networkError) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.isLoading = false
+                if let posts = posts {
+                    self.videos.append(contentsOf: posts)
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+}
+
+extension ReelsController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return videos.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ReelsCell", for: indexPath) as! ReelsCollectionViewCell
+        cell.configure(with: videos[indexPath.item])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: self.view.frame.width, height: self.view.frame.height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let cell = cell as? ReelsCollectionViewCell else { return }
+        cell.play()
+        if indexPath.item >= videos.count - 3 {
+            loadReels()
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let cell = cell as? ReelsCollectionViewCell else { return }
+        cell.stop()
+    }
+}
+
+class ReelsCollectionViewCell: UICollectionViewCell {
+    
+    private let playerLayer = AVPlayerLayer()
+    private var player: AVPlayer?
+    
+    private let overlayView: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        return v
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.layer.addSublayer(playerLayer)
+        contentView.addSubview(overlayView)
+        overlayView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            overlayView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            overlayView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            overlayView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            overlayView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(with post: [String:Any]) {
+        let urlString = post["postFile_full"] as? String ?? post["postFile"] as? String ?? ""
+        guard let url = URL(string: urlString) else { return }
+        let playerItem = AVPlayerItem(url: url)
+        if let player = player {
+            player.replaceCurrentItem(with: playerItem)
+        } else {
+            player = AVPlayer(playerItem: playerItem)
+            playerLayer.player = player
+            playerLayer.videoGravity = .resizeAspectFill
+            playerLayer.frame = contentView.bounds
+        }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        playerLayer.frame = contentView.bounds
+    }
+    
+    func play() {
+        player?.play()
+    }
+    
+    func stop() {
+        player?.pause()
+        player?.seek(to: .zero)
+    }
+}

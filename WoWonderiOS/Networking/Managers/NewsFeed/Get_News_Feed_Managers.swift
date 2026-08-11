@@ -53,4 +53,44 @@ class GetNewsFeedManagers{
     private init () {}
     
 }
+
+class GetReelsManager {
+    
+    func getReels(offset: String, limit: Int, completionBlock :@escaping (_ Success: [[String:Any]]?, _ AuthError: [String:Any]?, Error?)->()){
+        let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,
+                      APIClient.Params.limit : limit,
+                      APIClient.Params.offset : offset,
+                      "filter" : 2,
+                      "post_type" : "video"] as [String : Any]
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
+        AF.request(APIClient.Get_News_Feed.get_News_Feed_Posts + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+            if response.value != nil {
+                guard let res = response.value as? [String:Any] else {
+                    completionBlock(nil, nil, nil)
+                    return
+                }
+                guard let apiStatusCode = res["api_status"] as? Any else {
+                    completionBlock(nil, res, nil)
+                    return
+                }
+                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
+                    let posts = res["data"] as? [[String:Any]] ?? []
+                    let videos = posts.filter { post in
+                        let file = post["postFile"] as? String ?? ""
+                        let youtube = post["postYoutube"] as? String ?? ""
+                        return !file.isEmpty || !youtube.isEmpty
+                    }
+                    completionBlock(videos, nil, nil)
+                } else {
+                    completionBlock(nil, res, nil)
+                }
+            } else {
+                completionBlock(nil, nil, response.error)
+            }
+        }
+    }
+    
+    static let sharedInstance = GetReelsManager()
+    private init() {}
+}
   

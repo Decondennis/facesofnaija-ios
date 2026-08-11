@@ -105,6 +105,8 @@
 	<string>Facesofnaija requires to access camera for taking profile picture</string>
 	<key>NSFileProviderDomainUsageDescription</key>
 	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Facesofnaija requires access to your photo library to select and share photos</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Facesofnaija would like to access your location in order to search nearby users.</string>
 	<key>NSLocationAlwaysUsageDescription</key>

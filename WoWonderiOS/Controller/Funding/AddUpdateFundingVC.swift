@@ -94,6 +94,10 @@ class AddUpdateFundingVC: UIViewController {
                                             
                                             
                                         }else if value == 1 {
+                                            guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+                                                self.view.makeToast(NSLocalizedString("Camera not available on this device", comment: ""))
+                                                return
+                                            }
                                             let imagePickerController = UIImagePickerController()
                                             
                                             imagePickerController.delegate = self

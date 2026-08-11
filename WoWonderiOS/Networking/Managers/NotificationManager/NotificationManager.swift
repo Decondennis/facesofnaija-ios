@@ -11,10 +11,9 @@ class NotificationManager{
     
     func getNotification(offset: Int, limit: Int,type:String,completionBlock :@escaping (_ Success: GetNotificationModel.GetNotificationSuccessModel?, _ AuthError: GetNotificationModel.GetNotificationErrorModel?, Error?)->()){
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,
-                      APIClient.Params.fetch:type] as [String : Any]
-        //            APIClient.Params.offset:offset,
-        //            APIClient.Params.limit:limit,
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token() ?? "")"
+                      APIClient.Params.fetch:type,
+                      APIClient.Params.offset:"\(offset)"] as [String : Any]
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(APIClient.GeneralData.getGeneralDataApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil{
                 guard let res = response.value as? [String:Any] else {return}

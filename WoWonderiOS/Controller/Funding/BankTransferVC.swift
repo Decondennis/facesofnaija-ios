@@ -73,6 +73,10 @@ class BankTransferVC: BaseVC {
         
         let alert = UIAlertController(title: "", message: NSLocalizedString("Select Source", comment: "Select Source"), preferredStyle: .alert)
         let camera = UIAlertAction(title: NSLocalizedString("Camera", comment: "Camera"), style: .default) { (action) in
+            guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+                self.view.makeToast(NSLocalizedString("Camera not available on this device", comment: ""))
+                return
+            }
             self.imagePickerController.delegate = self
             self.imagePickerController.allowsEditing = true
             self.imagePickerController.sourceType = .camera
