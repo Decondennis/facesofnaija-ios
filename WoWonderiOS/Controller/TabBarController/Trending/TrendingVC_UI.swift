@@ -61,7 +61,59 @@ class TrendingVC_UI: UIViewController, UITabBarControllerDelegate, createLiveDel
         self.tableView.register(UINib(nibName: "TrendingHeaderCells", bundle: nil), forCellReuseIdentifier: "TrendingHeaderCells")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "headerCell")
 
+        setupQuickLinks()
         // Do any additional setup after loading the view.
+    }
+    
+    private func setupQuickLinks(){
+        let header = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
+        header.backgroundColor = .white
+        
+        let reelsBtn = UIButton(type: .system)
+        reelsBtn.setTitle(NSLocalizedString("Reels", comment: "Reels"), for: .normal)
+        reelsBtn.setTitleColor(.white, for: .normal)
+        reelsBtn.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+        reelsBtn.layer.cornerRadius = 15
+        reelsBtn.clipsToBounds = true
+        reelsBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
+        reelsBtn.addTarget(self, action: #selector(openReels), for: .touchUpInside)
+        
+        let popularBtn = UIButton(type: .system)
+        popularBtn.setTitle(NSLocalizedString("Popular Posts", comment: "Popular Posts"), for: .normal)
+        popularBtn.setTitleColor(.white, for: .normal)
+        popularBtn.backgroundColor = UIColor.hexStringToUIColor(hex: ControlSettings.buttonColor)
+        popularBtn.layer.cornerRadius = 15
+        popularBtn.clipsToBounds = true
+        popularBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
+        popularBtn.addTarget(self, action: #selector(openPopularPost), for: .touchUpInside)
+        
+        let stack = UIStackView(arrangedSubviews: [reelsBtn, popularBtn])
+        stack.axis = .horizontal
+        stack.distribution = .fillEqually
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        header.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: header.topAnchor, constant: 8),
+            stack.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
+            stack.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -8),
+            reelsBtn.heightAnchor.constraint(equalToConstant: 34)
+        ])
+        self.tableView.tableHeaderView = header
+    }
+    
+    @objc private func openReels(){
+        let vc = ReelsController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+    }
+    
+    @objc private func openPopularPost(){
+        let storyboard = UIStoryboard(name: "MarketPlaces-PopularPost-Events", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "PopularPostVC") as! PopularPostController
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func AddAction(sender:UIBarButtonItem){
