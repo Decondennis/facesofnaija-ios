@@ -137,7 +137,7 @@ class MyProfileController: UIViewController,ProfileMoreDelegate,editPostDelegate
                 self.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
             case .online(.wwan), .online(.wiFi):
                 performUIUpdatesOnMain {
-            Get_Users_Posts_DataManager.sharedInstance.get_User_PostsData(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)" , limit: 5, id: UserData.getUSER_ID()!, off_set: "") {[weak self] (success, authError, error) in
+            Get_Users_Posts_DataManager.sharedInstance.get_User_PostsData(access_token: "&access_token=\(UserData.getAccess_Token() ?? "")" , limit: 5, id: UserData.getUSER_ID()!, off_set: "") {[weak self] (success, authError, error) in
                         if success != nil {
                             for i in success!.data{
                                 if i["post_id"] as? String == post_id{
@@ -290,7 +290,7 @@ class MyProfileController: UIViewController,ProfileMoreDelegate,editPostDelegate
             showAlert(title: "", message: "Internet Connection Failed")
         case .online(.wwan),.online(.wiFi):
             DispatchQueue.main.async {
-                Get_User_DataManagers.sharedInstance.get_User_Data(userId: UserData.getUSER_ID()!, access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)") { [weak self] (success, authError, error) in
+                Get_User_DataManagers.sharedInstance.get_User_Data(userId: UserData.getUSER_ID()!, access_token: "&access_token=\(UserData.getAccess_Token() ?? "")") { [weak self] (success, authError, error) in
                     if success != nil {
                         self?.userData = success!.user_data
                         self?.pagesArray = (success!.liked_pages.map({$0}))
@@ -318,7 +318,7 @@ class MyProfileController: UIViewController,ProfileMoreDelegate,editPostDelegate
             print("Connection Failed")
         case .online(.wwan),.online(.wiFi):
             performUIUpdatesOnMain {
-                Get_Users_Posts_DataManager.sharedInstance.get_User_PostsData(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)" , limit: 10, id: UserData.getUSER_ID()!, off_set: self.off_set ?? "") {[weak self] (success, authError, error) in
+                Get_Users_Posts_DataManager.sharedInstance.get_User_PostsData(access_token: "&access_token=\(UserData.getAccess_Token() ?? "")" , limit: 10, id: UserData.getUSER_ID()!, off_set: self.off_set ?? "") {[weak self] (success, authError, error) in
                     if success != nil {
                         for i in success!.data{
                             self?.postsArray.append(i)

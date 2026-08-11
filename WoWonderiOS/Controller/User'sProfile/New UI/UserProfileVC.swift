@@ -48,7 +48,7 @@ class UserProfileVC: UIViewController {
         if let userId = self.userData? ["user_id"] as? String{
             self.user_id = userId
         }
-        self.getUserData(userId: self.user_id ?? "" , access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)")
+        self.getUserData(userId: self.user_id ?? "", access_token: "&access_token=\(UserData.getAccess_Token() ?? "")")
     }
     
     override func viewWillAppear(_ animated: Bool) {

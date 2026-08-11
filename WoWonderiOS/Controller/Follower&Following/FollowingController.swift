@@ -84,7 +84,7 @@ class FollowingController: UIViewController {
         case .unknown, .offline:
             showAlert(title: "", message: "Internet Connection Failed")
         case .online(.wwan),.online(.wiFi):
-            Get_User_DataManagers.sharedInstance.get_User_Data(userId: UserData.getUSER_ID()!, access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)") { (success, authError, error) in
+            Get_User_DataManagers.sharedInstance.get_User_Data(userId: UserData.getUSER_ID()!, access_token: "&access_token=\(UserData.getAccess_Token() ?? "")") { (success, authError, error) in
                 if success != nil {
                     self.followingArray = (success!.following.map({$0}))
                     self.tableView.separatorStyle = .singleLine

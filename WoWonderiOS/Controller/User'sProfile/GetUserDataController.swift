@@ -116,7 +116,7 @@ class GetUserDataController: UIViewController,blockUserDelegate,ProfileMoreDeleg
             self.userInfo.append(schol)
         }
 
-        self.getUserData(userId: self.user_id ?? "" , access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)")
+        self.getUserData(userId: self.user_id ?? "", access_token: "&access_token=\(UserData.getAccess_Token() ?? "")")
         if ControlSettings.shouldShowAddMobBanner{
                           
                           bannerView = GADBannerView(adSize: kGADAdSizeBanner)
