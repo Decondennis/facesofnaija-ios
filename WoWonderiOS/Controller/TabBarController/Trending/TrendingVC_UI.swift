@@ -113,6 +113,7 @@ class TrendingVC_UI: UIViewController, UITabBarControllerDelegate, createLiveDel
     @objc private func openPopularPost(){
         let storyboard = UIStoryboard(name: "MarketPlaces-PopularPost-Events", bundle: nil)
         let vc = storyboard.instantiateViewController(withIdentifier: "PopularPostVC") as! PopularPostController
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -305,6 +306,7 @@ class TrendingVC_UI: UIViewController, UITabBarControllerDelegate, createLiveDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
         self.navigationItem.title  = NSLocalizedString("Activities", comment: "Activities")
         self.getRequest()
         self.rightButton.isHidden = false

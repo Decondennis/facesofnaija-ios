@@ -851,6 +851,7 @@ class ReelsController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
         self.navigationItem.title = NSLocalizedString("Reels", comment: "Reels")
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(dismissReels))
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -878,6 +879,10 @@ class ReelsController: UIViewController {
                 }
             }
         }
+    }
+    
+    @objc private func dismissReels(){
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
