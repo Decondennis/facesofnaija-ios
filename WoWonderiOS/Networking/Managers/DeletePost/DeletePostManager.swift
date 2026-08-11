@@ -9,7 +9,7 @@ class DeletePostManager{
     func deletePost(postId: String,completionBlock :@escaping (_ Success: DeletePostModal.deletePost_SuccessModal?, _ AuthError: DeletePostModal.deletePost_ErrorModal?, Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClient.Params.action: "delete",APIClient.Params.postId:postId]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         AF.request(APIClient.DeletePost.deletePostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

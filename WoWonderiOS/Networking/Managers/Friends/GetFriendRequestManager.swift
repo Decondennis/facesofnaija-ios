@@ -16,7 +16,7 @@ class GetFriendRequestManager{
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.fetch:"friend_requests"]
 //        let params = [API.Params.ServerKey:API.SERVER_KEY.Server_Key,API.Params.FetchType:API.Params.friendRequest]
 //        API.Following_Methods.GetFollow_Request + "\(AppInstance.instance.sessionId ?? "")"
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(APIClient.GeneralData.getGeneralDataApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)
             if response.value != nil{

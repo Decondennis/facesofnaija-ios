@@ -8,7 +8,7 @@ class GetCommunityMemberManager{
     
     func getCommunityMember(communityId : String,offset:String,completionBlock : @escaping (_ Success:GetCommunityMembersModel.GetCommunityMembers_SuccessModel?, _ AuthError :GetCommunityMembersModel.GetCommuityMembers_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.limit : 10,APIClient.Params.offset : offset,APIClientCustom.Params.communityId :communityId] as [String : Any]
-    let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+    let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         AF.request(APIClientCustom.GetCommunityMember.getCommunityMemberApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
                 guard let res = response.value as? [String:Any] else {return}

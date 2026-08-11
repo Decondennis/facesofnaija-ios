@@ -9,7 +9,7 @@ class LikeBlogCommentManager{
     
     func likeComment(type: String, comment_id: String, blogId: String,reactionType: String,completionBlock :@escaping (_ Success: LikeBlogCommentModal.likeBlogComment_SuccessModal?, _ AuthError: LikeBlogCommentModal.getBlogComments_ErrorModal?, Error?)->()){
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClient.Params.commentId:comment_id,APIClient.Params.blogId:blogId,APIClient.Params.type:type,APIClient.Params.reactionType:reactionType]
-      let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+      let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         AF.request(APIClient.BlogComments.blogCommentApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil{

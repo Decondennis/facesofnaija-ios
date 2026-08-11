@@ -109,7 +109,7 @@ class ViewController: UIViewController,FilterBlockUser,UISearchBarDelegate,UITab
         SetUpcells.setupCells(tableView: self.tableView)
         self.tableView.register(UINib(nibName: "SortFilterCell", bundle: nil), forCellReuseIdentifier: "SortCell")
         if (AppInstance.instance.newsFeed_data.count == 0){
-            self.getNewsFeed(access_token: "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:15, offset: "0")
+            self.getNewsFeed(access_token: "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)", limit:15, offset: "0")
         }
         else{
             self.activityIndicator.stopAnimating()

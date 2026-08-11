@@ -15,7 +15,7 @@ class ProUserManager{
             APIClient.Params.offset:offset,
             APIClient.Params.limit:limit,
             ] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         AF.request(APIClient.GeneralData.getGeneralDataApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil{
                 guard let res = response.value as? [String:Any] else {return}

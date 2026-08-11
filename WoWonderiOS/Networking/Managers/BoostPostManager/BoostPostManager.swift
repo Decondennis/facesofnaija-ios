@@ -15,7 +15,7 @@ class BoostPostManager{
    private func boostPost(post_id:String,completionBlock : @escaping (_ Success:BoostPostModal.boostPost_SuccessModal?, _ AuthError: BoostPostModal.boostPost_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.postId:post_id, APIClient.Params.action: "boost"] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         AF.request(APIClient.SavePost.savePostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)

@@ -7,7 +7,7 @@ import Alamofire
 
 class UpdateCommunityDataManager {
     
-    let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+    let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
     
     func updateCommunityData(params : [String:Any], completionBlock : @escaping (_ Success: UpdateCommunityDataModel.updateData_successModel?, _ AuthError : UpdateCommunityDataModel.updateData_ErrorModel? , Error?)->()) {
         

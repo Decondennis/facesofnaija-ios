@@ -14,7 +14,7 @@ import Alamofire
 class MoviesCommentManager {
     func fetchComment (movieId : String, offset : String,completionBlock : @escaping (_ Success:FetchCommentModel.fetchComment_SuccessModel?, _ AuthError : FetchCommentModel.fetchComment_ErrorModel? , Error?)->()){
         let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.limit : 20, APIClient.Params.type : "get_comments",APIClient.Params.movie_id :movieId,APIClient.Params.offset : offset] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         AF.request(APIClient.Movies_Comment.getMoviesComment + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
                 print("Res = \(response.value)")

@@ -8,7 +8,7 @@ class ReportPostManager{
     
     func reportPost(postId: String,completionBlock :@escaping (_ Success: ReportPostModal.reportPost_SuccessModal?, _ AuthError: ReportPostModal.reportPost_ErrorModal?, Error?)->()){
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClient.Params.action: "report",APIClient.Params.postId:postId]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         AF.request(APIClient.ReportPost.reportPostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil{

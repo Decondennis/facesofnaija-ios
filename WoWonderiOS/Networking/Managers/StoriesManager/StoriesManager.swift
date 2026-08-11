@@ -130,7 +130,7 @@ class StoriesManager{
                 completionBlock(nil,nil,response.error)
             }
         })
-//        }, usingThreshold: UInt64.init(), to: APIClient.Stories.createStories +  "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)", method: .post, headers: headers) { (result) in
+//        }, usingThreshold: UInt64.init(), to: APIClient.Stories.createStories +  "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)", method: .post, headers: headers) { (result) in
 //            switch result{
 //            case .success(let upload, _, _):
 //                upload.responseJSON { response in

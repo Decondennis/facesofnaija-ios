@@ -8,7 +8,7 @@ class GetGeneralDataManager {
     func getGeneralDataManager(fetch: String, offset: String, completionBlock :@escaping (_ Success: GetGeneralDataModal.getGeneralData_SuccessModal?, _ AuthError: GetGeneralDataModal.getGeneralData_ErrorModal?, Error?)->()) {
         
         let params = [APIClient.Params.serverKey: APIClient.SERVER_KEY.Server_Key, APIClient.Params.fetch: fetch, APIClient.Params.offset: offset]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         AF.request(APIClient.GeneralData.getGeneralDataApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

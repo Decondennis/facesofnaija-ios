@@ -15,7 +15,7 @@ class GetCommunityNamesManagers{
     func get_Community_Names(completionBlock : @escaping (_ Success:GetCommunityNamesModel.getCommunityNames_SuccessModel?, _ AuthError : GetCommunityNamesModel.getCommunityNames_ErrorModel? , Error?)->()){
 
         let body = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key, APIClient.Params.userId:UserData.getUSER_ID() ?? ""] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         print("URL",APIClientCustom.Get_Community_Names.Get_Community_Names + access_token)
         AF.request(APIClientCustom.Get_Community_Names.Get_Community_Names + access_token, method: .post, parameters: body, encoding: URLEncoding.default, headers:

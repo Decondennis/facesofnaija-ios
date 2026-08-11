@@ -15,7 +15,7 @@ class EditPostManager{
     func editPost(text: String,post_id:String,privacy:Int,completionBlock : @escaping (_ Success:EditPostModal.editPost_SuccessModal?, _ AuthError: EditPostModal.editPost_ErrorModal? , Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key, APIClient.Params.postId:post_id, APIClient.Params.action: "edit",APIClient.Params.text:text,APIClient.Params.postPrivacy:privacy] as [String : Any]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         
         AF.request(APIClient.SavePost.savePostApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {

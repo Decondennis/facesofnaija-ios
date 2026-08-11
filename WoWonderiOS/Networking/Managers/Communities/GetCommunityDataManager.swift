@@ -9,7 +9,7 @@ class GetCommunityDataManager{
     func getData(communityId: String,completionBlock :@escaping (_ Success: GetCommunityDataModel.GetCommunityData_SuccessModel?, _ AuthError: GetCommunityDataModel.GetCommunityData_ErrorModel?, Error?)->()){
         
         let params = [APIClient.Params.serverKey:APIClient.SERVER_KEY.Server_Key,APIClientCustom.Params.community_id:communityId]
-        let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
+        let access_token = "\("&")\("access_token")\("=")\(UserData.getAccess_Token()!)"
         print("This is before the community data is loaded :" + communityId)
         print("The API is "+APIClientCustom.GetCommunityData.getCommunitiesDataApi)
         
