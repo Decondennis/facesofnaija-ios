@@ -34,10 +34,10 @@ class GetGeneralDataManager {
     func getLatestBlogs(completionBlock :@escaping (_ Success: TrendingModel.TrendingModel_Sucess?, _ AuthError: TrendingModel.TrendingModel_Error?, Error?)->()) {
         
         let params = [
-            APIClient.Params.s: UserData.getAccess_Token() ?? "",
-            APIClient.Params.userId : UserData.getUSER_ID() ?? ""]
+            APIClient.Params.serverKey: APIClient.SERVER_KEY.Server_Key]
         
-        AF.request(APIClient.Get_Latest_Blog_POST.BlogPost, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+        let access_token = "&access_token=\(UserData.getAccess_Token() ?? "")"
+        AF.request(APIClient.Get_Latest_Blog_POST.BlogPost + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             if response.value != nil {
                 guard let res = response.value as? [String:Any] else {return}
                 guard let apiStatusCode = res["api_status"] as? Any else {return}

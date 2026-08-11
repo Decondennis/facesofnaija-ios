@@ -539,7 +539,7 @@ public struct APIClient {
     }
     
     public struct Get_Latest_Blog_POST {
-        public static let BlogPost = "\(baseURl)/api/blogs"
+        public static let BlogPost = "\(baseURl)/api-v2.php?type=get-articles"
     }
     
     public struct Products {

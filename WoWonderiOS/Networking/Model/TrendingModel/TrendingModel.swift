@@ -43,7 +43,7 @@ class TrendingModel {
             case apiStatus = "api_status"
             case apiText = "api_text"
             case apiVersion = "api_version"
-            case blogs
+            case blogs = "articles"
         }
     }
 
