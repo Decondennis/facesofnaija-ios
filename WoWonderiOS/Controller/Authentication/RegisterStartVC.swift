@@ -21,7 +21,10 @@ class RegisterStartVC: BaseVC {
         self.setupUI()
         NotificationCenter.default.addObserver(self, selector: #selector(RegisterStartVC.networkStatusChanged(_:)), name: Notification.Name(rawValue: ReachabilityStatusChangedNotification), object: nil)
         Reach().monitorReachabilityChanges()
-        GIDSignIn.sharedInstance().presentingViewController = self
+        if GIDSignIn.sharedInstance().hasPreviousSignIn() || GIDSignIn.sharedInstance().currentUser != nil {
+            GIDSignIn.sharedInstance().presentingViewController = self
+        }
+        self.tableView.reloadData()
     }
     
     private func setupUI(){
@@ -31,6 +34,7 @@ class RegisterStartVC: BaseVC {
         self.view.insertSubview(backgroundImage, at: 0)
         self.tableView.tableFooterView = UIView()
         self.tableView.register(UINib(nibName: "RegisterStartTableItem", bundle: nil), forCellReuseIdentifier: "RegisterStartTableItem")
+        self.tableView.reloadData()
     }
     
     @objc func networkStatusChanged(_ notification: Notification) {
