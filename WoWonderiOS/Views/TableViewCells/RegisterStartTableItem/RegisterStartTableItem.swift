@@ -29,8 +29,14 @@ class RegisterStartTableItem: UITableViewCell {
 
     }
     @objc func handleTap(sender: UITapGestureRecognizer) {
-        let vc = R.storyboard.authentication.registerVC()
-        self.vc?.navigationController?.pushViewController(vc!, animated: true)
+        guard let vc = R.storyboard.authentication.registerVC() else { return }
+        if let nav = self.vc?.navigationController {
+            nav.pushViewController(vc, animated: true)
+        } else {
+            let navVC = UINavigationController(rootViewController: vc)
+            navVC.modalPresentationStyle = .fullScreen
+            self.vc?.present(navVC, animated: true, completion: nil)
+        }
       }
 
     @IBAction func googlePressed(_ sender: Any) {
