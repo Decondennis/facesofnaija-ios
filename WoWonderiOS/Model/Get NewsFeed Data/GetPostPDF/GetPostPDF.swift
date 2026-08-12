@@ -620,7 +620,6 @@ class GetPostPDF : AddReactionDelegate,SharePostDelegate,comment_CountsDelegate{
         activityViewController.popoverPresentationController?.sourceView = self.targetController.view // so that iPads won't crash
         
         // exclude some activity types from the list (optional,)
-        activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
         
         // present the view controller
         self.targetController.present(activityViewController, animated: true, completion: nil)
