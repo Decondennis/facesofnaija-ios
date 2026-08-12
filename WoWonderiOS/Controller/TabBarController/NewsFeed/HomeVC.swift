@@ -70,8 +70,9 @@ class HomeVC: UIViewController {
         self.getNewsFeed2(access_token: "access_token=\(UserData.getAccess_Token()!)", limit:15, offset: "0")
     }
 
+    private var speechSynthesizer: AVSpeechSynthesizer?
+    
     func greet(greeting: String){
-        // Configure audio session for TTS
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.mixWithOthers, .duckOthers])
             try AVAudioSession.sharedInstance().setActive(true)
@@ -80,12 +81,19 @@ class HomeVC: UIViewController {
         }
         
         let utterance = AVSpeechUtterance(string: greeting)
-        utterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.speech.synthesis.voice.samantha.premium")
+        if let voice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") && !$0.identifier.contains("compact") }) {
+            utterance.voice = voice
+        } else {
+            utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        }
         utterance.rate = 0.4
         utterance.volume = 1.0
         utterance.pitchMultiplier = 1.0
-        let synthesizer = AVSpeechSynthesizer()
-        synthesizer.speak(utterance)
+        if speechSynthesizer == nil {
+            speechSynthesizer = AVSpeechSynthesizer()
+        }
+        speechSynthesizer?.stopSpeaking(at: .immediate)
+        speechSynthesizer?.speak(utterance)
         print("TTS: Speaking greeting - \(greeting)")
     }
     
