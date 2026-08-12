@@ -17,10 +17,26 @@ class RegisterVC: BaseVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupUI()
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.navigationBar.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.11, alpha: 1.0)
+        self.navigationController?.navigationBar.barTintColor = UIColor(red: 0.0, green: 0.0, blue: 0.11, alpha: 1.0)
+        self.navigationController?.navigationBar.tintColor = .white
+        let backBtn = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backAction))
+        self.navigationItem.leftBarButtonItem = backBtn
+        self.navigationItem.title = NSLocalizedString("Register", comment: "Register")
         print("OneSignal device id = \(self.oneSignalID ?? "")")
         NotificationCenter.default.addObserver(self, selector: #selector(SignUpController.networkStatusChanged(_:)), name: Notification.Name(rawValue: ReachabilityStatusChangedNotification), object: nil)
         Reach().monitorReachabilityChanges()
         
+    }
+    
+    @objc private func backAction(){
+        if let nav = self.navigationController {
+            nav.popViewController(animated: true)
+        } else {
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     
     private func setupUI(){
