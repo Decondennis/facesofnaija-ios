@@ -8,9 +8,12 @@ class UpdateUserDataManager {
     
     let access_token = "\("?")\("access_token")\("=")\(UserData.getAccess_Token()!)"
     
-    func updateUserData(firstName : String, lastName : String ,phoneNumber : String, website : String, address : String, workPlace : String, school : String, gender: String, completionBlock : @escaping (_ Success: UpdateUserDataModel.updateUserData_SuccessModel?, _ AuthError : UpdateUserDataModel.updateUserData_ErrorModel? , Error?)->()){
+    func updateUserData(firstName : String, lastName : String ,phoneNumber : String, website : String, address : String, workPlace : String, school : String, gender: String, birthday: String = "", completionBlock : @escaping (_ Success: UpdateUserDataModel.updateUserData_SuccessModel?, _ AuthError : UpdateUserDataModel.updateUserData_ErrorModel? , Error?)->()){
         
-        let params = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.firstName : firstName, APIClient.Params.phoneNumber : phoneNumber, APIClient.Params.lastName : lastName, APIClient.Params.working : workPlace, APIClient.Params.address : address, APIClient.Params.website : website, APIClient.Params.school : school,APIClient.Params.gender: gender]
+        var params: [String:Any] = [APIClient.Params.serverKey : APIClient.SERVER_KEY.Server_Key,APIClient.Params.firstName : firstName, APIClient.Params.phoneNumber : phoneNumber, APIClient.Params.lastName : lastName, APIClient.Params.working : workPlace, APIClient.Params.address : address, APIClient.Params.website : website, APIClient.Params.school : school,APIClient.Params.gender: gender]
+        if !birthday.isEmpty {
+            params["birthday"] = birthday
+        }
         
         AF.request(APIClient.UpdateProfile.updateProfileApi + access_token, method: .post, parameters: params, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
             print(response.value)

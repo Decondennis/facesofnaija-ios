@@ -25,6 +25,8 @@ class RegisterTableItem: UITableViewCell {
     @IBOutlet weak var firstnameTextField: UITextField!
     @IBOutlet weak var loginBtn: UIButton!
     
+    var birthdayTextField: UITextField!
+    
     var vc:RegisterVC?
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -44,8 +46,7 @@ class RegisterTableItem: UITableViewCell {
         confrimPassTextField.attributedPlaceholder = NSAttributedString(string: "Confirm Password",
                                      attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
         
-//        genderTextField.attributedPlaceholder = NSAttributedString(string: "Gender",
-//                                     attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
+        self.setupBirthdayField()
         
         loginBtn.setTitle(NSLocalizedString("Create Account", comment: "Create Account"), for: .normal)
         
@@ -75,6 +76,46 @@ class RegisterTableItem: UITableViewCell {
     
     @IBAction func loginClicked(_ sender: Any){
         self.vc?.Register()
+    }
+    
+    private func setupBirthdayField(){
+        birthdayTextField = UITextField()
+        birthdayTextField.attributedPlaceholder = NSAttributedString(string: "Date of Birth", attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
+        birthdayTextField.textColor = .white
+        birthdayTextField.font = UIFont.systemFont(ofSize: 14)
+        birthdayTextField.borderStyle = .none
+        birthdayTextField.translatesAutoresizingMaskIntoConstraints = false
+        self.contentView.addSubview(birthdayTextField)
+        
+        NSLayoutConstraint.activate([
+            birthdayTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 46.5),
+            birthdayTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -46.5),
+            birthdayTextField.topAnchor.constraint(equalTo: loginBtn.bottomAnchor, constant: 18),
+            birthdayTextField.heightAnchor.constraint(equalToConstant: 56)
+        ])
+        
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .date
+        datePicker.maximumDate = Calendar.current.date(byAdding: .year, value: -13, to: Date())
+        if #available(iOS 14.0, *) {
+            datePicker.preferredDatePickerStyle = .wheels
+        }
+        birthdayTextField.inputView = datePicker
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let doneBtn = UIBarButtonItem(title: NSLocalizedString("Done", comment: "Done"), style: .done, target: self, action: #selector(birthdayDone))
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([space, doneBtn], animated: false)
+        birthdayTextField.inputAccessoryView = toolbar
+    }
+    
+    @objc private func birthdayDone(){
+        if let picker = birthdayTextField.inputView as? UIDatePicker {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            birthdayTextField.text = formatter.string(from: picker.date)
+        }
+        birthdayTextField.resignFirstResponder()
     }
     
     func setGender(){

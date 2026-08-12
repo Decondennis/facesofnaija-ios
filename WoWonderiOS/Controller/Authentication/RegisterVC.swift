@@ -80,7 +80,8 @@ class RegisterVC: BaseVC {
     
     private func updateUserData(){
         guard let cell = tableView.cellForRow(at: IndexPath(item: 0, section: 0)) as? RegisterTableItem else { return }
-        UpdateUserDataManager.sharedInstance.updateUserData(firstName: cell.firstnameTextField.text!, lastName: cell.lastnameTextField.text!, phoneNumber: "", website: "", address: "", workPlace: "", school: "", gender: cell.genderTextField.text ?? "male") { (success,authError , error) in
+        let birthday = cell.birthdayTextField.text ?? ""
+        UpdateUserDataManager.sharedInstance.updateUserData(firstName: cell.firstnameTextField.text!, lastName: cell.lastnameTextField.text!, phoneNumber: "", website: "", address: "", workPlace: "", school: "", gender: cell.genderTextField.text ?? "male", birthday: birthday) { (success,authError , error) in
             if success != nil{
                 print(success?.message)
             }
@@ -153,7 +154,7 @@ extension RegisterVC:UITableViewDelegate,UITableViewDataSource{
         return cell!
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 900.0
+        return 980.0
         
     }
     
