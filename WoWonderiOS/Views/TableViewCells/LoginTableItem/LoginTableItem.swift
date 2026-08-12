@@ -59,8 +59,14 @@ class LoginTableItem: UITableViewCell {
     }
     
     @IBAction func registerClicked(_ sender: Any) {
-        let vc = R.storyboard.authentication.registerStartVC()
-        self.vc?.navigationController?.pushViewController(vc!, animated: true)
+        guard let vc = R.storyboard.authentication.registerVC() else { return }
+        if let nav = self.vc?.navigationController {
+            nav.pushViewController(vc, animated: true)
+        } else {
+            let navVC = UINavigationController(rootViewController: vc)
+            navVC.modalPresentationStyle = .fullScreen
+            self.vc?.present(navVC, animated: true, completion: nil)
+        }
     }
     
     @IBAction func showHidePressed(_ sender: Any) {
