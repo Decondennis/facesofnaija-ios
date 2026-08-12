@@ -90,7 +90,7 @@ class RegisterTableItem: UITableViewCell {
         NSLayoutConstraint.activate([
             birthdayTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 46.5),
             birthdayTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -46.5),
-            birthdayTextField.topAnchor.constraint(equalTo: loginBtn.bottomAnchor, constant: 18),
+            birthdayTextField.bottomAnchor.constraint(equalTo: loginBtn.topAnchor, constant: -12),
             birthdayTextField.heightAnchor.constraint(equalToConstant: 56)
         ])
         
