@@ -1,0 +1,69 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload Facesofnaija to TestFlight / App Store Connect"
+  lane :beta do
+    # 1. Authenticate with App Store Connect API
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_PRIVATE_KEY"],
+      is_key_content_base64: false,
+      in_house: false
+    )
+
+    # 2. Setup temporary keychain for CI environment
+    keychain_name = "ci_keychain"
+    keychain_password = "ci_password_123"
+    
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: false
+    )
+
+    # 3. Retrieve or create iOS Distribution Certificate
+    get_certificates(
+      api_key: api_key,
+      keychain_name: keychain_name,
+      keychain_password: keychain_password
+    )
+
+    # 4. Retrieve or create Provisioning Profiles
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "com.facesofnaija.timeline"
+    )
+
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "com.facesofnaija.timeline.FacesofnaijaShare"
+    )
+
+    # 5. Install CocoaPods dependencies
+    cocoapods(
+      clean_install: false,
+      repo_update: true
+    )
+
+    # 6. Build and package the IPA
+    build_app(
+      workspace: "FacesofnaijaiOS.xcworkspace",
+      scheme: "FacesofnaijaiOS",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build_output",
+      output_name: "Facesofnaija.ipa",
+      clean: true
+    )
+
+    # 7. Upload to TestFlight / App Store Connect
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
