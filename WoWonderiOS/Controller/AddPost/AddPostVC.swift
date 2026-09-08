@@ -73,17 +73,15 @@ class AddPostVC: UIViewController {
         self.tabBarController?.tabBar.isHidden = true
         AppInstance.instance.isAlbumVisible = false
         AppInstance.instance.musicSelected = false
-        if self.isOpenSheet == 1{
+        if self.isOpenSheet == 1 {
+            self.isOpenSheet = 0
             let vc =  UIStoryboard(name: "AddPost", bundle: nil).instantiateViewController(withIdentifier: "PostTypeVC") as? PostTypeVC
-                  vc?.delegate = self
-                  
-//                  let controller = SheetViewController(controller:vc!)
+            vc?.delegate = self
             let controller = SheetViewController(controller: vc!, sizes: [.fixed(420), .fullscreen])
-//                  controller.blurBottomSafeArea = false
-
-                  self.present(controller, animated: false, completion: nil)
+            self.present(controller, animated: false, completion: nil)
         }
         if (self.isopenCamera == 1){
+            self.isopenCamera = 0
             self.openImageController()
         }
     }
@@ -187,22 +185,31 @@ class AddPostVC: UIViewController {
     
     @objc func edit(){
         let indexpathforTextView = IndexPath(row: 0, section: 1)
-        let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionTwoTableItem
-        self.postText  = cell.textView.text ?? ""
-        if self.postText == "" || self.postText == NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention") || self.postText == " " {
-            self.view.makeToast("You cannot post empty!")
+        if let cell = tableView.cellForRow(at: indexpathforTextView) as? AddPostSectionTwoTableItem {
+            self.postText = cell.textView.text ?? ""
         }
-        else{
-        self.edit_Post(text: self.postText ?? "")
+        let placeholder = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
+        let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty || self.postText == placeholder {
+            self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: "You cannot post empty!"))
+        } else {
+            self.edit_Post(text: self.postText ?? "")
         }
-        
     }
+    
     @objc func Save(){
         guard !isPosting else { return }
         isPosting = true
+        
         let indexpathforTextView = IndexPath(row: 0, section: 1)
-        let cell = tableView.cellForRow(at: indexpathforTextView)! as! AddPostSectionTwoTableItem
-        self.postText  = cell.textView.text ?? ""
+        if let cell = tableView.cellForRow(at: indexpathforTextView) as? AddPostSectionTwoTableItem {
+            let text = cell.textView.text ?? ""
+            let placeholder = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
+            if text != placeholder && !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                self.postText = text
+            }
+        }
+        
         let placeholder = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
         if self.postText == placeholder || self.postText == " " {
             self.postText = ""
@@ -214,38 +221,65 @@ class AddPostVC: UIViewController {
         
         if self.type == "IMAGE"{
             let indexPath = AppInstance.instance.musicSelected ? IndexPath(row: 0, section: 3) : IndexPath(row: 0, section: 2)
-            let cell = tableView.cellForRow(at: indexPath) as! AddPostSectionThreeTableItem
-            if cell.imageArray.isEmpty {
-                self.type = ""
-                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
-            } else {
-                var imagesDataArray = [Data]()
-                cell.imageArray.forEach { it in
-                    if let data = it.jpegData(compressionQuality: 0.1) {
-                        imagesDataArray.append(data)
+            if let cell = tableView.cellForRow(at: indexPath) as? AddPostSectionThreeTableItem {
+                if cell.imageArray.isEmpty {
+                    self.type = ""
+                    let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.isEmpty || trimmed == "." {
+                        self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: ""))
+                        self.isPosting = false
+                        return
                     }
+                    self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+                } else {
+                    var imagesDataArray = [Data]()
+                    cell.imageArray.forEach { it in
+                        if let data = it.jpegData(compressionQuality: 0.1) {
+                            imagesDataArray.append(data)
+                        }
+                    }
+                    self.uploadImages(imageArray: imagesDataArray)
                 }
-                self.uploadImages(imageArray: imagesDataArray)
+            } else {
+                self.isPosting = false
             }
             
         }else if self.type == "VIDEO"{
             let indexPath = AppInstance.instance.musicSelected ? IndexPath(row: 0, section: 3) : IndexPath(row: 0, section: 2)
-            let cell = tableView.cellForRow(at: indexPath) as! AddPostSectionThreeTableItem
-            if cell.VideoData != nil {
-                self.uploadVideo(videoData: cell.VideoData!)
+            if let cell = tableView.cellForRow(at: indexPath) as? AddPostSectionThreeTableItem {
+                if cell.VideoData != nil {
+                    self.uploadVideo(videoData: cell.VideoData!)
+                } else {
+                    self.type = ""
+                    let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.isEmpty || trimmed == "." {
+                        self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: ""))
+                        self.isPosting = false
+                        return
+                    }
+                    self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+                }
             } else {
-                self.type = ""
-                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+                self.isPosting = false
             }
             
         }else if self.type == "GIF"{
             let indexPath = AppInstance.instance.musicSelected ? IndexPath(row: 0, section: 3) : IndexPath(row: 0, section: 2)
-            let cell = tableView.cellForRow(at: indexPath) as! AddPostSectionThreeTableItem
-            if let gifUrl = cell.gifURLString, !gifUrl.isEmpty {
-                self.postGIF(GIFURL: gifUrl)
+            if let cell = tableView.cellForRow(at: indexPath) as? AddPostSectionThreeTableItem {
+                if let gifUrl = cell.gifURLString, !gifUrl.isEmpty {
+                    self.postGIF(GIFURL: gifUrl)
+                } else {
+                    self.type = ""
+                    let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.isEmpty || trimmed == "." {
+                        self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: ""))
+                        self.isPosting = false
+                        return
+                    }
+                    self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+                }
             } else {
-                self.type = ""
-                self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
+                self.isPosting = false
             }
             
         }else if self.type == "MUSIC"{
@@ -253,6 +287,12 @@ class AddPostVC: UIViewController {
                 self.uploadMusic(musicData: self.musicData ?? Data())
             } else {
                 self.type = ""
+                let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed.isEmpty || trimmed == "." {
+                    self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: ""))
+                    self.isPosting = false
+                    return
+                }
                 self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
             }
             
@@ -261,19 +301,25 @@ class AddPostVC: UIViewController {
                 self.uploadFile(fileData: self.fileData ?? Data(), extension1: self.fileExtension ?? "")
             } else {
                 self.type = ""
+                let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmed.isEmpty || trimmed == "." {
+                    self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: ""))
+                    self.isPosting = false
+                    return
+                }
                 self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
             }
             
         }else if self.type == "FEELING"{
-            
             self.updateFeeling(feelingType: self.feelingType ?? "", feelingName: self.feelingName ?? "",postText:self.postText ?? "",postPrivacy:self.postPrivacy ?? 0 ,postColor:self.PostColor ?? "")
             
         }else{
-            if self.postText == "" || self.postText == NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention") || self.postText == " " {
-                self.view.makeToast("You cannot post empty!")
-            }else if self.PostColor != "0" && self.postText == ""{
-                self.view.makeToast("You cannot post empty!")
-            }else{
+            let trimmed = (self.postText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty || self.postText == placeholder {
+                self.view.makeToast(NSLocalizedString("You cannot post empty!", comment: "You cannot post empty!"))
+                self.isPosting = false
+                return
+            } else {
                 self.updatePost(postText: self.postText ?? "", postPrivacy: self.postPrivacy ?? 0, postColor: self.PostColor ?? "0")
             }
         }
@@ -384,19 +430,19 @@ class AddPostVC: UIViewController {
         let userID = UserData.getUSER_ID() ?? ""
         performUIUpdatesOnMain {
             AddPostManager.instance.addPostText( userID:userID,postText: postText, postColor: postColor, postPrivacy: postPrivacy, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID:self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
-            if success != nil {
-                AppInstance.instance.commingBackFromAddPost = true
-                var postID = ""
-                if let pid = success?.post_data["post_id"] as? Int {
-                    postID = String(pid)
-                } else if let pid = success?.post_data["post_id"] as? String {
-                    postID = pid
-                }
-                print("Post created with ID: \(postID)")
                 self.isPosting = false
-                ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
-                let userInfo = ["data" : ["post_id":postID]]
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                if success != nil {
+                    AppInstance.instance.commingBackFromAddPost = true
+                    var postID = ""
+                    if let pid = success?.post_data["post_id"] as? Int {
+                        postID = String(pid)
+                    } else if let pid = success?.post_data["post_id"] as? String {
+                        postID = pid
+                    }
+                    print("Post created with ID: \(postID)")
+                    ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
+                    let userInfo = ["data" : ["post_id":postID]]
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
                     if let presented = self.presentedViewController {
                         presented.dismiss(animated: false, completion: nil)
                     }
@@ -404,21 +450,23 @@ class AddPostVC: UIViewController {
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
-                    self.isPosting = false
-                    self.view.makeToast(authError?.errors?.errorText)
+                    self.view.makeToast(authError?.errors?.errorText ?? NSLocalizedString("Failed to create post.", comment: ""))
                 }
-                else if error  != nil {
+                else if error != nil {
                     ZKProgressHUD.dismiss()
-                    self.isPosting = false
-                    print(error?.localizedDescription)
-                    
+                    print(error?.localizedDescription ?? "")
+                    self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to create post.", comment: ""))
+                } else {
+                    ZKProgressHUD.dismiss()
+                    self.view.makeToast(NSLocalizedString("Failed to create post. Please try again.", comment: ""))
                 }
-             }
-         }
-     }
-     private func uploadImages(imageArray:[Data]){
+            }
+        }
+    }
+    private func uploadImages(imageArray:[Data]){
         ZKProgressHUD.show()
         AddPostManager.instance.addImages(userID : UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, imageDataArray: imageArray, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
+            self.isPosting = false
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
@@ -430,22 +478,21 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    if let presented = self.presentedViewController {
-                        presented.dismiss(animated: false, completion: nil)
-                    }
-                    self.navigationController?.popViewController(animated: true)
+                if let presented = self.presentedViewController {
+                    presented.dismiss(animated: false, completion: nil)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
             }
-            else if error  != nil {
+            else if error != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
-                print(error?.localizedDescription)
+                print(error?.localizedDescription ?? "")
+                self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to post. Please try again.", comment: ""))
             } else {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
@@ -454,6 +501,7 @@ class AddPostVC: UIViewController {
         ZKProgressHUD.show()
         
         AddPostManager.instance.addVideo(userID: UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, videoData: videoData, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location ) { (success, authError, error) in
+            self.isPosting = false
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
@@ -465,35 +513,32 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    if let presented = self.presentedViewController {
-                        presented.dismiss(animated: false, completion: nil)
-                    }
-                    self.navigationController?.popViewController(animated: true)
+                if let presented = self.presentedViewController {
+                    presented.dismiss(animated: false, completion: nil)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(authError?.errors?.errorText)
             }
-            else if error  != nil {
+            else if error != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
-                print(error?.localizedDescription)
-                
+                print(error?.localizedDescription ?? "")
+                self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
             else {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
-        
     }
     
     private func postGIF(GIFURL:String){
         ZKProgressHUD.show()
         
         AddPostManager.instance.postGiF(userID: UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, GIFUrl: GIFURL, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location ) { (success, authError, error) in
+            self.isPosting = false
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
@@ -505,29 +550,30 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    if let presented = self.presentedViewController {
-                        presented.dismiss(animated: false, completion: nil)
-                    }
-                    self.navigationController?.popViewController(animated: true)
-
+                if let presented = self.presentedViewController {
+                    presented.dismiss(animated: false, completion: nil)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
-                
                 ZKProgressHUD.dismiss()
                 self.view.makeToast(authError?.errors?.errorText)
             }
-            else if error  != nil {
+            else if error != nil {
                 ZKProgressHUD.dismiss()
-                print(error?.localizedDescription)
-                
+                print(error?.localizedDescription ?? "")
+                self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to post. Please try again.", comment: ""))
+            } else {
+                ZKProgressHUD.dismiss()
+                self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
-        
     }
     private func uploadMusic(musicData:Data){
         ZKProgressHUD.show()
         
         AddPostManager.instance.postMusic(userID: UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, musicData: musicData, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location ) { (success, authError, error) in
+            self.isPosting = false
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
@@ -539,35 +585,31 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    if let presented = self.presentedViewController {
-                        presented.dismiss(animated: false, completion: nil)
-                    }
-                    self.navigationController?.popViewController(animated: true)
-
+                if let presented = self.presentedViewController {
+                    presented.dismiss(animated: false, completion: nil)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(authError?.errors?.errorText)
             }
-            else if error  != nil {
+            else if error != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
-                print(error?.localizedDescription)
-                
+                print(error?.localizedDescription ?? "")
+                self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
             else {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
         }
-        
     }
     private func uploadFile(fileData:Data,extension1:String){
         ZKProgressHUD.show()
         
         AddPostManager.instance.postFIle(userID: UserData.getUSER_ID() ?? "", postText: self.postText ?? "", postColor: self.PostColor ?? "", postPrivacy: self.postPrivacy ?? 0, fileData: fileData,extension1:extension1, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "" ) { (success, authError, error) in
+            self.isPosting = false
             if success != nil {
                 AppInstance.instance.commingBackFromAddPost = true
                 var postID = ""
@@ -579,38 +621,32 @@ class AddPostVC: UIViewController {
                 let userInfo = ["data" : ["post_id":postID]]
                 ZKProgressHUD.showSuccess(NSLocalizedString("Post created successfully!", comment: ""), maskStyle: .hide)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    if let presented = self.presentedViewController {
-                        presented.dismiss(animated: false, completion: nil)
-                    }
-                    self.navigationController?.popViewController(animated: true)
-
+                if let presented = self.presentedViewController {
+                    presented.dismiss(animated: false, completion: nil)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
             else if authError != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(authError?.errors?.errorText)
             }
-            else if error  != nil {
+            else if error != nil {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
-                print(error?.localizedDescription)
-                
+                print(error?.localizedDescription ?? "")
+                self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
             else {
                 ZKProgressHUD.dismiss()
-                self.isPosting = false
                 self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
             }
-            ZKProgressHUD.dismiss()
         }
-        
     }
     private func updateFeeling(feelingType:String,feelingName:String,postText:String,postPrivacy:Int,postColor:String){
         ZKProgressHUD.show()
         let userID = UserData.getUSER_ID() ?? ""
         performUIUpdatesOnMain {
-            
             AddPostManager.instance.addFeeling( userID:userID,postText: postText, postColor: postColor, postPrivacy: postPrivacy, feelingName: feelingName, feelingType: feelingType, pageID: self.pageid ?? "", groupID: self.groupId ?? "", communityID: self.communityId ?? "", eventID: self.eventId ?? "", postType:self.postType ?? "", location: self.location) { (success, authError, error) in
+                self.isPosting = false
                 if success != nil {
                     AppInstance.instance.commingBackFromAddPost = true
                     var postID = ""
@@ -624,18 +660,18 @@ class AddPostVC: UIViewController {
                     self.dismiss(animated: true) {
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
                     }
-                    
                 }
                 else if authError != nil {
                     ZKProgressHUD.dismiss()
-                    self.isPosting = false
                     self.view.makeToast(authError?.errors?.errorText)
                 }
-                else if error  != nil {
+                else if error != nil {
                     ZKProgressHUD.dismiss()
-                    self.isPosting = false
-                    print(error?.localizedDescription)
-                    
+                    print(error?.localizedDescription ?? "")
+                    self.view.makeToast(error?.localizedDescription ?? NSLocalizedString("Failed to post. Please try again.", comment: ""))
+                } else {
+                    ZKProgressHUD.dismiss()
+                    self.view.makeToast(NSLocalizedString("Failed to post. Please try again.", comment: ""))
                 }
             }
         }
@@ -719,6 +755,7 @@ extension AddPostVC: UITableViewDataSource {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "AddPostSectionOneTableItem") as! AddPostSectionOneTableItem
                 cell.vc = self
+                cell.saveButton.removeTarget(nil, action: nil, for: .allEvents)
                 cell.saveButton.addTarget(self, action: #selector(savePost), for: .touchUpInside)
                 if (self.isFrom_Edit == "1"){
                     cell.edit_bind(privacy: self.postPrivacy ?? 0)
@@ -731,7 +768,9 @@ extension AddPostVC: UITableViewDataSource {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "AddPostSectionTwoTableItem") as! AddPostSectionTwoTableItem
                 cell.vc = self
                 if (self.isFrom_Edit == "1"){
-                cell.bind(text:self.postText ?? "")
+                    cell.bind(text:self.postText ?? "")
+                } else if let text = self.postText, !text.isEmpty {
+                    cell.textView.text = text
                 }
                 return cell
             case 2:
@@ -752,6 +791,8 @@ extension AddPostVC: UITableViewDataSource {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: "AddPostSectionOneTableItem") as! AddPostSectionOneTableItem
                 cell.vc = self
+                cell.saveButton.removeTarget(nil, action: nil, for: .allEvents)
+                cell.saveButton.addTarget(self, action: #selector(savePost), for: .touchUpInside)
                 if (self.isFrom_Edit == "1"){
                     cell.edit_bind(privacy: self.postPrivacy ?? 0)
                 }
@@ -763,7 +804,9 @@ extension AddPostVC: UITableViewDataSource {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "AddPostSectionTwoTableItem") as! AddPostSectionTwoTableItem
                 cell.vc = self
                 if (self.isFrom_Edit == "1"){
-                cell.bind(text:self.postText ?? "")
+                    cell.bind(text:self.postText ?? "")
+                } else if let text = self.postText, !text.isEmpty {
+                    cell.textView.text = text
                 }
                 return cell
             case 2:

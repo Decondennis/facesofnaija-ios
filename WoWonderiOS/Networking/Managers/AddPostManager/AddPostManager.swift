@@ -9,6 +9,41 @@ class AddPostManager{
     
     static let instance = AddPostManager()
     
+    func parseError(from json: Any?) -> AddPostModel.AddPostErrorModel {
+        if let dict = json as? [String: Any] {
+            if let data = try? JSONSerialization.data(withJSONObject: dict, options: []),
+               let model = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
+                return model
+            }
+            var errText = "Something went wrong. Please try again."
+            if let errors = dict["errors"] as? [String: Any], let msg = errors["error_text"] as? String {
+                errText = msg
+            } else if let msg = dict["error_text"] as? String {
+                errText = msg
+            } else if let msg = dict["message"] as? String {
+                errText = msg
+            }
+            let status = "\(dict["api_status"] ?? "")"
+            return AddPostModel.AddPostErrorModel(apiStatus: status, errors: AddPostModel.Errors(errorID: "", errorText: errText))
+        }
+        return AddPostModel.AddPostErrorModel(apiStatus: "400", errors: AddPostModel.Errors(errorID: "", errorText: "An unknown error occurred."))
+    }
+
+    func handleResponse(value: Any?, error: Error?, completionBlock: @escaping (_ Success: AddPostModel.AddPostSuccessModel?, _ AuthError: AddPostModel.AddPostErrorModel?, Error?) -> ()) {
+        if let res = value as? [String: Any] {
+            let apiStatusCode = res["api_status"]
+            if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
+                let result = AddPostModel.AddPostSuccessModel.init(json: res)
+                completionBlock(result, nil, nil)
+            } else {
+                let errModel = self.parseError(from: res)
+                completionBlock(nil, errModel, nil)
+            }
+        } else {
+            completionBlock(nil, nil, error)
+        }
+    }
+    
     func addPostText(userID:String,postText:String, postColor:String,postPrivacy:Int,pageID:String?,groupID:String?,communityID:String?,eventID:String?,postType:String,location:String,completionBlock :@escaping (_ Success: AddPostModel.AddPostSuccessModel?, _ AuthError: AddPostModel.AddPostErrorModel?, Error?)->()){
         var param =  [String : Any]()
         if postType == "page"{
@@ -69,28 +104,14 @@ class AddPostManager{
                       ]
         }
         
+        param["text"] = postText
+        param["post_privacy"] = postPrivacy
         print("PARAMS= \(param)")
         print("URL",APIClient.AddPost.AddPostApi)
         let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
         AF.request(url, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
-            print(response.value)
-            if let value = response.value as? [String:Any] {
-                let apiStatus = value["api_status"] as? Int ?? 0
-                if apiStatus == 200 || value["api_status"] as? String == "200" {
-                    let result = AddPostModel.AddPostSuccessModel.init(json: value)
-                    print("result", result)
-                    completionBlock(result, nil, nil)
-                } else {
-                    if let data = try? JSONSerialization.data(withJSONObject: value, options: []),
-                       let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
-                        completionBlock(nil, result, nil)
-                    } else {
-                        completionBlock(nil, nil, nil)
-                    }
-                }
-            } else {
-                completionBlock(nil, nil, response.error)
-            }
+            print(response.value as Any)
+            self.handleResponse(value: response.value, error: response.error, completionBlock: completionBlock)
         }
     }
     
@@ -156,9 +177,12 @@ class AddPostManager{
                       ]
         }
         
-        let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
-        let decoded = String(data: jsonData, encoding: .utf8)!
-        print("Decoded String = \(decoded)")
+        param["text"] = postText
+        param["post_privacy"] = postPrivacy
+        if let jsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
+           let decoded = String(data: jsonData, encoding: .utf8) {
+            print("Decoded String = \(decoded)")
+        }
         
         AF.upload(multipartFormData: { (multipartFormData) in
             print("============")
@@ -168,49 +192,22 @@ class AddPostManager{
             }
             print("============")
             print("2")
-            if imageDataArray!.count > 1{
-                for (index, data) in imageDataArray!.enumerated(){
+            if (imageDataArray?.count ?? 0) > 1 {
+                for (index, data) in (imageDataArray ?? []).enumerated(){
                     multipartFormData.append(data, withName: "postPhotos[\(index)]", fileName: "file.jpg", mimeType: "image/png")
                 }
-            }else{
-                let data1 =  imageDataArray?[0]
-                if let data = data1{
-                    multipartFormData.append(data, withName: "postPhotos", fileName: "file.jpg", mimeType: "image/png")
-                }
+            } else if let data = imageDataArray?.first {
+                multipartFormData.append(data, withName: "postPhotos", fileName: "file.jpg", mimeType: "image/png")
             }
             print("============")
             print("3")
         }, to: APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
-            switch result.result{
+            switch result.result {
             case .success(let value):
-                ZKProgressHUD.dismiss()
-                print("Succesfully uploaded1")
-                guard let res = value as? [String:Any] else {
-                    completionBlock(nil, nil, nil)
-                    return
-                }
-                print("Response = \(res)")
-                guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                    print("apiStatus Int = \(apiStatusCode)")
-                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
-                    completionBlock(result,nil,nil)
-                }else{
-                    print("apiStatus String = \(apiStatusCode)")
-                    if let data = try? JSONSerialization.data(withJSONObject: value, options: []) {
-                        if let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) {
-                            print("AuthError = \(result.errors?.errorText ?? "unknown")")
-                            completionBlock(nil,result,nil)
-                        } else {
-                            completionBlock(nil,nil,nil)
-                        }
-                    } else {
-                        completionBlock(nil,nil,nil)
-                    }
-                }
+                self.handleResponse(value: value, error: nil, completionBlock: completionBlock)
             case .failure(let error):
                 print("Error in upload: \(error.localizedDescription)")
-                completionBlock(nil,nil,error)
+                completionBlock(nil, nil, error)
             }
         }
     }
@@ -273,11 +270,14 @@ class AddPostManager{
                                 APIClient.Params.post_color:postColor,
                                 APIClient.Params.postPrivacy:postPrivacy,"postMap":location
                                 ]
-                  }
-           
-            let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
-            let decoded = String(data: jsonData, encoding: .utf8)!
-            print("Decoded String = \(decoded)")
+                   }
+            
+            param["text"] = postText
+            param["post_privacy"] = postPrivacy
+            if let jsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
+               let decoded = String(data: jsonData, encoding: .utf8) {
+                print("Decoded String = \(decoded)")
+            }
             
             AF.upload(multipartFormData: { (multipartFormData) in
                for (key, value) in param {
@@ -288,32 +288,15 @@ class AddPostManager{
                          }
                           
             }, to: APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")", method: .post).responseJSON { (result) in
-            switch result.result{
+            switch result.result {
             case .success(let value):
-                print("Succesfully uploaded2")
-                guard let res = value as? [String:Any] else {
-                    completionBlock(nil, nil, nil)
-                    return
-                }
-                print("Response = \(res)")
-                guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                    print("apiStatus Int = \(apiStatusCode)")
-                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
-                    completionBlock(result,nil,nil)
-                }else{
-                    print("apiStatus String = \(apiStatusCode)")
-                    guard let data = try? JSONSerialization.data(withJSONObject: value, options: []) else {return}
-                    guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
-                    print("AuthError = \(result.errors?.errorText ?? "unknown")")
-                    completionBlock(nil,result,nil)
-                }
+                self.handleResponse(value: value, error: nil, completionBlock: completionBlock)
             case .failure(let error):
                 print("Error in upload: \(error.localizedDescription)")
-                completionBlock(nil,nil,error)
+                completionBlock(nil, nil, error)
             }
         }
-       }
+    }
     func postGiF(userID:String,postText:String, postColor:String,postPrivacy:Int,GIFUrl:String,pageID:String?,groupID:String?,communityID:String?,eventID:String?,postType:String,location:String,completionBlock :@escaping (_ Success: AddPostModel.AddPostSuccessModel?, _ AuthError: AddPostModel.AddPostErrorModel?, Error?)->()){
         var param =  [String : Any]()
                          if postType == "page"{
@@ -385,32 +368,13 @@ class AddPostManager{
                                        ]
                          }
         
-          
-           print("PARAMS= \(param)")
-           let url = APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
-           AF.request(url, method: .post, parameters: param, encoding: JSONEncoding.default, headers: nil).responseJSON { (response) in
-              if response.value != nil{
-                  guard let res = response.value as? [String:Any] else {return}
-                  guard let apiStatusCode = res["api_status"] as? Any else {return}
-                  if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                    guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
-
-//                       let result = try? JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
-                      completionBlock(result,nil,nil)
-                  }
-                      
-                  else {
-                      guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                      guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
-                      completionBlock(nil,result,nil)
-                  }
-              }
-              else {
-                  print(response.error?.localizedDescription)
-                  completionBlock(nil,nil,response.error)
-              }
-          }
+        param["text"] = postText
+        param["post_privacy"] = postPrivacy
+        print("PARAMS= \(param)")
+        let url = APIClient.AddPost.AddPostMediaApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
+        AF.request(url, method: .post, parameters: param, encoding: JSONEncoding.default, headers: nil).responseJSON { (response) in
+            self.handleResponse(value: response.value, error: response.error, completionBlock: completionBlock)
+        }
       }
     func postMusic(userID:String,postText:String, postColor:String,postPrivacy:Int,musicData:Data?,pageID:String?,groupID:String?,communityID:String?,eventID:String?,postType:String,location:String,completionBlock: @escaping (_ Success:AddPostModel.AddPostSuccessModel?,_ AuthError:AddPostModel.AddPostErrorModel?, Error?) ->()){
               
@@ -475,9 +439,12 @@ class AddPostManager{
                                             ]
                               }
               
-              let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
-              let decoded = String(data: jsonData, encoding: .utf8)!
-              print("Decoded String = \(decoded)")
+              param["text"] = postText
+              param["post_privacy"] = postPrivacy
+              if let jsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
+                 let decoded = String(data: jsonData, encoding: .utf8) {
+                  print("Decoded String = \(decoded)")
+              }
               
               AF.upload(multipartFormData: { (multipartFormData) in
                   for (key, value) in param {
@@ -488,36 +455,14 @@ class AddPostManager{
                             }
                            
               }, with: APIClient.AddPost.AddPostMediaApi as! URLRequestConvertible).uploadProgress(queue: .main, closure: { progress in
-                //Current upload progress of file
                 print("Upload Progress: \(progress.fractionCompleted)")
-            }).responseJSON(completionHandler: {
-                response in
-                print("Succesfully uploaded4")
-                print("response = \(response.value)")
-                if (response.value != nil){
-                    guard let res = response.value as? [String:Any] else {return}
-                    print("Response = \(res)")
-                    guard let apiStatusCode = res["api_status"] as? Any else {return}
-                    if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                        print("apiStatus Int = \(apiStatusCode)")
-                        let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
-                        let result = AddPostModel.AddPostSuccessModel.init(json: res)
-
-    //                            let result = try! JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
-    //                            print("Success = \(result.apiText ?? "")")
-                        completionBlock(result,nil,nil)
-                    }else{
-                        print("apiStatus String = \(apiStatusCode)")
-                        let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
-                        let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-                        print("AuthError = \(result.errors?.errorText ?? "unknown")")
-                        completionBlock(nil,result,nil)
-
-                    }
-
-                }else{
-                    print("error = \(response.error?.localizedDescription)")
-                    completionBlock(nil,nil,response.error)
+            }).responseJSON(completionHandler: { response in
+                switch response.result {
+                case .success(let value):
+                    self.handleResponse(value: value, error: nil, completionBlock: completionBlock)
+                case .failure(let error):
+                    print("Error in upload: \(error.localizedDescription)")
+                    completionBlock(nil, nil, error)
                 }
             })
           }
@@ -584,9 +529,12 @@ class AddPostManager{
                                                   ]
                                     }
         
-        let jsonData = try! JSONSerialization.data(withJSONObject: param, options: [])
-        let decoded = String(data: jsonData, encoding: .utf8)!
-        print("Decoded String = \(decoded)")
+        param["text"] = postText
+        param["post_privacy"] = postPrivacy
+        if let jsonData = try? JSONSerialization.data(withJSONObject: param, options: []),
+           let decoded = String(data: jsonData, encoding: .utf8) {
+            print("Decoded String = \(decoded)")
+        }
         
         AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in param {
@@ -597,43 +545,16 @@ class AddPostManager{
                       }
                      
         }, with: APIClient.AddPost.AddPostMediaApi as! URLRequestConvertible).uploadProgress(queue: .main, closure: { progress in
-            //Current upload progress of file
             print("Upload Progress: \(progress.fractionCompleted)")
-        }).responseJSON(completionHandler: {
-            response in
-            print("Succesfully uploaded3")
-            print("response = \(response.value)")
-            if (response.value != nil){
-                guard let res = response.value as? [String:Any] else {return}
-                print("Response = \(res)")
-                guard let apiStatusCode = res["api_status"] as? Any else {return}
-                if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                    print("apiStatus Int = \(apiStatusCode)")
-                    let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
-                    let result = AddPostModel.AddPostSuccessModel.init(json: res)
-
-//                            let result = try! JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data)
-//                            print("Success = \(result.apiText ?? "")")
-                    completionBlock(result,nil,nil)
-                }else{
-                    print("apiStatus String = \(apiStatusCode)")
-                    let data = try! JSONSerialization.data(withJSONObject: response.value, options: [])
-                    let result = try! JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data)
-                    print("AuthError = \(result.errors?.errorText ?? "unknown")")
-                    completionBlock(nil,result,nil)
-
-                }
-
-            }else{
-                print("error = \(response.error?.localizedDescription)")
-                completionBlock(nil,nil,response.error)
+        }).responseJSON(completionHandler: { response in
+            switch response.result {
+            case .success(let value):
+                self.handleResponse(value: value, error: nil, completionBlock: completionBlock)
+            case .failure(let error):
+                print("Error in upload: \(error.localizedDescription)")
+                completionBlock(nil, nil, error)
             }
         })
-//        to: APIClient.AddPost.AddPostApi, usingThreshold: UInt64.init(), method: .post, headers: headers) { (result) in
-//            switch result{
-//            case .success(let upload, _, _):
-//                upload.responseJSON { response in
-//                    print("Succesfully uploaded")
 //                    print("response = \(response.value)")
 //                    if (response.value != nil){
 //                        guard let res = response.value as? [String:Any] else {return}
@@ -738,31 +659,13 @@ class AddPostManager{
                                           }
           
           
-           print("PARAMS= \(param)")
-           let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
-           AF.request(url, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
-               if response.value != nil{
-                   guard let res = response.value as? [String:Any] else {return}
-                   guard let apiStatusCode = res["api_status"] as? Any else {return}
-                   if (apiStatusCode as? Int == 200) || (apiStatusCode as? String == "200") {
-                       guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                     let result = AddPostModel.AddPostSuccessModel.init(json: res)
-
-//                      guard let result = try? JSONDecoder().decode(AddPostModel.AddPostSuccessModel.self, from: data) else {return}
-                      completionBlock(result,nil,nil)
-                  }
-                      
-                  else {
-                      guard let data = try? JSONSerialization.data(withJSONObject: response.value, options: []) else {return}
-                      guard let result = try? JSONDecoder().decode(AddPostModel.AddPostErrorModel.self, from: data) else {return}
-                      completionBlock(nil,result,nil)
-                  }
-              }
-              else {
-                  print(response.error?.localizedDescription)
-                  completionBlock(nil,nil,response.error)
-              }
-          }
-      }
+            param["text"] = postText
+            param["post_privacy"] = postPrivacy
+            print("PARAMS= \(param)")
+            let url = APIClient.AddPost.AddPostApi + "&access_token=\(UserData.getAccess_Token() ?? "")"
+            AF.request(url, method: .post, parameters: param, encoding: URLEncoding.default, headers: nil).responseJSON { (response) in
+                self.handleResponse(value: response.value, error: response.error, completionBlock: completionBlock)
+            }
+       }
       
 }

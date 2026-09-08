@@ -4,7 +4,7 @@ import UIKit
 
 class SharePopUpController: UIViewController {
 
-    var delegate : SharePostDelegate!
+    weak var delegate : SharePostDelegate?
     
     @IBOutlet var shareLbl: UILabel!
     @IBOutlet var shareTimeLbl: UILabel!
@@ -24,7 +24,7 @@ class SharePopUpController: UIViewController {
     
     @IBAction func Yes(_ sender: Any) {
         self.dismiss(animated: true) {
-            self.delegate.sharePost()
+            self.delegate?.sharePost()
         }
         
     }

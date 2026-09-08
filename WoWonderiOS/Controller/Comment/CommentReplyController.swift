@@ -208,7 +208,7 @@ class CommentReplyController: UIViewController,UITextViewDelegate,uploadImageDel
                 if let isReacted = reactions["is_reacted"] as? Bool{
                     if (isReacted == true){
                         self.reactions(index: gesture.view?.tag ?? 0, reaction: "")
-                        var localPostArray = self.commentReplies[gesture.view?.tag ?? 0]["reaction"] as! [String:Any]
+                        var localPostArray = (self.commentReplies[gesture.view?.tag ?? 0]["reaction"] as? [String:Any]) ?? [String:Any]()
                         localPostArray["is_reacted"] = false
                         localPostArray["type"]  = ""
                         localPostArray["count"] = totalCount - 1
@@ -217,7 +217,8 @@ class CommentReplyController: UIViewController,UITextViewDelegate,uploadImageDel
                             cell.reactionImage.isHidden = true
                             cell.reactionCount.isHidden = true
                         }
-                        if let reaction_type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
+                        let reaction_type = "\(reactions["type"] ?? "")"
+                        if !reaction_type.isEmpty {
                             if reaction_type == "1"{
                                 if let likecount = reactions["1"] as? Int{
                                     localPostArray["1"] = likecount - 1
@@ -328,7 +329,7 @@ class CommentReplyController: UIViewController,UITextViewDelegate,uploadImageDel
         let cell = self.tableView.cellForRow(at: IndexPath(row: self.selectedIndex ?? 0, section: 1)) as! CommentCellTableViewCell
         print(self.selectedIndex)
         self.reactions(index: self.selectedIndex, reaction: reation)
-        var localPostArray = self.commentReplies[self.selectedIndex]["reaction"] as! [String:Any]
+        var localPostArray = (self.commentReplies[self.selectedIndex]["reaction"] as? [String:Any]) ?? [String:Any]()
         var totalCount = 0
         if let reactions = self.commentReplies[self.selectedIndex]["reaction"] as? [String:Any]{
             if let is_react = reactions["is_reacted"] as? Bool{
@@ -349,23 +350,15 @@ class CommentReplyController: UIViewController,UITextViewDelegate,uploadImageDel
             }
         }
         let action = ["count": totalCount, "reaction": reation,"index": self.selectedIndex] as [String : Any]
-        var count = 0
-        print(self.selectedIndexs.count)
-        if self.selectedIndexs.count == 0 {
-            self.selectedIndexs.append(action)
-        }
-        else{
-            for i in self.selectedIndexs{
-                count += 1
-                if i["index"] as? Int == self.selectedIndex{
-                    print((count) - 1)
-                    self.selectedIndexs[(count) - 1] = action
-                }
-                else{
-                    self.selectedIndexs.append(action)
-                }
-            }
-        }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
         
         localPostArray["is_reacted"] = true
         localPostArray["type"]  = reation

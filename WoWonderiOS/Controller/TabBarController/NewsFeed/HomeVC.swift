@@ -36,6 +36,8 @@ class HomeVC: UIViewController {
     var announcement:String? = ""
     
     var greeted = false
+    var cachedGreetingQuote: String? = nil
+    var cachedGreetingTimeText: String? = nil
     
     let spinner = UIActivityIndicatorView(style: .gray)
     let pulltoRefresh = UIRefreshControl()
@@ -81,12 +83,28 @@ class HomeVC: UIViewController {
         }
         
         let utterance = AVSpeechUtterance(string: greeting)
-        if let voice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") && !$0.identifier.contains("compact") }) {
-            utterance.voice = voice
-        } else {
-            utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        let allVoices = AVSpeechSynthesisVoice.speechVoices()
+        let femaleVoices = allVoices.filter { $0.language.hasPrefix("en") && $0.gender == .female }
+        
+        let isHighQuality: (AVSpeechSynthesisVoice) -> Bool = { voice in
+            if #available(iOS 16.0, *) {
+                return voice.quality == .enhanced || voice.quality == .premium
+            } else {
+                return voice.quality == .enhanced
+            }
         }
-        utterance.rate = 0.4
+        
+        // Prioritize Samantha (standard clean iOS female voice) or enhanced female voice
+        let selectedVoice = femaleVoices.first(where: { $0.identifier.localizedCaseInsensitiveContains("Samantha") && isHighQuality($0) })
+            ?? femaleVoices.first(where: { $0.identifier.localizedCaseInsensitiveContains("Samantha") })
+            ?? femaleVoices.first(where: { isHighQuality($0) })
+            ?? femaleVoices.first(where: { $0.language == "en-US" })
+            ?? femaleVoices.first
+            ?? AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.Samantha-compact")
+            ?? AVSpeechSynthesisVoice(language: "en-US")
+        
+        utterance.voice = selectedVoice
+        utterance.rate = 0.48
         utterance.volume = 1.0
         utterance.pitchMultiplier = 1.0
         if speechSynthesizer == nil {
@@ -94,7 +112,7 @@ class HomeVC: UIViewController {
         }
         speechSynthesizer?.stopSpeaking(at: .immediate)
         speechSynthesizer?.speak(utterance)
-        print("TTS: Speaking greeting - \(greeting)")
+        print("TTS: Speaking greeting with female voice (\(selectedVoice?.name ?? "default")) - \(greeting)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -1018,7 +1036,6 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             
             return cell
         }else if indexPath.section == 4 {
-            var greeting = ""
             let cell = tableView.dequeueReusableCell(withIdentifier: "HomeGreetings", for: indexPath) as! HomeGreetings
             cell.vc = self
             cell.backgroundColor = .clear
@@ -1034,49 +1051,50 @@ extension HomeVC: UITableViewDelegate, UITableViewDataSource{
             
             let date = Date()
             let calendar = Calendar.current
-            var timeText = ""
             let hour = calendar.component(.hour, from: date)
             
-            if !greeted {
-                if hour < 8 && hour > 0 {
-                    greeting = RandomMorningGreeting()
-                    timeText = "Good Morning, "
-                    cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
-                    cell.greetingDetailLabel.text = greeting
+            if self.cachedGreetingQuote == nil || self.cachedGreetingTimeText == nil {
+                if hour < 12 {
+                    self.cachedGreetingQuote = RandomMorningGreeting()
+                    self.cachedGreetingTimeText = "Good Morning, "
+                } else if hour < 17 {
+                    self.cachedGreetingQuote = RandomAfternoonGreeting()
+                    self.cachedGreetingTimeText = "Good Afternoon, "
+                } else {
+                    self.cachedGreetingQuote = RandomEveningGreeting()
+                    self.cachedGreetingTimeText = "Good Evening, "
                 }
-                else if hour < 17 {
-                    greeting = RandomAfternoonGreeting()
-                    timeText = "Good Afternoon, "
-                    cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
-                        cell.greetingDetailLabel.text = greeting
-                    }
-                    else {
-                        greeting = RandomEveningGreeting()
-                        timeText = "Good Evening, "
-                        cell.greetingLabel.text = timeText+" \(AppInstance.instance.profile?.userData?.name ?? "")!"
-                        cell.greetingDetailLabel.text = greeting
-                    }
-                    
-                    // Load user avatar for greeting card
-                    if let avatarUrl = UserData.getImage(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-                        cell.userprofileImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "no-avatar"), options: [.refreshCached], completed: nil)
-                    } else {
-                        cell.userprofileImageView.image = UIImage(named: "no-avatar")
-                    }
-                    cell.userprofileImageView.layer.cornerRadius = 35
-                    cell.userprofileImageView.clipsToBounds = true
-                    cell.userprofileImageView.contentMode = .scaleAspectFill
-                    cell.userprofileImageView.layer.borderWidth = 2
-                    cell.userprofileImageView.layer.borderColor = UIColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 0.3).cgColor
+            }
             
-                    var name = (AppInstance.instance.profile?.userData?.name ?? "")
-                    if !name.isEmpty {
-                        name += ", "
-                    }
-                    greet(greeting: name + greeting)
-                    
-                    greeted = true
+            let timeText = self.cachedGreetingTimeText ?? (hour < 12 ? "Good Morning, " : (hour < 17 ? "Good Afternoon, " : "Good Evening, "))
+            let greeting = self.cachedGreetingQuote ?? ""
+            let rawName = AppInstance.instance.profile?.userData?.name
+            let userName = (rawName?.isEmpty == false ? rawName : UserData.getUSER_NAME()) ?? ""
+            cell.greetingLabel.text = timeText + (userName.isEmpty ? "Friend!" : "\(userName)!")
+            cell.greetingDetailLabel.text = greeting
+            
+            // Load user avatar for greeting card
+            if let avatarUrl = UserData.getImage(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
+                cell.userprofileImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "no-avatar"), options: [.refreshCached], completed: nil)
+            } else {
+                cell.userprofileImageView.image = UIImage(named: "no-avatar")
+            }
+            cell.userprofileImageView.layer.cornerRadius = 35
+            cell.userprofileImageView.clipsToBounds = true
+            cell.userprofileImageView.contentMode = .scaleAspectFill
+            cell.userprofileImageView.layer.borderWidth = 2
+            cell.userprofileImageView.layer.borderColor = UIColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 0.3).cgColor
+            
+            if !greeted {
+                var spokenText = ""
+                if !userName.isEmpty {
+                    spokenText = userName + ", " + greeting
+                } else {
+                    spokenText = greeting
                 }
+                greet(greeting: spokenText)
+                greeted = true
+            }
                 
                 let greetTap = UITapGestureRecognizer(target: self, action: #selector(openProfile))
                 cell.contentView.addGestureRecognizer(greetTap)

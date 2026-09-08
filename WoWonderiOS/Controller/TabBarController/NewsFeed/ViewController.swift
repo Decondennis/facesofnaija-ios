@@ -901,7 +901,7 @@ extension ViewController : UITableViewDelegate,UITableViewDataSource{
                 let calendar = Calendar.current
                 let hour = calendar.component(.hour, from: date)
                 
-                if hour < 8 && hour > 0 {
+                if hour < 12 {
                     cell.moringLabel.text = "Good Morning, " + (UserData.getUSER_NAME() ?? "")
                     cell.morningDetailsLabel.text = "May this morning be light, blessed, enlightened, productive and happy"
                     cell.morningImage.image = UIImage(named: "ic_post_park")

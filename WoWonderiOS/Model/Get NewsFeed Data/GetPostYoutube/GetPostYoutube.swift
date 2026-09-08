@@ -35,6 +35,7 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
     var commentsIndex = [[String:Any]]()
     var comment_count = "0"
     let Storyboard = UIStoryboard(name: "Main", bundle: nil)
+    var sharePostData: [String:Any]? = nil
     
     let playRing = URL(fileURLWithPath: Bundle.main.path(forResource: "button", ofType: "mp3")!)
     var audioPlayer = AVAudioPlayer()
@@ -187,7 +188,7 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
                         cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
                        cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                         cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
-                        //                        var localPostArray = self.postArray[(i["index"] as? Int)!]["reaction"] as! [String:Any]
+                        //                        var localPostArray = (self.postArray[(i["index"] as? Int)!]["reaction"] as? [String:Any]) ?? [String:Any]()
                         //                        localPostArray["is_reacted"] = true
                     }
                     else if reaction == "2"{
@@ -301,78 +302,47 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
         case .unknown, .offline:
             self.tableView.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
-            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: gesture.view!.tag + sumAmount)) as? PostYoutubeCell else { return }
+            guard let tag = gesture.view?.tag, tag < self.postArray.count else { return }
+            guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: tag + sumAmount)) as? PostYoutubeCell else { return }
             
+            var localPostArray = (self.postArray[tag]["reaction"] as? [String:Any]) ?? [String:Any]()
+            var totalCount = (localPostArray["count"] as? Int) ?? 0
+            let is_react = (localPostArray["is_reacted"] as? Bool) ?? false
             
-            
-            if let reactions = self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]{
-                var totalCount = 0
-                if let count = reactions["count"] as? Int{
-                    totalCount = count
+            if is_react {
+                self.reactions(index: tag, reaction: "")
+                localPostArray["is_reacted"] = false
+                localPostArray["type"]  = ""
+                localPostArray["count"] = max(0, totalCount - 1)
+                totalCount =  localPostArray["count"] as? Int ?? 0
+                self.postArray[tag]["reaction"] = localPostArray
+                cell.likesCountBtn.setTitle("\(totalCount) \(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
+                cell.LikeBtn.setImage(UIImage(named: "like"), for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+                cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
+                let action = ["count": totalCount, "reaction": "","index": tag] as [String : Any]
+                if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == tag }) {
+                    self.selectedIndexs[idx] = action
+                } else {
+                    self.selectedIndexs.append(action)
                 }
-                if let is_react = reactions["is_reacted"] as? Bool{
-                    if is_react == true{
-                        self.reactions(index: gesture.view!.tag, reaction: "")
-                        var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
-                        localPostArray["is_reacted"] = false
-                        localPostArray["type"]  = ""
-                        localPostArray["count"] = totalCount - 1
-                        totalCount =  localPostArray["count"] as? Int ?? 0
-                        self.postArray[gesture.view!.tag]["reaction"] = localPostArray
-                        cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
-                        cell.LikeBtn.setImage(UIImage(named: "like"), for: .normal)
-                        cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
-                        cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
-                        let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0] as [String : Any]
-                        var count = 0
-                        if self.selectedIndexs.count == 0{
-                            self.selectedIndexs.append(action)
-                        }
-                        else{
-                            for i in self.selectedIndexs{
-                                count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
-                                    print((count) - 1)
-                                    self.selectedIndexs[(count) - 1] = action
-                                }
-                                else{
-                                    self.selectedIndexs.append(action)
-                                }
-                            }
-                        }
-                    }
-                    else{
-                        var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
-                        localPostArray["is_reacted"] = true
-                        localPostArray["type"]  = "Like"
-                        localPostArray["count"] = totalCount + 1
-                        localPostArray["Like"] = 1
-                        totalCount =  localPostArray["count"] as? Int ?? 0
-                        self.postArray[gesture.view!.tag]["reaction"] = localPostArray
-                        self.reactions(index: gesture.view!.tag, reaction: "1")
-                       cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
-                        cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
-                        cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
-                        cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
-                        let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0] as [String : Any]
-                        var count = 0
-                        print(self.selectedIndexs.count)
-                        if self.selectedIndexs.count == 0 {
-                            self.selectedIndexs.append(action)
-                        }
-                        else{
-                            for i in self.selectedIndexs{
-                                count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
-                                    print((count ?? 0) - 1)
-                                    self.selectedIndexs[(count ?? 0) - 1] = action
-                                }
-                                else{
-                                    self.selectedIndexs.append(action)
-                                }
-                            }
-                        }
-                    }
+            } else {
+                localPostArray["is_reacted"] = true
+                localPostArray["type"]  = "Like"
+                localPostArray["count"] = totalCount + 1
+                localPostArray["Like"] = 1
+                totalCount =  localPostArray["count"] as? Int ?? 0
+                self.postArray[tag]["reaction"] = localPostArray
+                self.reactions(index: tag, reaction: "1")
+                cell.likesCountBtn.setTitle("\(totalCount) \(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
+                cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
+                cell.LikeBtn.setTitle("   \(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+                cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
+                let action = ["count": totalCount, "reaction": "1","index": tag] as [String : Any]
+                if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == tag }) {
+                    self.selectedIndexs[idx] = action
+                } else {
+                    self.selectedIndexs.append(action)
                 }
             } 
         }
@@ -380,20 +350,17 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
     
     
     @IBAction func GotoPostReaction(sender :UIButton){
-        if let reaction = self.postArray[sender.tag]["reaction"] as? [String:Any]{
-            if let count = reaction["count"] as? Int{
-                if count > 0 {
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                    let vc = storyboard.instantiateViewController(withIdentifier: "PostReactionVC") as! PostReactionController
-                    if let postId = self.postArray[sender.tag]["post_id"] as? String{
-                        vc.postId = postId
-                    }
-                    if let reactions = self.postArray[sender.tag]["reaction"] as? [String:Any]{
-                        vc.reaction = reactions
-                    }
-                    targetController.present(vc, animated: true, completion: nil)
-                }
-            }
+        guard sender.tag < self.postArray.count else { return }
+        let post = self.postArray[sender.tag]
+        let reaction = (post["reaction"] as? [String:Any]) ?? [:]
+        let count = (reaction["count"] as? Int) ?? 0
+        if count > 0 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "PostReactionVC") as! PostReactionController
+            let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+            vc.postId = postId
+            vc.reaction = reaction
+            targetController.present(vc, animated: true, completion: nil)
         }
     }
     
@@ -419,37 +386,21 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
     
     
     func addReaction(reation: String) {
+        guard self.selectedIndex < self.postArray.count else { return }
         let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? PostYoutubeCell
-        
-        var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
-        var totalCount = 0
-        if let reactions = self.postArray[self.selectedIndex]["reaction"] as? [String:Any]{
-            if let is_react = reactions["is_reacted"] as? Bool{
-                if !is_react {
-                    if let count = reactions["count"] as? Int{
-                        totalCount = count
-                    }
-                    localPostArray["count"] = totalCount + 1
-                    totalCount =  localPostArray["count"] as? Int ?? 0
-                    cell?.likesCountBtn?.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
-                }
-                else{
-                    if let count = reactions["count"] as? Int{
-                        totalCount = count
-                    }
-                }
+        self.reactions(index: self.selectedIndex, reaction: reation)
+        var localPostArray = (self.postArray[self.selectedIndex]["reaction"] as? [String:Any]) ?? [String:Any]()
+        var totalCount = (localPostArray["count"] as? Int) ?? 0
+        let is_react = (localPostArray["is_reacted"] as? Bool) ?? false
+        if !is_react {
+            localPostArray["count"] = totalCount + 1
+            totalCount =  localPostArray["count"] as? Int ?? 0
+            cell?.likesCountBtn?.setTitle("\(totalCount) \(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
         }
-    }
         let action = ["count": totalCount, "reaction": reation,"index": self.selectedIndex] as [String : Any]
-        var found = false
-        for (idx, i) in self.selectedIndexs.enumerated() {
-            if (i["index"] as? Int) == self.selectedIndex {
-                self.selectedIndexs[idx] = action
-                found = true
-                break
-            }
-        }
-        if !found {
+        if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == self.selectedIndex }) {
+            self.selectedIndexs[idx] = action
+        } else {
             self.selectedIndexs.append(action)
         }
         
@@ -508,22 +459,31 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
     
     @IBAction func GotoShare(sender :UIButton){
         self.selectedIndex = sender.tag
+        if sender.tag >= 0 && sender.tag < self.postArray.count {
+            self.sharePostData = self.postArray[sender.tag]
+        }
         let vc = Storyboard.instantiateViewController(withIdentifier: "ShareVC") as! ShareController
         vc.delegate = self
         vc.modalPresentationStyle = .overFullScreen
         vc.modalTransitionStyle = .crossDissolve
-        targetController.present(vc, animated: true, completion: nil)
+        let currentTarget: UIViewController? = targetController
+        currentTarget?.present(vc, animated: true, completion: nil)
     }
     
     func sharePost() {
-        let vc = Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts =  [self.postArray[self.selectedIndex]]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.targetController.present(vc, animated: true, completion: nil)
+        let post = (self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count) ? self.postArray[self.selectedIndex] : self.sharePostData
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: post, presenter: self.targetController)
     }
     
     func sharePostTo(type:String) {
+        var presenter = self.targetController
+        if presenter == nil {
+            presenter = UIApplication.shared.keyWindow?.rootViewController
+        }
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
         if (type == "group") || (type == "page"){
             let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
             let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -531,14 +491,14 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
         else {
             let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
     }
     
@@ -633,24 +593,19 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
     }
     
     func sharePostLink() {
-        
-        // text to share
-        var text = ""
-        if let postUrl =  self.postArray[selectedIndex]["url"] as? String{
-            text = postUrl
+        var postUrl = ""
+        if self.selectedIndex < self.postArray.count {
+            let post = self.postArray[self.selectedIndex]
+            postUrl = (post["url"] as? String) ?? ""
+            if postUrl.isEmpty {
+                let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+                if !postId.isEmpty && postId != "0" {
+                    postUrl = "\(APIClient.baseURl)/post/\(postId)"
+                }
+            }
         }
-        // set up activity view controller
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.targetController.view // so that iPads won't crash
-        
-        // exclude some activity types from the list (optional,)
-        
-        // present the view controller
-        self.targetController.present(activityViewController, animated: true, completion: nil)
+        self.targetController.presentShareActivity(postUrl: postUrl, sourceView: self.targetController.view)
     }
-    
-    
     
     @IBAction func gotoUserProfile(gesture: UIGestureRecognizer){
         if AppInstance.instance.vc == "myProfile"{
@@ -1005,6 +960,4 @@ class GetPostYoutube: AddReactionDelegate,SharePostDelegate,comment_CountsDelega
             })
         }
     }
-    
-    
 }

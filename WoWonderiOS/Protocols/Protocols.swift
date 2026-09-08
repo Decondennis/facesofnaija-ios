@@ -123,7 +123,7 @@ protocol JobFilterDelegate{
 protocol AddReactionDelegate{
    func addReaction(reation: String)
 }
-protocol SharePostDelegate{
+protocol SharePostDelegate: AnyObject {
     func sharePost()
     func sharePostTo(type: String)
     func sharePostLink()

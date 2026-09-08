@@ -528,16 +528,17 @@ class LiveStreamController: UIViewController,endLiveDelegate,UITextViewDelegate 
 extension LiveStreamController: SharePostDelegate{
     
     func sharePost() {
-        let vc = self.StoryBoard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts.append(self.liveData)
-//        vc.posts =  [self.postArray[self.selectedIndex]]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.present(vc, animated: true, completion: nil)
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: self.liveData, presenter: self)
     }
     
     
     func sharePostTo(type:String) {
+        var presenter: UIViewController? = self
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
+
         if (type == "group") || (type == "page"){
             let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
             let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -545,36 +546,20 @@ extension LiveStreamController: SharePostDelegate{
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
         else {
             let vc = self.StoryBoard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
     }
     
     
     func sharePostLink() {
-        
-        // text to share
-        var text = self.postUrl
-//        if let postUrl =  self.postArray[selectedIndex]["url"] as? String{
-//            text = postUrl
-//        }
-        // set up activity view controller
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
-        
-        // exclude some activity types from the list (optional,)
-        activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-        
-        // present the view controller
-        self.present(activityViewController, animated: true, completion: nil)
-        
+        self.presentShareActivity(postUrl: self.postUrl, sourceView: self.view)
     }
     
     

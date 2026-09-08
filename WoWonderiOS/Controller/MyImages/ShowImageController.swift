@@ -55,7 +55,8 @@ class ShowImageController: UIViewController,AddReactionDelegate,SharePostDelegat
         }
         if let isReacted = self.reactions["is_reacted"] as? Bool{
             if isReacted == true{
-                if let type = (self.reactions["type"] as? String) ?? ((self.reactions["type"] as? Int).map { "\($0)" }){
+                let type = "\(self.reactions["type"] ?? "")"
+                if !type.isEmpty {
                     if type == "6"{
                         self.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
                         self.LikeBtn.setTitle("   Angry", for: .normal)
@@ -364,19 +365,22 @@ class ShowImageController: UIViewController,AddReactionDelegate,SharePostDelegat
         else {
             self.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
             self.LikeBtn.setTitle("   Angry", for: .normal)
-            self.LikeBtn.setTitleColor(.red, for: .normal)
+                        self.LikeBtn.setTitleColor(.red, for: .normal)
         }
     }
     
     func sharePost() {
-        let vc = Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts =  [self.posts[0]]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.present(vc, animated: true, completion: nil)
+        let post = self.posts.first
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: post, presenter: self)
     }
     
     func sharePostTo(type: String) {
+        var presenter: UIViewController? = self
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
+
         if (type == "group") || (type == "page"){
            let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
            let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -384,27 +388,26 @@ class ShowImageController: UIViewController,AddReactionDelegate,SharePostDelegat
            vc.delegate = self
            vc.modalPresentationStyle = .overFullScreen
            vc.modalTransitionStyle = .crossDissolve
-           self.present(vc, animated: true, completion: nil)
+           topVC.present(vc, animated: true, completion: nil)
         }
         else {
-         let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
-         vc.delegate = self
-         vc.modalPresentationStyle = .overFullScreen
-         vc.modalTransitionStyle = .crossDissolve
-         self.present(vc, animated: true, completion: nil)
+          let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
+          vc.delegate = self
+          vc.modalPresentationStyle = .overFullScreen
+          vc.modalTransitionStyle = .crossDissolve
+          topVC.present(vc, animated: true, completion: nil)
         }
     }
     
     func sharePostLink() {
-        var text = ""
-        if let postUrl =  self.posts[0]["url"] as? String{
-            text = postUrl
+        var postUrl = (self.posts.first?["url"] as? String) ?? ""
+        if postUrl.isEmpty, let post = self.posts.first {
+            let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+            if !postId.isEmpty && postId != "0" {
+                postUrl = "\(APIClient.baseURl)/post/\(postId)"
+            }
         }
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.view
-        activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-        self.present(activityViewController, animated: true, completion: nil)
+        self.presentShareActivity(postUrl: postUrl, sourceView: self.view)
     }
     
     func selectPageandGroup(data: [String : Any], type: String) {

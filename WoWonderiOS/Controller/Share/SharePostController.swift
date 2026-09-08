@@ -55,22 +55,29 @@ class SharePostController: UIViewController {
         case .unknown, .offline:
             self.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
+            guard let post = self.posts.first else {
+                self.view.makeToast(NSLocalizedString("No post to share", comment: ""))
+                return
+            }
+            let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+            guard !postId.isEmpty && postId != "0" else {
+                self.view.makeToast(NSLocalizedString("Invalid post ID", comment: ""))
+                return
+            }
             ZKProgressHUD.show()
-            SharePostOnTimelineManager.sharedInstance.sharePostOnTimeline(userId: UserData.getUSER_ID()!, postId: (posts.first!["post_id"] as? String)!) { (success, authError, error) in
+            SharePostOnTimelineManager.sharedInstance.sharePostOnTimeline(userId: UserData.getUSER_ID() ?? "", postId: postId) { [weak self] (success, authError, error) in
+                ZKProgressHUD.dismiss()
                 if success != nil {
-                    ZKProgressHUD.dismiss()
-                    self.view.makeToast("Post shared successfully")
+                    self?.view.makeToast("Post shared successfully")
                     let userInfo = ["data" : success?.data]
                     NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                    self.dismiss(animated: true, completion: nil)
+                    self?.dismiss(animated: true, completion: nil)
                 }
                 else if authError != nil{
-                    ZKProgressHUD.dismiss()
-                    self.view.makeToast(authError?.errors.errorText)
+                    self?.view.makeToast(authError?.errors.errorText)
                 }
                 else if error != nil {
-                    ZKProgressHUD.dismiss()
-                    self.view.makeToast(error?.localizedDescription)
+                    self?.view.makeToast(error?.localizedDescription)
                 }
             }
         }
@@ -81,46 +88,50 @@ class SharePostController: UIViewController {
         case .unknown, .offline:
             self.view.makeToast(NSLocalizedString("Internet Connection Failed", comment: "Internet Connection Failed"))
         case .online(.wwan), .online(.wiFi):
+            guard let post = self.posts.first else {
+                self.view.makeToast(NSLocalizedString("No post to share", comment: ""))
+                return
+            }
+            let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+            guard !postId.isEmpty && postId != "0" else {
+                self.view.makeToast(NSLocalizedString("Invalid post ID", comment: ""))
+                return
+            }
             if self.isGroup == true{
                 ZKProgressHUD.show()
-                SharePost_PageandGroupManager.sharedInstance.sharePostonPageandGroup(type: "share_post_on_group", text: self.text, postId: (self.posts.first!["post_id"] as? String)!, pageId: "", groupId: self.groupId) { (success, authError, error) in
+                SharePost_PageandGroupManager.sharedInstance.sharePostonPageandGroup(type: "share_post_on_group", text: self.text, postId: postId, pageId: "", groupId: self.groupId) { [weak self] (success, authError, error) in
+                    ZKProgressHUD.dismiss()
                     if success != nil {
-                        ZKProgressHUD.dismiss()
-                        self.view.makeToast("Post shared successfully")
-                            let userInfo = ["data" : success?.data]
-                            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                        self.dismiss(animated: true, completion: nil)
+                        self?.view.makeToast("Post shared successfully")
+                        let userInfo = ["data" : success?.data]
+                        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
+                        self?.dismiss(animated: true, completion: nil)
                     }
                     else if authError != nil{
-                        ZKProgressHUD.dismiss()
-                        self.view.makeToast(authError?.errors.errorText)
+                        self?.view.makeToast(authError?.errors.errorText)
                     }
                     else if error != nil {
-                        ZKProgressHUD.dismiss()
-                        self.view.makeToast(error?.localizedDescription)
+                        self?.view.makeToast(error?.localizedDescription)
                     }
                 }
             }
             else {
                 ZKProgressHUD.show()
-                SharePost_PageandGroupManager.sharedInstance.sharePostonPageandGroup(type: "share_post_on_page", text: self.text, postId: (self.posts.first!["post_id"] as? String)!, pageId: self.pageId, groupId: "") { (success, authError, error) in
+                SharePost_PageandGroupManager.sharedInstance.sharePostonPageandGroup(type: "share_post_on_page", text: self.text, postId: postId, pageId: self.pageId, groupId: "") { [weak self] (success, authError, error) in
+                    ZKProgressHUD.dismiss()
                     if success != nil {
-                        ZKProgressHUD.dismiss()
-                        self.view.makeToast("Post shared successfully")
+                        self?.view.makeToast("Post shared successfully")
                         let userInfo = ["data" : success?.data]
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: userInfo)
-                        self.dismiss(animated: true, completion: nil)
+                        self?.dismiss(animated: true, completion: nil)
                     }
                     else if authError != nil{
-                        ZKProgressHUD.dismiss()
-                        self.view.makeToast(authError?.errors.errorText)
+                        self?.view.makeToast(authError?.errors.errorText)
                     }
                     else if error != nil {
-                        ZKProgressHUD.dismiss()
-                        self.view.makeToast(error?.localizedDescription)
+                        self?.view.makeToast(error?.localizedDescription)
                     }
                 }
-                
             }
         }
     }
@@ -176,23 +187,24 @@ extension SharePostController : UITableViewDelegate,UITableViewDataSource{
         if indexPath.section == 0{
             let cell = tableView.dequeueReusableCell(withIdentifier: "sharePost") as! SharePostCell
             if self.groupName != ""{
-                cell.nameLabel.text! = self.groupName
+                cell.nameLabel.text = self.groupName
             }
             else if self.pageName != "" {
-                cell.nameLabel.text! = self.pageName
+                cell.nameLabel.text = self.pageName
             }
             else {
-                cell.nameLabel.text! = UserData.getUSER_NAME() ?? "Ali2233"
+                cell.nameLabel.text = UserData.getUSER_NAME() ?? "Ali2233"
             }
             let url = URL(string: UserData.getImage() ?? "")
             cell.profileImage.sd_setImage(with: url, placeholderImage: #imageLiteral(resourceName: "no-avatar"), options: [], completed: nil)
             cell.textView.backgroundColor = .white
             self.tableView.rowHeight = 230.0
-            if cell.textView.text! == "" || cell.textView.text! == NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention"){
+            let currentText = cell.textView.text ?? ""
+            if currentText == "" || currentText == NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention"){
                 self.text = ""
             }
             else {
-                self.text = cell.textView.text!
+                self.text = currentText
             }
             return cell
         }
@@ -222,6 +234,7 @@ extension SharePostController : UITableViewDelegate,UITableViewDataSource{
         }
 
         else  {
+            guard indexPath.row < self.posts.count else { return UITableViewCell() }
             let index = self.posts[indexPath.row]
             var tableViewCells = UITableViewCell()
             let postfile = index["postFile"] as? String ?? ""
@@ -333,9 +346,7 @@ extension SharePostController : UITableViewDelegate,UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath.row < self.posts.count else { return }
         let index = self.posts[indexPath.row]
-        
     }
-    
-    
 }

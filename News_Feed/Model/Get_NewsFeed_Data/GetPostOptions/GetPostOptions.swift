@@ -19,6 +19,7 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
     var VoteId: Int? = nil
     var Btn: Int? = nil
     let Storyboard = UIStoryboard(name: "Main", bundle: nil)
+    var sharePostData: [String:Any]? = nil
 
     func getPostOptions(targertController :UIViewController,tableView : UITableView, indexpath:IndexPath, array : [[String:Any]], stackViewHeight: CGFloat,viewHeight: CGFloat, isHidden: Bool, viewColor :UIColor) -> UITableViewCell  {
         
@@ -383,7 +384,7 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
                         cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
                         cell.LikeBtn.setTitle("   Like", for: .normal)
                         cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
-                        //                        var localPostArray = self.postArray[(i["index"] as? Int)!]["reaction"] as! [String:Any]
+                        //                        var localPostArray = (self.postArray[(i["index"] as? Int)!]["reaction"] as? [String:Any]) ?? [String:Any]()
                         //                        localPostArray["is_reacted"] = true
                     }
                     else if reaction == "2"{
@@ -474,7 +475,7 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
                 if let is_react = reactions["is_reacted"] as? Bool{
                     if is_react == true{
                         self.reactions(index: gesture.view!.tag, reaction: "")
-                        var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                        var localPostArray = (self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]) ?? [String:Any]()
                         localPostArray["is_reacted"] = false
                         localPostArray["type"]  = ""
                         localPostArray["count"] = totalCount - 1
@@ -485,25 +486,18 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
                         cell.LikeBtn.setTitle("  Like", for: .normal)
                         cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
                         let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0] as [String : Any]
-                        var count = 0
-                        if self.selectedIndexs.count == 0{
-                            self.selectedIndexs.append(action)
-                        }
-                        else{
-                            for i in self.selectedIndexs{
-                                count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
-                                    print((count) - 1)
-                                    self.selectedIndexs[(count) - 1] = action
-                                }
-                                else{
-                                    self.selectedIndexs.append(action)
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
                             }
+                        } else {
+                            self.selectedIndexs.append(action)
                         }
                     }
                     else{
-                        var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                        var localPostArray = (self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]) ?? [String:Any]()
                         localPostArray["is_reacted"] = true
                         localPostArray["type"]  = "Like"
                         localPostArray["count"] = totalCount + 1
@@ -516,22 +510,14 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
                         cell.LikeBtn.setTitle("   Like", for: .normal)
                         cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
                         let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0] as [String : Any]
-                        var count = 0
-                        print(self.selectedIndexs.count)
-                        if self.selectedIndexs.count == 0 {
-                            self.selectedIndexs.append(action)
-                        }
-                        else{
-                            for i in self.selectedIndexs{
-                                count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
-                                    print((count) - 1)
-                                    self.selectedIndexs[(count) - 1] = action
-                                }
-                                else{
-                                    self.selectedIndexs.append(action)
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
                             }
+                        } else {
+                            self.selectedIndexs.append(action)
                         }
                     }
                 }
@@ -581,7 +567,7 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
     func addReaction(reation: String) {
         let cell = self.tableView.cellForRow(at: IndexPath(row: self.selectedIndex, section: 5)) as! PostOptionCell
         self.reactions(index: self.selectedIndex, reaction: reation)
-        var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
+        var localPostArray = (self.postArray[self.selectedIndex]["reaction"] as? [String:Any]) ?? [String:Any]()
         var totalCount = 0
         if let reactions = self.postArray[self.selectedIndex]["reaction"] as? [String:Any]{
             if let is_react = reactions["is_reacted"] as? Bool{
@@ -603,23 +589,15 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
         }
         
         let action = ["count": totalCount, "reaction": reation,"index": self.selectedIndex] as [String : Any]
-        var count = 0
-        print(self.selectedIndexs.count)
-        if self.selectedIndexs.count == 0 {
-            self.selectedIndexs.append(action)
-        }
-        else{
-            for i in self.selectedIndexs{
-                count += 1
-                if i["index"] as? Int == self.selectedIndex{
-                    print((count) - 1)
-                    self.selectedIndexs[(count) - 1] = action
-                }
-                else{
-                    self.selectedIndexs.append(action)
-                }
-            }
-        }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
         localPostArray["is_reacted"] = true
         localPostArray["type"]  = reation
         
@@ -675,6 +653,9 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
     
     @IBAction func GotoShare(sender :UIButton){
         self.selectedIndex = sender.tag
+        if sender.tag >= 0 && sender.tag < self.postArray.count {
+            self.sharePostData = self.postArray[sender.tag]
+        }
         let vc = Storyboard.instantiateViewController(withIdentifier: "ShareVC") as! ShareController
         vc.delegate = self
         vc.modalPresentationStyle = .overFullScreen
@@ -683,14 +664,20 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
     }
     
     func sharePost() {
-        let vc = Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts =  [self.postArray[self.selectedIndex]]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.targetController.present(vc, animated: true, completion: nil)
+        let post = (self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count) ? self.postArray[self.selectedIndex] : self.sharePostData
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: post, presenter: self.targetController)
     }
     
     func sharePostTo(type:String) {
+        var presenter: UIViewController? = self.targetController
+        if presenter == nil {
+            presenter = UIApplication.shared.keyWindow?.rootViewController
+        }
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
+
         if (type == "group") || (type == "page"){
             let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
             let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -698,14 +685,14 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
         else {
             let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
     }
     
@@ -762,22 +749,11 @@ class GetPostOptions :AddReactionDelegate,SharePostDelegate {
     }
     
     func sharePostLink() {
-        
-        // text to share
         var text = ""
-        if let postUrl =  self.postArray[selectedIndex]["url"] as? String{
+        if self.selectedIndex < self.postArray.count, let postUrl = self.postArray[selectedIndex]["url"] as? String {
             text = postUrl
         }
-        // set up activity view controller
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.targetController.view // so that iPads won't crash
-        
-        // exclude some activity types from the list (optional,)
-        activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-        
-        // present the view controller
-        self.targetController.present(activityViewController, animated: true, completion: nil)
+        self.targetController.presentShareActivity(postUrl: text, sourceView: self.targetController.view)
     }
     
     

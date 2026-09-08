@@ -124,7 +124,8 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
             }
             if let isreact  = reactions["is_reacted"] as? Bool {
                 if isreact == true{
-                    if let type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
+                    let type = "\(reactions["type"] ?? "")"
+                    if !type.isEmpty {
                         if type == "6"{
                             self.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
                             self.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
@@ -617,7 +618,7 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
                 if let is_react = reactions["is_reacted"] as? Bool{
                     if is_react == true{
                         self.reactions(index: gesture.view!.tag, reaction: "")
-                        var localPostArray = self.data["reaction"] as! [String:Any]
+                        var localPostArray = (self.data["reaction"] as? [String:Any]) ?? [String:Any]()
                         localPostArray["is_reacted"] = false
                         localPostArray["type"]  = ""
                         localPostArray["count"] = totalCount - 1
@@ -628,25 +629,18 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
                         self.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                         self.LikeBtn.setTitleColor(.lightGray, for: .normal)
                         let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0] as [String : Any]
-                        var count = 0
-                        if self.selectedIndexs.count == 0{
-                            self.selectedIndexs.append(action)
-                        }
-                        else{
-                            for i in self.selectedIndexs{
-                                count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
-                                    print((count) - 1)
-                                    self.selectedIndexs[(count) - 1] = action
-                                }
-                                else{
-                                    self.selectedIndexs.append(action)
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
                             }
+                        } else {
+                            self.selectedIndexs.append(action)
                         }
                     }
                     else{
-                        var localPostArray = self.data["reaction"] as! [String:Any]
+                        var localPostArray = (self.data["reaction"] as? [String:Any]) ?? [String:Any]()
                         localPostArray["is_reacted"] = true
                         localPostArray["type"]  = "Like"
                         localPostArray["count"] = totalCount + 1
@@ -659,22 +653,14 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
                         self.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                         self.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
                         let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0] as [String : Any]
-                        var count = 0
-                        print(self.selectedIndexs.count)
-                        if self.selectedIndexs.count == 0 {
-                            self.selectedIndexs.append(action)
-                        }
-                        else{
-                            for i in self.selectedIndexs{
-                                count += 1
-                                if i["index"] as? Int == gesture.view?.tag{
-                                    print((count ?? 0) - 1)
-                                    self.selectedIndexs[(count ?? 0) - 1] = action
-                                }
-                                else{
-                                    self.selectedIndexs.append(action)
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
                             }
+                        } else {
+                            self.selectedIndexs.append(action)
                         }
                     }
                 }
@@ -706,7 +692,7 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
     
     func addReaction(reation: String) {
         self.reactions(index: self.indexPath, reaction: reation)
-        var localPostArray = self.data["reaction"] as! [String:Any]
+        var localPostArray = (self.data["reaction"] as? [String:Any]) ?? [String:Any]()
         var totalCount = 0
         if let reactions = self.data["reaction"] as? [String:Any]{
             if let is_react = reactions["is_reacted"] as? Bool{
@@ -727,23 +713,15 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
         }
         
         let action = ["count": totalCount, "reaction": reation,"index": self.indexPath] as [String : Any]
-        var count = 0
-        print(self.selectedIndexs.count)
-        if self.selectedIndexs.count == 0 {
-            self.selectedIndexs.append(action)
-        }
-        else{
-            for i in self.selectedIndexs{
-                count += 1
-                if i["index"] as? Int == self.selectedIndex{
-                    print((count) - 1)
-                    self.selectedIndexs[(count) - 1] = action
-                }
-                else{
-                    self.selectedIndexs.append(action)
-                }
-            }
-        }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
 
         localPostArray["is_reacted"] = true
         localPostArray["type"]  = reation
@@ -844,14 +822,19 @@ class PostLiveCell: UITableViewCell,AddReactionDelegate,SharePostDelegate,commen
 extension PostLiveCell{
     
     func sharePost() {
-        let vc = Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts = [self.data]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.vc?.present(vc, animated: true, completion: nil)
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: self.data, presenter: self.vc)
     }
     
     func sharePostTo(type: String) {
+        var presenter: UIViewController? = self.vc
+        if presenter == nil {
+            presenter = UIApplication.shared.keyWindow?.rootViewController
+        }
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
+
         if (type == "group") || (type == "page"){
             let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
             let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -859,33 +842,26 @@ extension PostLiveCell{
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.vc?.present(vc, animated: true, completion: nil)
-    }
+            topVC.present(vc, animated: true, completion: nil)
+        }
         else {
             let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.vc?.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
-}
+    }
     
     func sharePostLink() {
-        // text to share
-        var text = ""
-        if let postUrl =  self.data["url"] as? String{
-            text = postUrl
+        var postUrl = (self.data["url"] as? String) ?? ""
+        if postUrl.isEmpty {
+            let postId = (self.data["post_id"] as? String) ?? "\(self.data["post_id"] ?? "")"
+            if !postId.isEmpty && postId != "0" {
+                postUrl = "\(APIClient.baseURl)/post/\(postId)"
+            }
         }
-        // set up activity view controller
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.vc?.view // so that iPads won't crash
-        
-        // exclude some activity types from the list (optional,)
-        activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-        
-        // present the view controller
-        self.vc?.present(activityViewController, animated: true, completion: nil)
+        self.vc?.presentShareActivity(postUrl: postUrl, sourceView: self.vc?.view)
     }
     
     func selectPageandGroup(data: [String : Any], type: String) {

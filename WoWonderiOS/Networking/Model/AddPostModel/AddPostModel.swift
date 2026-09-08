@@ -33,24 +33,58 @@ class AddPostModel{
 //        }
     }
     struct AddPostErrorModel: Codable {
-                   var apiStatus: String?
-                   var errors: Errors?
-                   
-                   enum CodingKeys: String, CodingKey {
-                       case apiStatus = "api_status"
-                       case errors
-                   }
-               }
-               
-               // MARK: - Errors
-               struct Errors: Codable {
-                   var errorID, errorText: String?
-                   
-                   enum CodingKeys: String, CodingKey {
-                       case errorID = "error_id"
-                       case errorText = "error_text"
-                   }
-               }
+        var apiStatus: String?
+        var errors: Errors?
+        
+        enum CodingKeys: String, CodingKey {
+            case apiStatus = "api_status"
+            case errors
+        }
+        
+        init(apiStatus: String? = nil, errors: Errors? = nil) {
+            self.apiStatus = apiStatus
+            self.errors = errors
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let intVal = try? container.decode(Int.self, forKey: .apiStatus) {
+                apiStatus = String(intVal)
+            } else if let strVal = try? container.decode(String.self, forKey: .apiStatus) {
+                apiStatus = strVal
+            }
+            if let errObj = try? container.decode(Errors.self, forKey: .errors) {
+                errors = errObj
+            } else if let errStr = try? container.decode(String.self, forKey: .errors) {
+                errors = Errors(errorID: "", errorText: errStr)
+            }
+        }
+    }
+    
+    // MARK: - Errors
+    struct Errors: Codable {
+        var errorID, errorText: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case errorID = "error_id"
+            case errorText = "error_text"
+        }
+        
+        init(errorID: String? = nil, errorText: String? = nil) {
+            self.errorID = errorID
+            self.errorText = errorText
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let intId = try? container.decode(Int.self, forKey: .errorID) {
+                errorID = String(intId)
+            } else {
+                errorID = try? container.decode(String.self, forKey: .errorID)
+            }
+            errorText = try? container.decode(String.self, forKey: .errorText)
+        }
+    }
 
     // MARK: - PostData
     struct PostData: Codable {

@@ -306,11 +306,7 @@ class GetUserDataController: UIViewController,blockUserDelegate,ProfileMoreDeleg
             self.view.makeToast(NSLocalizedString("Link copied to clipboard", comment: "Link copied to clipboard"))
         }
         else if tag == 2{
-            let textToShare = [ profileUrl ]
-            let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-            activityViewController.popoverPresentationController?.sourceView = self.view
-            activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-            self.present(activityViewController, animated: true, completion: nil)
+            self.presentShareActivity(postUrl: profileUrl ?? "", sourceView: self.view)
         }
         else if tag == 3{
             print("Poke")

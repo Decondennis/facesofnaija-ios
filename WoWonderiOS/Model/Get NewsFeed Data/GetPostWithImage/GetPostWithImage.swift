@@ -315,19 +315,14 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
             currentTarget?.present(vc, animated: true, completion: nil)
         }
         cell.share_link = {[unowned self] in
-            var text = ""
-            if let postUrl =  index["url"] as? String{
-                text = postUrl
+            var postUrl = (index["url"] as? String) ?? ""
+            if postUrl.isEmpty {
+                let postId = (index["post_id"] as? String) ?? "\(index["post_id"] ?? "")"
+                if !postId.isEmpty && postId != "0" {
+                    postUrl = "\(APIClient.baseURl)/post/\(postId)"
+                }
             }
-            let textToShare = [ text ]
-            let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-            activityViewController.popoverPresentationController?.sourceView = self.targetController.view
-            if let popover = activityViewController.popoverPresentationController {
-                popover.sourceView = self.targetController.view
-                popover.sourceRect = CGRect(x: self.targetController.view.bounds.midX, y: self.targetController.view.bounds.midY, width: 0, height: 0)
-                popover.permittedArrowDirections = []
-            }
-            self.targetController.present(activityViewController, animated: true, completion: nil)
+            self.targetController.presentShareActivity(postUrl: postUrl, sourceView: self.targetController.view)
         }
         cell.share_timeLine = {[unowned self] in
             let vc = self.Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
@@ -663,45 +658,20 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
         }
         
         cell.addREact = {[unowned self] in
-            
             self.reactions(index: self.selectedIndex, reaction: self.reaction ?? "")
-            var localPostArray = index["reaction"] as! [String:Any]
-            var totalCount = 0
-            if let reactions = index["reaction"] as? [String:Any]{
-                if let is_react = reactions["is_reacted"] as? Bool{
-                    if !is_react {
-                        if let count = reactions["count"] as? Int{
-                            totalCount = count
-                        }
-                        localPostArray["count"] = totalCount + 1
-                        totalCount =  localPostArray["count"] as? Int ?? 0
-                        cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
-                        
-                    }
-                    else{
-                        if let count = reactions["count"] as? Int{
-                            totalCount = count
-                        }
-                    }
-                }
+            var localPostArray = (index["reaction"] as? [String:Any]) ?? [String:Any]()
+            var totalCount = (localPostArray["count"] as? Int) ?? 0
+            let is_react = (localPostArray["is_reacted"] as? Bool) ?? false
+            if !is_react {
+                localPostArray["count"] = totalCount + 1
+                totalCount = localPostArray["count"] as? Int ?? 0
+                cell.likesCountBtn.setTitle("\(totalCount) \(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
             }
             let action = ["count": totalCount, "reaction": self.reaction ?? "","index": self.selectedIndex] as [String : Any]
-            var count = 0
-            print(self.selectedIndexs.count)
-            if self.selectedIndexs.count == 0 {
+            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == self.selectedIndex }) {
+                self.selectedIndexs[idx] = action
+            } else {
                 self.selectedIndexs.append(action)
-            }
-            else{
-                for i in self.selectedIndexs{
-                    count += 1
-                    if i["index"] as? Int == self.selectedIndex{
-                        print((count) - 1)
-                        self.selectedIndexs[(count) - 1] = action
-                    }
-                    else{
-                        self.selectedIndexs.append(action)
-                    }
-                }
             }
             
             localPostArray["is_reacted"] = true
@@ -711,7 +681,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
                 localPostArray["1"]  = 1
                 index["reaction"] = localPostArray
                 cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
-                cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
             }
             else if self.reaction == "2"{
@@ -719,7 +689,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
                 localPostArray["2"]  = 1
                 index["reaction"] = localPostArray
                 cell.LikeBtn.setImage(UIImage(named: "love"), for: .normal)
-                cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Love", comment: "Love"))", for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Love", comment: "Love"))", for: .normal)
                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FB1002"), for: .normal)
             }
             else if self.reaction == "3"{
@@ -728,7 +698,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
                 index["reaction"] = localPostArray
                 cell.LikeBtn.setImage(UIImage(named: "haha"), for: .normal)
                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-                cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Haha", comment: "Haha"))", for: .normal)
             }
             else if self.reaction == "4"{
                 localPostArray["Wow"] = 1
@@ -736,7 +706,7 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
                 index["reaction"] = localPostArray
                 cell.LikeBtn.setImage(UIImage(named: "wow"), for: .normal)
                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-                cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Wow", comment: "Wow"))", for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Wow", comment: "Wow"))", for: .normal)
             }
             else if self.reaction == "5"{
                 localPostArray["Sad"] = 1
@@ -744,14 +714,14 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
                 index["reaction"] = localPostArray
                 cell.LikeBtn.setImage(UIImage(named: "sad"), for: .normal)
                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "FECD30"), for: .normal)
-                cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Sad", comment: "Sad"))", for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Sad", comment: "Sad"))", for: .normal)
             }
             else {
                 localPostArray["Angry"] = 1
                 localPostArray["6"]  = 1
                 index["reaction"] = localPostArray
                 cell.LikeBtn.setImage(UIImage(named: "angry"), for: .normal)
-                cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
+                cell.LikeBtn.setTitle(" \(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
                 cell.LikeBtn.setTitleColor(.red, for: .normal)
             }
         }
@@ -764,78 +734,45 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
             case .online(.wwan), .online(.wiFi):
                 guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: indexpath.row + sumAmount)) as? NewsFeedCell else { return }
                 
+                var localPostArray = (index["reaction"] as? [String:Any]) ?? [String:Any]()
+                var totalCount = (localPostArray["count"] as? Int) ?? 0
+                let is_react = (localPostArray["is_reacted"] as? Bool) ?? false
                 
-                if let reactions = index["reaction"] as? [String:Any]{
-                    var totalCount = 0
-                    if let count = reactions["count"] as? Int{
-                        totalCount = count
+                if is_react {
+                    self.reactions(index: indexpath.row, reaction: "")
+                    localPostArray["is_reacted"] = false
+                    localPostArray["type"]  = ""
+                    localPostArray["count"] = max(0, totalCount - 1)
+                    totalCount =  localPostArray["count"] as? Int ?? 0
+                    index["reaction"] = localPostArray
+                    cell.likesCountBtn.setTitle("\(totalCount) Reactions", for: .normal)
+                    cell.LikeBtn.setImage(UIImage(named: "like"), for: .normal)
+                    cell.LikeBtn.setTitle(" \(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+                    cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
+                    let action = ["count": totalCount, "reaction": "","index":indexpath.row ?? 0] as [String : Any]
+                    if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == indexpath.row }) {
+                        self.selectedIndexs[idx] = action
+                    } else {
+                        self.selectedIndexs.append(action)
                     }
-                    if let is_react = reactions["is_reacted"] as? Bool{
-                        print(is_react)
-                        if is_react == true{
-                            self.reactions(index: indexpath.row, reaction: "")
-                            var localPostArray = index["reaction"] as! [String:Any]
-                            localPostArray["is_reacted"] = false
-                            localPostArray["type"]  = ""
-                            localPostArray["count"] = totalCount - 1
-                            totalCount =  localPostArray["count"] as? Int ?? 0
-                            index["reaction"] = localPostArray
-                            cell.likesCountBtn.setTitle("\(totalCount)\(" Reactions")", for: .normal)
-                            cell.LikeBtn.setImage(UIImage(named: "like"), for: .normal)
-                            cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
-                            cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
-                            let action = ["count": totalCount, "reaction": "","index":indexpath.row ?? 0] as [String : Any]
-                            var count = 0
-                            if self.selectedIndexs.count == 0{
-                                self.selectedIndexs.append(action)
-                            }
-                            else{
-                                for i in self.selectedIndexs{
-                                    count += 1
-                                    if i["index"] as? Int == indexpath.row{
-                                        print((count) - 1)
-                                        self.selectedIndexs[(count) - 1] = action
-                                    }
-                                    else{
-                                        self.selectedIndexs.append(action)
-                                    }
-                                }
-                            }
-                            
-                        }
-                        else{
-                            var localPostArray = index["reaction"] as! [String:Any]
-                            localPostArray["is_reacted"] = true
-                            localPostArray["type"]  = "1"
-                            localPostArray["count"] = totalCount + 1
-                            localPostArray["Like"] = 1
-                            localPostArray["1"]  = 1
-                            totalCount =  localPostArray["count"] as? Int ?? 0
-                            index["reaction"] = localPostArray
-                            self.reactions(index: indexpath.row, reaction: "1")
-                            cell.likesCountBtn.setTitle("\(totalCount)\(" ")\(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
-                            cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
-                            cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
-                            cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
-                            let action = ["count": totalCount, "reaction": "1","index":indexpath.row] as [String : Any]
-                            var count = 0
-                            print(self.selectedIndexs.count)
-                            if self.selectedIndexs.count == 0 {
-                                self.selectedIndexs.append(action)
-                            }
-                            else{
-                                for i in self.selectedIndexs{
-                                    count += 1
-                                    if i["index"] as? Int == indexpath.row{
-                                        print((count ?? 0) - 1)
-                                        self.selectedIndexs[(count ?? 0) - 1] = action
-                                    }
-                                    else{
-                                        self.selectedIndexs.append(action)
-                                    }
-                                }
-                            }
-                        }
+                } else {
+                    localPostArray["is_reacted"] = true
+                    localPostArray["type"]  = "1"
+                    localPostArray["count"] = totalCount + 1
+                    localPostArray["Like"] = 1
+                    localPostArray["1"]  = 1
+                    totalCount =  localPostArray["count"] as? Int ?? 0
+                    index["reaction"] = localPostArray
+                    self.reactions(index: indexpath.row, reaction: "1")
+                    cell.likesCountBtn.setTitle("\(totalCount) \(NSLocalizedString("Reactions", comment: "Reactions"))", for: .normal)
+                    cell.LikeBtn.setImage(UIImage(named: "like-2"), for: .normal)
+                    cell.LikeBtn.setTitle(" \(NSLocalizedString("Like", comment: "Like"))", for: .normal)
+                    cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
+                    let action = ["count": totalCount, "reaction": "1","index":indexpath.row] as [String : Any]
+                    if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == indexpath.row }) {
+                        self.selectedIndexs[idx] = action
+                    } else {
+                        self.selectedIndexs.append(action)
                     }
                 }
             }
@@ -1094,36 +1031,8 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
     }
     
     func sharePost() {
-        print("[Share] sharePost called, selectedIndex=\(selectedIndex), postArray.count=\(postArray.count)")
-        guard self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count else {
-            print("[Share] FAILED: selectedIndex out of bounds")
-            return
-        }
-        guard let postId = self.postArray[self.selectedIndex]["post_id"] as? String else {
-            print("[Share] FAILED: post_id not found in postArray[\(selectedIndex)]")
-            return
-        }
-        print("[Share] Calling API with postId=\(postId)")
-        SharePostOnTimelineManager.sharedInstance.sharePostOnTimeline(
-            userId: UserData.getUSER_ID() ?? "",
-            postId: postId
-        ) { [weak self] (success, authError, error) in
-            if success != nil {
-                print("[Share] API success")
-                var presenter = self?.targetController
-                if presenter == nil {
-                    presenter = UIApplication.shared.keyWindow?.rootViewController
-                }
-                presenter?.view.makeToast("Post shared successfully")
-                if let result = success {
-                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil, userInfo: ["data": result.data])
-                }
-            } else if authError != nil {
-                print("[Share] Auth error: \(authError?.errors.errorText ?? "")")
-            } else {
-                print("[Share] Error: \(error?.localizedDescription ?? "unknown")")
-            }
-        }
+        let post = (self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count) ? self.postArray[self.selectedIndex] : self.sharePostData
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: post, presenter: self.targetController)
     }
     
     func sharePostTo(type:String) {
@@ -1161,8 +1070,25 @@ class GetPostWithImage: AddReactionDelegate,SharePostDelegate,comment_CountsDele
     }
     
     func sharePostLink() {
-        guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? NewsFeedCell else { return }
-        cell.share_link?()
-        
+        var postUrl = ""
+        if self.selectedIndex < self.postArray.count {
+            let post = self.postArray[self.selectedIndex]
+            postUrl = (post["url"] as? String) ?? ""
+            if postUrl.isEmpty {
+                let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+                if !postId.isEmpty && postId != "0" {
+                    postUrl = "\(APIClient.baseURl)/post/\(postId)"
+                }
+            }
+        } else if let shareData = self.sharePostData {
+            postUrl = (shareData["url"] as? String) ?? ""
+            if postUrl.isEmpty {
+                let postId = (shareData["post_id"] as? String) ?? "\(shareData["post_id"] ?? "")"
+                if !postId.isEmpty && postId != "0" {
+                    postUrl = "\(APIClient.baseURl)/post/\(postId)"
+                }
+            }
+        }
+        self.targetController.presentShareActivity(postUrl: postUrl, sourceView: self.targetController.view)
     }
 }

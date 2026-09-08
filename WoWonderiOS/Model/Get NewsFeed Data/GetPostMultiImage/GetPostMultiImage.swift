@@ -25,6 +25,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
     var imageCount = 3
     var reaction: String? = nil
     let Storyboard = UIStoryboard(name: "Main", bundle: nil)
+    var sharePostData: [String:Any]? = nil
     
     let playRing = URL(fileURLWithPath: Bundle.main.path(forResource: "button", ofType: "mp3")!)
     var audioPlayer = AVAudioPlayer()
@@ -485,7 +486,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                   guard let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MultiImage2 else { return }
                   cell.addREact?()
                 self.reactions(index: self.selectedIndex, reaction: self.reaction ?? "1")
-                  var localPostArray = array[self.selectedIndex]["reaction"] as! [String:Any]
+                  var localPostArray = (array[self.selectedIndex]["reaction"] as? [String:Any]) ?? [String:Any]()
                   var totalCount = 0
                   if let reactions = index["reaction"] as? [String:Any]{
                       if let is_react = reactions["is_reacted"] as? Bool{
@@ -505,23 +506,15 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                       }
                   }
                 let action = ["count": totalCount, "reaction": self.reaction ?? "","index": self.selectedIndex] as [String : Any]
-                  var count = 0
-                  print(self.selectedIndexs.count)
-                  if self.selectedIndexs.count == 0 {
-                      self.selectedIndexs.append(action)
-                  }
-                  else{
-                      for i in self.selectedIndexs{
-                          count += 1
-                          if i["index"] as? Int == self.selectedIndex{
-                              print((count) - 1)
-                              self.selectedIndexs[(count) - 1] = action
-                          }
-                          else{
-                              self.selectedIndexs.append(action)
-                          }
-                      }
-                  }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
 
                 localPostArray["is_reacted"] = true
                 localPostArray["type"]  = self.reaction
@@ -592,7 +585,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                                     print(is_react)
                                     if is_react == true{
                                         self.reactions(index: indexpath.row, reaction: "")
-                                        var localPostArray = index["reaction"] as! [String:Any]
+                                        var localPostArray = (index["reaction"] as? [String:Any]) ?? [String:Any]()
                                         localPostArray["is_reacted"] = false
                                         localPostArray["type"]  = ""
                                         localPostArray["count"] = totalCount - 1
@@ -603,26 +596,19 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                                         cell.LikeBtn.setTitle("  Like", for: .normal)
                                         cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
                                         let action = ["count": totalCount, "reaction": "","index":indexpath.row ?? 0] as [String : Any]
-                                        var count = 0
-                                        if self.selectedIndexs.count == 0{
-                                            self.selectedIndexs.append(action)
-                                        }
-                                        else{
-                                            for i in self.selectedIndexs{
-                                                count += 1
-                                                if i["index"] as? Int == indexpath.row{
-                                                    print((count) - 1)
-                                                    self.selectedIndexs[(count) - 1] = action
-                                                }
-                                                else{
-                                                    self.selectedIndexs.append(action)
-                                                }
-                                            }
-                                        }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
                                         
                                     }
                                     else{
-                                        var localPostArray = index["reaction"] as! [String:Any]
+                                        var localPostArray = (index["reaction"] as? [String:Any]) ?? [String:Any]()
                                         localPostArray["is_reacted"] = true
                                         localPostArray["type"]  = "1"
                                         localPostArray["count"] = totalCount + 1
@@ -636,23 +622,15 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                                         cell.LikeBtn.setTitle("   Like", for: .normal)
                                         cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
                                         let action = ["count": totalCount, "reaction": "1","index":indexpath.row ?? 0] as [String : Any]
-                                        var count = 0
-                                        print(self.selectedIndexs.count)
-                                        if self.selectedIndexs.count == 0 {
-                                            self.selectedIndexs.append(action)
-                                        }
-                                        else{
-                                            for i in self.selectedIndexs{
-                                                count += 1
-                                                if i["index"] as? Int == indexpath.row{
-                                                    print((count ?? 0) - 1)
-                                                    self.selectedIndexs[(count ?? 0) - 1] = action
-                                                }
-                                                else{
-                                                    self.selectedIndexs.append(action)
-                                                }
-                                            }
-                                        }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
                                     }
                                 }
                             }
@@ -1041,7 +1019,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                             print(is_react)
                             if is_react == true{
                                 self.reactions(index: gesture.view!.tag, reaction: "")
-                                var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                                var localPostArray = (self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]) ?? [String:Any]()
                                 localPostArray["is_reacted"] = false
                                 localPostArray["type"]  = ""
                                 localPostArray["count"] = totalCount - 1
@@ -1052,26 +1030,19 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                 cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                                 cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
                                 let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0] as [String : Any]
-                                var count = 0
-                                if self.selectedIndexs.count == 0{
-                                    self.selectedIndexs.append(action)
-                                }
-                                else{
-                                    for i in self.selectedIndexs{
-                                        count += 1
-                                        if i["index"] as? Int == gesture.view?.tag{
-                                            print((count) - 1)
-                                            self.selectedIndexs[(count) - 1] = action
-                                        }
-                                        else{
-                                            self.selectedIndexs.append(action)
-                                        }
-                                    }
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
                                 
                             }
                             else{
-                                var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                                var localPostArray = (self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]) ?? [String:Any]()
                                 localPostArray["is_reacted"] = true
                                 localPostArray["type"]  = "1"
                                 localPostArray["count"] = totalCount + 1
@@ -1085,23 +1056,15 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                 cell.LikeBtn.setTitle("\(" ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
                                 let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0] as [String : Any]
-                                var count = 0
-                                print(self.selectedIndexs.count)
-                                if self.selectedIndexs.count == 0 {
-                                    self.selectedIndexs.append(action)
-                                }
-                                else{
-                                    for i in self.selectedIndexs{
-                                        count += 1
-                                        if i["index"] as? Int == gesture.view?.tag{
-                                            print((count ?? 0) - 1)
-                                            self.selectedIndexs[(count ?? 0) - 1] = action
-                                        }
-                                        else{
-                                            self.selectedIndexs.append(action)
-                                        }
-                                    }
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
                             }
                         }
                     }
@@ -1117,7 +1080,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                             print(is_react)
                             if is_react == true{
                                 self.reactions(index: gesture.view!.tag, reaction: "")
-                                var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                                var localPostArray = (self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]) ?? [String:Any]()
                                 localPostArray["is_reacted"] = false
                                 localPostArray["type"]  = ""
                                 localPostArray["count"] = totalCount - 1
@@ -1128,26 +1091,19 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
             cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                                 cell.LikeBtn.setTitleColor(.lightGray, for: .normal)
                                 let action = ["count": totalCount, "reaction": "","index":gesture.view?.tag ?? 0] as [String : Any]
-                                var count = 0
-                                if self.selectedIndexs.count == 0{
-                                    self.selectedIndexs.append(action)
-                                }
-                                else{
-                                    for i in self.selectedIndexs{
-                                        count += 1
-                                        if i["index"] as? Int == gesture.view?.tag{
-                                            print((count) - 1)
-                                            self.selectedIndexs[(count) - 1] = action
-                                        }
-                                        else{
-                                            self.selectedIndexs.append(action)
-                                        }
-                                    }
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
                                 
                             }
                             else{
-                                var localPostArray = self.postArray[gesture.view!.tag]["reaction"] as! [String:Any]
+                                var localPostArray = (self.postArray[gesture.view!.tag]["reaction"] as? [String:Any]) ?? [String:Any]()
                                 localPostArray["is_reacted"] = true
                                 localPostArray["type"]  = "1"
                                 localPostArray["count"] = totalCount + 1
@@ -1161,23 +1117,15 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
         cell.LikeBtn.setTitle("\("   ")\(NSLocalizedString("Like", comment: "Like"))", for: .normal)
                                 cell.LikeBtn.setTitleColor(UIColor.hexStringToUIColor(hex: "3D5898"), for: .normal)
                                 let action = ["count": totalCount, "reaction": "1","index":gesture.view?.tag ?? 0] as [String : Any]
-                                var count = 0
-                                print(self.selectedIndexs.count)
-                                if self.selectedIndexs.count == 0 {
-                                    self.selectedIndexs.append(action)
-                                }
-                                else{
-                                    for i in self.selectedIndexs{
-                                        count += 1
-                                        if i["index"] as? Int == gesture.view?.tag{
-                                            print((count ?? 0) - 1)
-                                            self.selectedIndexs[(count ?? 0) - 1] = action
-                                        }
-                                        else{
-                                            self.selectedIndexs.append(action)
-                                        }
-                                    }
-                                }
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
+                            self.selectedIndexs.append(action)
+                        }
                             }
                         }
                     }
@@ -1324,11 +1272,15 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
     
     @IBAction func GotoShare(sender :UIButton){
         self.selectedIndex = sender.tag
+        if sender.tag >= 0 && sender.tag < self.postArray.count {
+            self.sharePostData = self.postArray[sender.tag]
+        }
         let vc = Storyboard.instantiateViewController(withIdentifier: "ShareVC") as! ShareController
         vc.delegate = self
         vc.modalPresentationStyle = .overFullScreen
         vc.modalTransitionStyle = .crossDissolve
-        targetController.present(vc, animated: true, completion: nil)
+        let currentTarget: UIViewController? = targetController
+        currentTarget?.present(vc, animated: true, completion: nil)
     }
     
     @IBAction func GotoComments (sender :UIButton){
@@ -1389,7 +1341,7 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
             else{
                 let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: self.selectedIndex+sumAmount)) as? MultiImage2
                 self.reactions(index: self.selectedIndex, reaction: reation)
-                var localPostArray = self.postArray[self.selectedIndex]["reaction"] as! [String:Any]
+                var localPostArray = (self.postArray[self.selectedIndex]["reaction"] as? [String:Any]) ?? [String:Any]()
                 var totalCount = 0
                 if let reactions = self.postArray[self.selectedIndex]["reaction"] as? [String:Any]{
                     if let is_react = reactions["is_reacted"] as? Bool{
@@ -1409,23 +1361,15 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
                     }
                 }
                 let action = ["count": totalCount, "reaction": reation,"index": self.selectedIndex] as [String : Any]
-                var count = 0
-                print(self.selectedIndexs.count)
-                if self.selectedIndexs.count == 0 {
-                    self.selectedIndexs.append(action)
-                }
-                else{
-                    for i in self.selectedIndexs{
-                        count += 1
-                        if i["index"] as? Int == self.selectedIndex{
-                            print((count) - 1)
-                            self.selectedIndexs[(count) - 1] = action
-                        }
-                        else{
+                        if let targetIdx = action["index"] as? Int {
+                            if let idx = self.selectedIndexs.firstIndex(where: { ($0["index"] as? Int) == targetIdx }) {
+                                self.selectedIndexs[idx] = action
+                            } else {
+                                self.selectedIndexs.append(action)
+                            }
+                        } else {
                             self.selectedIndexs.append(action)
                         }
-                    }
-                }
 
                 localPostArray["is_reacted"] = true
                 localPostArray["type"]  = reation
@@ -1483,14 +1427,20 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
     
     
     func sharePost() {
-        let vc = Storyboard.instantiateViewController(withIdentifier : "SharePostVC") as! SharePostController
-        vc.posts =  [self.postArray[self.selectedIndex]]
-        vc.modalTransitionStyle = .coverVertical
-        vc.modalPresentationStyle = .fullScreen
-        self.targetController.present(vc, animated: true, completion: nil)
+        let post = (self.selectedIndex >= 0 && self.selectedIndex < self.postArray.count) ? self.postArray[self.selectedIndex] : self.sharePostData
+        SharePostOnTimelineManager.sharedInstance.sharePost(post: post, presenter: self.targetController)
     }
     
     func sharePostTo(type:String) {
+        var presenter: UIViewController? = self.targetController
+        if presenter == nil {
+            presenter = UIApplication.shared.keyWindow?.rootViewController
+        }
+        while let presented = presenter?.presentedViewController {
+            presenter = presented
+        }
+        guard let topVC = presenter else { return }
+
         if (type == "group") || (type == "page"){
             let Storyboard = UIStoryboard(name: "GroupsAndPages", bundle: nil)
             let vc = Storyboard.instantiateViewController(withIdentifier : "MyGroups&PagesVC") as! MyGroupsandMyPagesController
@@ -1498,14 +1448,14 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
         else {
             let vc = Storyboard.instantiateViewController(withIdentifier : "SharePopUpVC") as! SharePopUpController
             vc.delegate = self
             vc.modalPresentationStyle = .overFullScreen
             vc.modalTransitionStyle = .crossDissolve
-            self.targetController.present(vc, animated: true, completion: nil)
+            topVC.present(vc, animated: true, completion: nil)
         }
     }
     
@@ -1542,14 +1492,18 @@ class GetPostMultiImage: AddReactionDelegate,SharePostDelegate,comment_CountsDel
         self.targetController.present(vc, animated: true, completion: nil)
     }
     func sharePostLink() {
-        var text = ""
-        if let postUrl =  self.postArray[selectedIndex]["url"] as? String{
-            text = postUrl
+        var postUrl = ""
+        if self.selectedIndex < self.postArray.count {
+            let post = self.postArray[self.selectedIndex]
+            postUrl = (post["url"] as? String) ?? ""
+            if postUrl.isEmpty {
+                let postId = (post["post_id"] as? String) ?? "\(post["post_id"] ?? "")"
+                if !postId.isEmpty && postId != "0" {
+                    postUrl = "\(APIClient.baseURl)/post/\(postId)"
+                }
+            }
         }
-        let textToShare = [ text ]
-        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityViewController.popoverPresentationController?.sourceView = self.targetController.view
-        self.targetController.present(activityViewController, animated: true, completion: nil)
+        self.targetController.presentShareActivity(postUrl: postUrl, sourceView: self.targetController.view)
     }
     @IBAction func More(sender: UIButton){
         var post_id: String? = nil

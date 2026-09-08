@@ -4,7 +4,7 @@ import UIKit
 
 class ShareController: UIViewController {
     
-    var delegate :SharePostDelegate!
+    weak var delegate : SharePostDelegate?
     
 
     @IBOutlet var timeLineBtn: UIButton!
@@ -29,29 +29,27 @@ class ShareController: UIViewController {
         if sender.tag == 0{
             print("Share to Timeline")
             self.dismiss(animated: true) {
-                self.delegate.sharePostTo(type: "timeline")
+                self.delegate?.sharePostTo(type: "timeline")
             }
         }
         else if sender.tag == 1{
             print("Share to Group")
             self.dismiss(animated: true) {
-                self.delegate.sharePostTo(type: "group")
+                self.delegate?.sharePostTo(type: "group")
             }
             
         }
         else if sender.tag == 2{
             print("Activity")
             self.dismiss(animated: true) {
-               self.delegate.sharePostLink()
+               self.delegate?.sharePostLink()
             }
         }
         else {
-            self.dismiss(animated: true) {
-              self.delegate.sharePostTo(type: "page")
-            }
-            self.delegate.sharePostTo(type: "page")
             print("Share to Page")
-
+            self.dismiss(animated: true) {
+              self.delegate?.sharePostTo(type: "page")
+            }
         }
         
     }

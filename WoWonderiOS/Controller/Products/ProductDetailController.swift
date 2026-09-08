@@ -360,7 +360,8 @@ extension ProductDetailController :UITableViewDelegate,UITableViewDataSource{
                 }
                 if let isreact  = reactions["is_reacted"] as? Bool {
                     if isreact == true{
-                        if let type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
+                        let type = "\(reactions["type"] ?? "")"
+                        if !type.isEmpty {
                             if type == "6"{
                                 cell.likeBtn.setImage(UIImage(named: "angry"), for: .normal)
                                 cell.likeBtn.setTitle("\(" ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)
@@ -563,20 +564,9 @@ extension ProductDetailController :UITableViewDelegate,UITableViewDataSource{
             self.view.makeToast(NSLocalizedString("Link copied to clipboard", comment: "Link copied to clipboard"))
         }))
         
-        alert.addAction(UIAlertAction(title: NSLocalizedString("Share", comment: "Share"), style: .default, handler: { (_) in
-            // text to share
-            let text = Url ?? ""
-            
-            // set up activity view controller
-            let textToShare = [ text ]
-            let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-            activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
-            
-            // exclude some activity types from the list (optional,)
-            activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-            
-            // present the view controller
-            self.present(activityViewController, animated: true, completion: nil)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Share", comment: "Share"), style: .default, handler: { [weak self] (_) in
+            guard let self = self else { return }
+            self.presentShareActivity(postUrl: Url ?? "", sourceView: self.view)
         }))
         
         alert.addAction(UIAlertAction(title: NSLocalizedString("Close", comment: "Close"), style: .cancel, handler: { (_) in

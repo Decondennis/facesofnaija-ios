@@ -92,8 +92,22 @@ class AddPostSectionTwoTableItem: UITableViewCell,UITextViewDelegate {
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        if (self.textView.text.isEmpty == true) || (self.textView.text == "") || (self.textView.text == " "){
-            self.textView.text = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
+        let placeholder = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
+        let trimmed = self.textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            self.textView.text = placeholder
+            self.vc?.postText = ""
+        } else {
+            self.vc?.postText = self.textView.text
+        }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        let placeholder = NSLocalizedString("What's going on?#Hashtag..@Mention", comment: "What's going on?#Hashtag..@Mention")
+        if textView.text != placeholder {
+            self.vc?.postText = textView.text
+        } else {
+            self.vc?.postText = ""
         }
     }
 

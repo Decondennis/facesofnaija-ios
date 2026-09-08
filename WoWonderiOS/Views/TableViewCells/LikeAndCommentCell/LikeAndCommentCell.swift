@@ -51,7 +51,8 @@ class LikeAndCommentCell: UITableViewCell,AddReactionDelegate{
         if let reactions = self.reaction as? [String:Any]{
             if let isreact  = reactions["is_reacted"] as? Bool {
                 if isreact == true{
-                    if let type = (reactions["type"] as? String) ?? ((reactions["type"] as? Int).map { "\($0)" }){
+                    let type = "\(reactions["type"] ?? "")"
+                    if !type.isEmpty {
                         if type == "6"{
                             self.likeBtn.setImage(UIImage(named: "angry"), for: .normal)
                             self.likeBtn.setTitle("\("      ")\(NSLocalizedString("Angry", comment: "Angry"))", for: .normal)

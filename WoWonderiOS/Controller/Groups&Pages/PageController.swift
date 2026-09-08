@@ -517,20 +517,7 @@ class PageController: UIViewController,EditPageDelegete,DeletePageDelegate,PageM
             }
         }
         else if type == "share"{
-            // text to share
-            let text = url
-            
-            // set up activity view controller
-            let textToShare = [ text ]
-            let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-            activityViewController.popoverPresentationController?.sourceView = self.view // so that iPads won't crash
-            
-            // exclude some activity types from the list (optional,)
-            activityViewController.excludedActivityTypes = [ UIActivity.ActivityType.airDrop, UIActivity.ActivityType.postToFacebook, UIActivity.ActivityType.assignToContact,UIActivity.ActivityType.mail,UIActivity.ActivityType.postToTwitter,UIActivity.ActivityType.message,UIActivity.ActivityType.postToFlickr,UIActivity.ActivityType.postToVimeo,UIActivity.ActivityType.init(rawValue: "net.whatsapp.WhatsApp.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.google.Gmail.ShareExtension"),UIActivity.ActivityType.init(rawValue: "com.toyopagroup.picaboo.share"),UIActivity.ActivityType.init(rawValue: "com.tinyspeck.chatlyio.share")]
-            
-            // present the view controller
-            self.present(activityViewController, animated: true, completion: nil)
-            
+            self.presentShareActivity(postUrl: url, sourceView: self.view)
         }
         else if type == "reviews"{
             let vc = Storyboard.instantiateViewController(withIdentifier: "PageReviewVC") as! PageReviewController

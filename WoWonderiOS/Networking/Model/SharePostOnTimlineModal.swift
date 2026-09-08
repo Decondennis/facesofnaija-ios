@@ -16,6 +16,23 @@ class SharePostOnTimlineModal{
             case apiStatus = "api_status"
             case errors
         }
+        
+        init(apiStatus: String, errors: Errors) {
+            self.apiStatus = apiStatus
+            self.errors = errors
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let stringStatus = try? container.decode(String.self, forKey: .apiStatus) {
+                self.apiStatus = stringStatus
+            } else if let intStatus = try? container.decode(Int.self, forKey: .apiStatus) {
+                self.apiStatus = "\(intStatus)"
+            } else {
+                self.apiStatus = "400"
+            }
+            self.errors = try container.decode(Errors.self, forKey: .errors)
+        }
     }
     
     // MARK: - Errors
@@ -27,13 +44,30 @@ class SharePostOnTimlineModal{
             case errorID = "error_id"
             case errorText = "error_text"
         }
+        
+        init(errorID: Int, errorText: String) {
+            self.errorID = errorID
+            self.errorText = errorText
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let intId = try? container.decode(Int.self, forKey: .errorID) {
+                self.errorID = intId
+            } else if let stringId = try? container.decode(String.self, forKey: .errorID) {
+                self.errorID = Int(stringId) ?? 0
+            } else {
+                self.errorID = 0
+            }
+            self.errorText = (try? container.decode(String.self, forKey: .errorText)) ?? ""
+        }
     }
 }
 extension SharePostOnTimlineModal.SharePostOnTimeline_SuccessModal{
     init(json :[String:Any]) {
-        let apiStatus = json["api_status"] as? Int
+        let apiStatus = (json["api_status"] as? Int) ?? Int((json["api_status"] as? String) ?? "") ?? 0
         let data = json["data"] as? [String:Any]
-        self.api_status = apiStatus ?? 0
+        self.api_status = apiStatus
         self.data = data ?? ["id" : "1234"]
     }
     
